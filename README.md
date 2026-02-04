@@ -6,26 +6,26 @@ An empirical analysis of asset quality and macroeconomic resilience in Ghana’s
 This project uses official macroeconomic and banking-sector data for Ghana from the following institutions:
 
 ### Banking & Financial Indicators
-- **Bank of Ghana (BoG)**  
-  - Policy Interest Rate (GHA_INR_1)  
-  - Exchange Rate, GHS/USD (GHA_EXR_1)  
-  - Monetary Aggregates (GHA_MAG_8)  
-  - Financial Soundness Indicators:
-    - Capital Adequacy Ratio (GHA_FSI_5)
-    - Return on Assets (GHA_FSI_2)
-    - Non-Performing Loans Ratio (GHA_FSI_1)
+**Bank of Ghana (BoG)**  
+  Policy Interest Rate (GHA_INR_1)  
+  Exchange Rate, GHS/USD (GHA_EXR_1)  
+  Monetary Aggregates (GHA_MAG_8)  
+  Financial Soundness Indicators:
+    Capital Adequacy Ratio (GHA_FSI_5)
+    Return on Assets (GHA_FSI_2)
+    Non-Performing Loans Ratio (GHA_FSI_1)
 
 ### Inflation
-- **Ghana Statistical Service (GSS)**  
-  - Consumer Price Index (GH_PRI_1)
+**Ghana Statistical Service (GSS)**  
+  Consumer Price Index (GH_PRI_1)
 
 ### Commodity Prices
-- **Reuters**
+**Reuters**
   - Gold Price, USD per fine ounce (GHA_CMP_06)
 
 ### Output / Economic Activity
-- **Ghana Statistical Service (GSS)**  
-  - Real Gross Domestic Product, quarterly (GHA_NAT_1)
+**Ghana Statistical Service (GSS)**  
+  Real Gross Domestic Product, quarterly (GHA_NAT_1)
 
 All monthly indicators are harmonized to a common monthly frequency. Quarterly GDP data is converted to monthly frequency using linear interpolation for analytical consistency.
 ---
@@ -42,3 +42,51 @@ All monthly indicators are harmonized to a common monthly frequency. Quarterly G
 | ROA | GHA_FSI_2 | Return on assets | % | Monthly | BoG |
 | NPL Ratio | GHA_FSI_1 | Non-performing loans ratio | % | Monthly | BoG |
 | Real GDP | GHA_NAT_1 | Real GDP (2013 prices) | GHC million | Quarterly | GSS |
+##  Exploratory Data Analysis (EDA)
+
+This section summarizes the key insights from the exploratory phase, focusing on the interaction between macroeconomic volatility and the resilience of Ghana’s banking sector.
+
+### 1. Macro-Financial Timeline & Structural Shocks
+
+The Non-Performing Loan (NPL) Ratio was analyzed alongside major macroeconomic and regulatory events:
+
+ **2017–2019 Banking Sector Cleanup:**  
+  A sharp spike in NPLs (peaking above 20%) reflects regulatory enforcement and the recognition of legacy bad debts following the Bank of Ghana–led sector cleanup. This period represents a transparency shock rather than a sudden deterioration in borrower fundamentals.
+
+ **COVID-19 Period (2020–2021):**  
+  Contrary to expectations, asset quality remained relatively stable. This likely reflects regulatory forbearance, loan restructuring programs, and swift policy interventions that cushioned borrowers and financial institutions.
+
+**2022–2023 Domestic Debt Crisis:**  
+  The Domestic Debt Exchange Programme (DDEP), combined with inflation exceeding 50%, represents the most severe macro-financial stress episode in the dataset, with renewed pressure on bank balance sheets and borrower repayment capacity.
+
+### 2. Monetary Policy & Inflation Dynamics
+
+Monetary policy conditions were examined by comparing the Monetary Policy Rate (MPR) with inflation dynamics:
+
+**Policy Discipline:**  
+  For much of the sample period, the central bank maintained positive real interest rates, supporting currency stability and anchoring inflation expectations.
+
+**2022 Policy Lag:**  
+  During the inflation surge of 2022, inflation significantly outpaced the policy rate, resulting in negative real interest rates. This environment placed pressure on bank margins and weakened borrower repayment capacity.
+
+### 3. Sectoral Health: Profitability vs. Capitalization
+
+To assess the structural resilience of the banking sector, profitability and capitalization indicators were analyzed:
+
+**Profitability (ROA):**  
+  Return on Assets is predominantly clustered between 3% and 5%, indicating that despite periods of elevated risk, the banking sector remained broadly profitable.
+
+**Solvency (CAR):**  
+  The Capital Adequacy Ratio remains well above the 13% regulatory minimum for most banks, suggesting that post-2017 reforms created a durable capital buffer against macroeconomic shocks.
+
+### 4. Correlation & Leading Indicators of Credit Risk
+
+Correlation and regression analysis were used to identify macro-financial drivers of asset quality:
+
+**Exchange Rate Channel:**  
+  USD/GHS depreciation exhibits the strongest positive relationship with NPL growth (R² ≈ 0.51), highlighting the role of foreign exchange exposure and imported inflation in credit risk transmission.
+
+**Growth as a Stabilizer:**  
+  Real GDP growth shows a consistent inverse relationship with NPLs, underscoring the counter-cyclical nature of credit risk and the importance of macroeconomic growth for financial stability.
+
+Overall, the EDA results motivate a formal modeling and stress-testing framework to quantify macroeconomic impacts on banking sector asset quality.
