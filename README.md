@@ -90,3 +90,83 @@ Correlation and regression analysis were used to identify macro-financial driver
   Real GDP growth shows a consistent inverse relationship with NPLs, underscoring the counter-cyclical nature of credit risk and the importance of macroeconomic growth for financial stability.
 
 Overall, the EDA results motivate a formal modeling and stress-testing framework to quantify macroeconomic impacts on banking sector asset quality.
+
+
+## Statistical Modeling & Macroeconomic Drivers of NPLs
+
+### Overview
+This section presents quantitative analysis of the macroeconomic variables that statistically drive Non-Performing Loan (NPLs) ratios in Ghana's banking sector. Using OLS regression, time series econometric modelling.
+
+**Analysis Period:** January 2010 – July 2025 (187 monthly observations)  
+**Model Specification:** OLS Multiple Regression with 8 macroeconomic regressors  
+**Model Performance:** R² = 0.597 (explains 59.7% of NPL variation), F-statistic = 32.96 (p < 0.001)
+
+% (further deterioration expected)
+
+### Primary Statistical Drivers of NPLs
+
+#### 1. **Inflation (Consumer Price Index)** 
+- **Correlation:** +0.584 (STRONGEST)
+- **Regression Coefficient:** +0.123 (p < 0.001) ✓ HIGHLY SIGNIFICANT
+- **Elasticity:** +1.23 pp NPL increase per 10-point CPI rise
+- **Mechanism:** Inflation erodes borrower real income and increases debt servicing burden
+- **Current CPI:** 259.1 (elevated risk)
+
+#### 2. **USD Exchange Rate Depreciation** 
+- **Correlation:** +0.554 (SECOND STRONGEST)
+- **Regression Coefficient:** -0.772 (p = 0.008) ✓ STATISTICALLY SIGNIFICANT
+- **Elasticity:** +0.77 pp NPL per 1 GHS/USD depreciation
+- **30% Depreciation Scenario:** +4.64 pp increase in NPL ratio
+- **Mechanism:** FX-exposed borrowers face margin compression; import costs surge; export revenues decline
+- **Current Rate:** 10.42 GHS/USD
+
+#### 3. **Return on Assets (ROA)** 
+- **Correlation:** -0.311 (ONLY NEGATIVE DRIVER)
+- **Regression Coefficient:** -1.290 (p < 0.001) ✓ HIGHLY SIGNIFICANT
+- **Elasticity:** -1.29 pp NPL reduction per 1% ROA increase
+- **Mechanism:** Profitable banks maintain stronger underwriting, active monitoring, and provisioning capacity
+- **Current ROA:** 5.59%
+
+#### 4. **Real GDP Growth** —
+- **Correlation:** +0.421 (moderate, counterintuitive)
+- **Regression Coefficient:** -0.0002 (p = 0.395) NOT SIGNIFICANT
+- **Interpretation:** Direct channel weak; effects operate through sectoral composition
+
+#### 5. **Monetary Policy Rate** 
+- **Correlation:** +0.453
+- **Regression Coefficient:** -0.030 (p = 0.678) NOT SIGNIFICANT
+- **Interpretation:** Works indirectly through growth/inflation channels; policy endogeneity
+
+#### 6. **Total Liquidity (M2+)** 
+- **Correlation:** +0.559
+- **Regression Coefficient:** 0.000009 (p = 0.337) NOT SIGNIFICANT
+- **Interpretation:** Reflects policy responses to crises rather than independent driver
+
+### Vector Autoregression (VAR)
+
+Impulse Response Functions (12-month horizon) reveal how shocks propagate through the financial system:
+
+**Exchange Rate Shock** 
+- Impact at 1 month: +0.25 pp NPL increase
+- Peak effect: Months 1–2
+- Duration: 12+ months with gradual decay
+- Severity: **CRITICAL**
+
+**NPL Shock (Persistence)** 
+- Impact at 1 month: +0.0175 pp persistence
+- Decay pattern: Sharp decline Months 1–3
+- Duration: 12+ months
+- Severity: **MODERATE**
+
+**Monetary Policy Shock** 
+- Impact at 1 month: -0.0157 pp
+- Pattern: Months 2–4 oscillation
+- Duration: Visible throughout 12-month window
+- Severity: **MODERATE**
+
+**GDP Shock** 
+- Impact at 1 month: -0.00018 pp (minimal)
+- Duration: Limited persistence
+- Severity: **LOW**
+
+
