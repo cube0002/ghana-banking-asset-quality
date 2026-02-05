@@ -95,52 +95,59 @@ Overall, the EDA results motivate a formal modeling and stress-testing framework
 ## Statistical Modeling & Macroeconomic Drivers of NPLs
 
 ### Overview
-This section presents quantitative analysis of the macroeconomic variables that statistically drive Non-Performing Loan (NPLs) ratios in Ghana's banking sector. Using OLS regression, time series econometric modelling.
+This study employs a two-stage econometric strategy to analyze the determinants and dynamic propagation of credit risk in Ghana’s banking sector. The modelling framework combines static regression analysis with dynamic multivariate time-series methods to ensure both interpretability and robustness.
 
-**Analysis Period:** January 2010 – July 2025 (187 monthly observations)  
-**Model Specification:** OLS Multiple Regression with 8 macroeconomic regressors  
+Beginning with a multivariate Ordinary Least Squares (OLS) regression to identify contemporaneous macro-financial drivers of banking sector asset quality.
+
+$$NPL_{t} = \alpha + \beta_{1}MPR_{t} + \beta_{2}CPI_{t} + \beta_{3}USD_{t} + \beta_{4}M2_{t} + \beta_{5}Gold_{t} + \beta_{6}GDP_{t} + \beta_{7}CAR_{t} + \beta_{8}ROA_{t} + \varepsilon_{t}$$
+
+Where:
+
+NPL = Non-Performing Loan Ratio
+
+MPR = Monetary Policy Rate
+
+CPI = Consumer Price Index (inflation proxy)
+
+USD = USD/GHS exchange rate
+
+M2 = Total liquidity
+
+Gold = Realised gold price
+
+GDP = Real GDP
+
+CAR = Capital Adequacy Ratio
+
+ROA = Return on Assets
+
+**Analysis Period:** January 2010 – July 2025 (187 monthly observations) 
 **Model Performance:** R² = 0.597 (explains 59.7% of NPL variation), F-statistic = 32.96 (p < 0.001)
 
 % (further deterioration expected)
 
-### Primary Statistical Drivers of NPLs
+**Statistically Significant Drivers (5% level):**
 
-#### 1. **Inflation (Consumer Price Index)** 
-- **Correlation:** +0.584 (STRONGEST)
-- **Regression Coefficient:** +0.123 (p < 0.001) ✓ HIGHLY SIGNIFICANT
-- **Elasticity:** +1.23 pp NPL increase per 10-point CPI rise
-- **Mechanism:** Inflation erodes borrower real income and increases debt servicing burden
-- **Current CPI:** 259.1 (elevated risk)
+Inflation (CPI): Positive and significant → inflation deteriorates asset quality
 
-#### 2. **USD Exchange Rate Depreciation** 
-- **Correlation:** +0.554 (SECOND STRONGEST)
-- **Regression Coefficient:** -0.772 (p = 0.008) ✓ STATISTICALLY SIGNIFICANT
-- **Elasticity:** +0.77 pp NPL per 1 GHS/USD depreciation
-- **30% Depreciation Scenario:** +4.64 pp increase in NPL ratio
-- **Mechanism:** FX-exposed borrowers face margin compression; import costs surge; export revenues decline
-- **Current Rate:** 10.42 GHS/USD
+Exchange Rate (USD/GHS): Significant → currency instability amplifies credit risk
 
-#### 3. **Return on Assets (ROA)** 
-- **Correlation:** -0.311 (ONLY NEGATIVE DRIVER)
-- **Regression Coefficient:** -1.290 (p < 0.001) ✓ HIGHLY SIGNIFICANT
-- **Elasticity:** -1.29 pp NPL reduction per 1% ROA increase
-- **Mechanism:** Profitable banks maintain stronger underwriting, active monitoring, and provisioning capacity
-- **Current ROA:** 5.59%
+Real GDP: Negative → economic growth improves loan performance
 
-#### 4. **Real GDP Growth** —
-- **Correlation:** +0.421 (moderate, counterintuitive)
-- **Regression Coefficient:** -0.0002 (p = 0.395) NOT SIGNIFICANT
-- **Interpretation:** Direct channel weak; effects operate through sectoral composition
+Gold Prices: Negative → safe-haven effects and portfolio rebalancing
 
-#### 5. **Monetary Policy Rate** 
-- **Correlation:** +0.453
-- **Regression Coefficient:** -0.030 (p = 0.678) NOT SIGNIFICANT
-- **Interpretation:** Works indirectly through growth/inflation channels; policy endogeneity
+ROA: Strong negative effect → profitable banks manage credit risk better
 
-#### 6. **Total Liquidity (M2+)** 
-- **Correlation:** +0.559
-- **Regression Coefficient:** 0.000009 (p = 0.337) NOT SIGNIFICANT
-- **Interpretation:** Reflects policy responses to crises rather than independent driver
+Non-significant variables:
+Monetary Policy Rate, Total Liquidity (M2+), Capital Adequacy Ratio
+
+Diagnostic Notes
+
+Durbin-Watson ≈ 0.40 indicates serial correlation, motivating dynamic modelling.
+
+High condition number suggests multicollinearity, expected in macroeconomic systems.
+
+Residuals exhibit non-normality, reinforcing the need for time-series methods.
 
 ### Vector Autoregression (VAR)
 
@@ -169,4 +176,83 @@ Impulse Response Functions (12-month horizon) reveal how shocks propagate throug
 - Duration: Limited persistence
 - Severity: **LOW**
 
+## Stress Testing & Scenario Analysis
+**Overview**
 
+Following the identification of key macroeconomic drivers and their dynamic interactions, a forward-looking stress testing framework is implemented to quantify the vulnerability of Ghana’s banking sector asset quality under adverse but plausible macro-financial scenarios.
+
+Stress testing is conducted in a separate notebook to ensure modularity and conceptual separation from the econometric modeling stage. While the VAR framework captures dynamic shock propagation, the stress tests translate macroeconomic stress into levels of NPL ratios, which are directly relevant for supervisory and policy analysis.
+
+**Methodology**
+A reduced form predictive model is estimated using macroeconomic variables identified as economically and statistically relevant in prior analysis. To ensure comparability across drivers, all regressors are standardized prior to estimation.
+
+The stress testing relationship can be summarized as:
+
+NPLₜ = f(MPRₜ, USDₜ, CPIₜ, GDPₜ)
+
+Where:
+
+MPR – Monetary Policy Rate (financing cost channel)
+
+USD – USD/GHS exchange rate (currency mismatch and imported inflation)
+
+CPI – Consumer Price Index (macroeconomic instability proxy)
+
+GDP – Real Gross Domestic Product (repayment capacity channel)
+
+The model is calibrated using historical data and evaluated under counterfactual macroeconomic scenarios relative to the most recent observed conditions.
+
+**Stress Scenarios**
+
+Four macro-financial scenarios are considered:
+
+Baseline
+Continuation of prevailing macroeconomic conditions.
+
+Moderate Monetary Tightening
+A policy-induced increase in interest rates combined with mild output deceleration.
+
+Severe Currency Crisis
+Sharp exchange-rate depreciation accompanied by elevated inflation and tighter monetary conditions.
+
+Severe Economic Recession
+A significant contraction in real economic activity with weaker price pressures.
+
+## Stress Test Results
+
+| Scenario | Predicted NPL (%) | Δ vs Current (pp) | vs Baseline (pp) |
+| :--- | :---: | :---: | :---: |
+| **Baseline** | 24.39 | +2.65 | 0.00 |
+| **Moderate Tightening** | 25.26 | +3.52 | +0.87 |
+| **Severe Currency Crisis** | 27.21 | +5.47 | +2.82 |
+| **Severe Recession** | 24.89 | +3.15 | +0.50 |
+
+Interpretation of Stress Outcomes
+
+Key findings from the stress tests are as follows:
+
+Exchange Rate Dominance
+The Severe Currency Crisis scenario produces the largest deterioration in asset quality, confirming the exchange-rate channel as the most critical driver of systemic credit risk.
+
+Monetary Tightening Effects
+Interest rate increases materially worsen loan performance through higher debt servicing costs, though the effect is smaller than under currency stress.
+
+Growth Sensitivity
+Economic contractions increase NPLs, but their impact is more moderate unless combined with financial instability.
+
+Baseline Vulnerability
+Even under baseline conditions, predicted NPL levels remain elevated, suggesting persistent structural fragilities despite post-2017 banking sector reforms.
+
+**Conclusion**
+
+This study provides an empirical assessment of asset quality dynamics and macroeconomic resilience in Ghana’s banking sector over the period 2010–2025. By integrating exploratory data analysis, multivariate regression, dynamic VAR modelling, and scenario-based stress testing, the analysis offers both structural and forward-looking insights into the drivers of non-performing loans (NPLs).
+
+The results confirm that macroeconomic instability is the dominant transmission channel for credit risk in Ghana. Exchange rate depreciation and inflation emerge as the most statistically and economically significant drivers of NPL deterioration, while real economic growth plays a stabilising role. Profitability (ROA) is shown to materially mitigate credit risk, highlighting the importance of internal bank strength alongside macroeconomic conditions.
+
+Dynamic analysis using Vector Autoregression reveals strong shock persistence, particularly from exchange rate disturbances, which generate immediate and prolonged increases in NPLs. In contrast, monetary policy shocks exhibit more moderate and transitory effects, while GDP shocks have comparatively limited short-run impact. These findings underscore the asymmetric nature of macro-financial shock propagation in a small open economy with high import dependence and foreign-currency exposure.
+
+The stress testing framework reinforces these conclusions. Under severe but plausible macroeconomic scenarios, especially a currency crisis, the banking sector experiences substantial increases in predicted NPL ratios relative to both current conditions and baseline expectations. While post-2017 regulatory reforms have strengthened capital buffers, the results indicate that systemic vulnerability remains closely tied to external and inflationary shocks.
+
+
+### Project status: Complete
+*Last updated: 05/01/26*
