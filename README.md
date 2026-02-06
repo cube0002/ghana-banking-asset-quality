@@ -231,16 +231,16 @@ Interpretation of Stress Outcomes
 
 Key findings from the stress tests are as follows:
 
-Exchange Rate Dominance
+Exchange Rate Dominance:
 The Severe Currency Crisis scenario produces the largest deterioration in asset quality, confirming the exchange-rate channel as the most critical driver of systemic credit risk.
 
-Monetary Tightening Effects
+Monetary Tightening Effects:
 Interest rate increases materially worsen loan performance through higher debt servicing costs, though the effect is smaller than under currency stress.
 
-Growth Sensitivity
+Growth Sensitivity":
 Economic contractions increase NPLs, but their impact is more moderate unless combined with financial instability.
 
-Baseline Vulnerability
+Baseline Vulnerability:
 Even under baseline conditions, predicted NPL levels remain elevated, suggesting persistent structural fragilities despite post-2017 banking sector reforms.
 
 **Conclusion**
