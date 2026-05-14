@@ -1,7 +1,255 @@
-# Ghana-banking-asset-quality
-An empirical analysis of asset quality and macroeconomic resilience in Ghana’s banking sector (2010–2025)
-=======
-## Data Sources
+# Ghana Banking Asset Quality Analysis
+
+[![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/downloads/)
+[![Tests](https://img.shields.io/badge/tests-passing-green)](tests/)
+[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
+Analyzing what drives non-performing loans in Ghana's banking sector over 2010-2025. 
+## Getting Started
+
+### Install
+
+```bash
+git clone https://github.com/cube0002/ghana-banking-analysis.git
+cd ghana-banking-analysis
+
+# Simple installation
+pip install -e .
+
+# With development tools (testing, linting)
+pip install -e ".[dev]"
+```
+
+### Quick Example
+
+```python
+from ghana_banking.data import load_banking_data
+from ghana_banking.modeling import OLSModel
+from ghana_banking.plotting import plot_npl_timeline
+import matplotlib.pyplot as plt
+
+# Load the data (handles quarterly→monthly interpolation automatically)
+df = load_banking_data()
+
+# Run a quick regression
+model = OLSModel()
+model.fit(df, 'Non Performing Loan Ratio', 
+          ['Monetary Policy Rate (%)', 'GDP_Real', 'USD Exchange Rate, monthly averages'])
+print(model.summary())
+
+# Plot the NPL timeline
+plot_npl_timeline(df)
+plt.show()
+```
+
+### Test Everything
+
+```bash
+pytest tests/ -v              # Run all tests
+pytest tests/test_data.py -v  # Just data tests
+pytest tests/ --cov           # Show code coverage
+```
+
+### Run Notebooks
+
+The Jupyter notebooks in `notebooks/` now import from the package instead of copy-pasting code:
+
+```bash
+jupyter lab notebooks/
+```
+
+---
+
+## What's Inside
+
+```
+src/ghana_banking/
+├── data/
+│   └── loaders.py              # Load CSVs, harmonize frequencies
+├── modeling/
+│   ├── regression.py           # OLS: What variables matter?
+│   ├── var_model.py            # VAR: How do shocks spread?
+│   └── stress_test.py          # Scenarios: What if?
+└── plotting/
+    ├── timeseries.py           # Timeline plots with events
+    └── diagnostics.py          # Check if models are reasonable
+
+tests/                           # Unit tests for everything
+notebooks/                       # Jupyter analysis
+data/raw/                        # Original CSV files
+```
+
+---
+
+## Using the Package
+
+### Data Loading
+
+**`load_banking_data()`** - Load everything you need
+
+```python
+from ghana_banking.data import load_banking_data
+
+df = load_banking_data()  # Returns monthly data, 2010-2025
+# Automatically handles BoG monthly data + GSS quarterly GDP
+# Interpolates GDP to monthly, merges everything, ready to analyze
+```
+
+**`standardize_features()`** - Normalize for machine learning
+
+```python
+from ghana_banking.data import standardize_features
+
+df_std = standardize_features(df, cols=['NPL_Ratio', 'Rate'])
+# Mean ~0, std ~1, good for sklearn algorithms
+```
+
+### Regression (`ghana_banking.modeling.regression`)
+
+**`OLSModel`** - Understand what drives NPLs
+
+```python
+from ghana_banking.modeling import OLSModel
+
+model = OLSModel()
+model.fit(df, 'Non Performing Loan Ratio', 
+          ['Policy Rate (%)', 'GDP_Real', 'CPI'])
+
+# See the regression table
+print(model.summary())
+
+# Which variables actually matter? (p-value < 0.05)
+print(model.get_coefficients())
+
+# How good is the model?
+print(model.get_diagnostics())
+
+# Make predictions
+predictions = model.predict(df)
+```
+
+### Shock Analysis (`ghana_banking.modeling.var_model`)
+
+**`VARModel`** - See how shocks ripple through the system
+
+```python
+from ghana_banking.modeling import VARModel
+
+model = VARModel(lags=2)
+model.fit(df[['NPL_Ratio', 'Policy_Rate', 'GDP_Real']])
+
+# How does a 1% shock to Policy Rate affect NPL over 12 months?
+irf = model.impulse_responses(periods=12)
+
+# What's the forecast?
+forecast = model.forecast(df.iloc[-2:], steps=6)
+```
+
+### Stress Testing (`ghana_banking.modeling.stress_test`)
+
+**`StressTest`** - "What if" scenarios
+
+```python
+from ghana_banking.modeling import StressTest
+
+st = StressTest(df, 'Non Performing Loan Ratio',
+                ['Policy_Rate', 'GDP_Real', 'CPI'])
+
+# Run scenarios
+scenarios = {
+    'Baseline': {'Policy_Rate': 20, 'GDP_Real': 1500, 'CPI': 110},
+    'Currency Crisis': {'Policy_Rate': 35, 'GDP_Real': 1200, 'CPI': 150}
+}
+
+results = st.run_scenarios(scenarios)
+print(results)  # NPL could hit 28% in crisis vs 16% baseline
+
+# Sensitivity: How much does 10% GDP shock hurt?
+sensitivity = st.sensitivity_analysis(
+    base={'Policy_Rate': 20, 'GDP_Real': 1500, 'CPI': 110},
+    variable='GDP_Real',
+    range_pct=0.1
+)
+```
+
+### Plotting (`ghana_banking.plotting`)
+
+```python
+from ghana_banking.plotting import (
+    plot_npl_timeline,      # NPL with events annotated
+    plot_dual_axis,         # Two vars on different scales
+    plot_correlation_heatmap,  # Correlation matrix
+    plot_distributions,     # Histograms
+    plot_residuals,         # 4-panel diagnostics
+    plot_acf_pacf,          # Autocorrelation
+    plot_stress_results     # Scenario comparison
+)
+
+plot_npl_timeline(df)  # Shows IMF, COVID, elections
+plot_residuals(ols_model.results)  # Check if model is reasonable
+```
+
+---
+
+## The Data
+
+| Variable | What It Is | Why It Matters |
+|----------|-----------|-----------------|
+| **NPL Ratio** | Bad loans / Total loans | Main health indicator |
+| **Policy Rate** | Central bank rate | Cost of credit |
+| **CPI** | Inflation | Borrower's ability to repay |
+| **Exchange Rate** | GHS per USD | Dollar debt burden |
+| **GDP** | Economic output | Overall health |
+| **CAR** | Bank's capital buffer | Resilience |
+| **ROA** | Bank profits | Health & profitability |
+
+Sources: Bank of Ghana, Ghana Statistical Service, World Bank
+
+---
+
+## Contributing
+
+Found a bug? Have an idea? Send a pull request.
+
+```bash
+# Development workflow
+pip install -e ".[dev]"   # Install dev tools
+pytest tests/ -v           # Run tests
+black src/ tests/          # Format code
+flake8 src/ tests/         # Check code quality
+```
+
+---
+
+## Roadmap
+
+Potential additions:
+- CLI tool for forecasting
+- REST API (Flask/FastAPI)
+- Interactive dashboard (Streamlit)
+- Publish to PyPI
+- Real-time data monitoring
+
+---
+
+## License
+
+MIT - Use it, modify it, share it. See [LICENSE](LICENSE) for details.
+
+---
+
+## Citation
+
+If this work is useful to you, cite it:
+
+```bibtex
+@software{ghana_banking_2025,
+  title={Ghana Banking Asset Quality Analysis},
+  author={Kwame Ansere-Mensah},
+  year={2025},
+  url={https://github.com/cube0002/ghana-banking-asset-quality}
+}
+```
 
 This project uses official macroeconomic and banking-sector data for Ghana from the following institutions:
 
