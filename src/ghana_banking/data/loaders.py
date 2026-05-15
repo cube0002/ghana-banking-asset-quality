@@ -140,9 +140,9 @@ def handle_missing_values(df: pd.DataFrame, method: str = 'forward_fill') -> pd.
     df_copy = df.copy()
     
     if method == 'forward_fill':
-        df_copy = df_copy.fillna(method='ffill')
+         df_copy = df_copy.ffill()
     elif method == 'backward_fill':
-        df_copy = df_copy.fillna(method='bfill')
+        df_copy = df_copy.bfill()
     elif method == 'interpolate':
         df_copy = df_copy.interpolate(method='linear')
     else:
