@@ -112,7 +112,6 @@ class VARModel:
             irf = model.impulse_responses(periods=12)
             # Shape: (13, 3, 3) - 13 time periods, 3 x 3 shock matrix
         """
-        """
         if self.results is None:
             raise ValueError("Model not yet fitted. Call fit() first.")
         
