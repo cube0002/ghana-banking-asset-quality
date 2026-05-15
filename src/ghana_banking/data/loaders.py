@@ -1,5 +1,5 @@
 """Load and prepare Ghana banking sector data.
-
+from __future__ import annotations
 Combines monthly banking indicators from BoG with quarterly GDP from GSS.
 The tricky part: GDP is quarterly, everything else is monthly. We interpolate
 GDP to get a consistent monthly dataset.
