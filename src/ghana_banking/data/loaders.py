@@ -4,7 +4,7 @@ Combines monthly banking indicators from BoG with quarterly GDP from GSS.
 The tricky part: GDP is quarterly, everything else is monthly. We interpolate
 GDP to get a consistent monthly dataset.
 """
-
+from __future__ import annotations
 import pandas as pd
 import numpy as np
 from pathlib import Path
