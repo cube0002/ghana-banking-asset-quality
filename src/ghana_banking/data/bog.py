@@ -21,6 +21,19 @@ import pandas as pd
 
 
 _BOG_FSI_TABLE_PATH = "Search Bar/-/financial_sector_soundness.px"
+FSI_INDICATOR_LABELS = {
+    "CAR": "Capital Adequacy Ratio",
+    "CDR": "Credit to Deposits",
+    "CLASTL": "Core Liquid Assets to Short-term Liabilities",
+    "CLATA": "Core Liquid Assets to Total Assets",
+    "NPL": "Non-Performing Loans",
+    "OC_I": "Operational Cost/Income",
+    "ROA": "Return on Assets - Before Tax",
+    "ROE": "Return on Equity - After Tax",
+    "TCGIR": "Total Cost to Gross Income Ratio",
+}
+
+
 DEFAULT_BOG_FSI_API_URL = (
     "https://statsbank.statsghana.gov.gh:443/api/v1/en/"
     + quote(_BOG_FSI_TABLE_PATH, safe="/")
