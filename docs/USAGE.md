@@ -20,7 +20,7 @@ The GitHub Actions workflow supports manual refresh and a weekly schedule. Add r
 
 ### Refresh Bank of Ghana financial soundness indicators (experimental)
 
-The Bank of Ghana's monthly financial soundness indicators are published in the GSS StatsBank [Financial Sector Soundness table](https://statsbank.statsghana.gov.gh/pxweb/en/Search%20Bar/-/financial_sector_soundness.px/). The table exposes nine indicator codes: CAR, CDR, CLASTL, CLATA, NPL, OC_I, ROA, ROE and TCGIR. The connector maps those codes to readable indicator labels.
+The Bank of Ghana's monthly financial soundness indicators are published in the GSS StatsBank [Financial Soundness Indicators table](https://statsbank.statsghana.gov.gh/pxweb/en/Search%20Bar/-/fin_sound.px/). This table contains eight indicators and currently lists observations through June 2024. A separate nine-indicator table stops at December 2023, so I target the newer table.
 
 Run the connector manually:
 
@@ -28,7 +28,7 @@ Run the connector manually:
 PYTHONPATH=src python -m ghana_banking.data.bog --raw-data-path data/raw
 ```
 
-It reads the table metadata, selects the monthly time dimension and indicator dimension, maps the published indicator codes to readable labels, and writes long-format observations to `data/raw/bog_financial_soundness.csv`. It does not overwrite `data_first.csv` or `data_first2.csv`. The connector is experimental until its live API response is retrieved and reconciled with the BoG publication. The StatsBank page advertises 216 monthly periods from January 2006; check the latest returned month rather than assuming the mirror is up to date. BoG reports that CAR from April 2023 is adjusted for regulatory reliefs, so the CAR series has a documented comparability break. The GSS StatsBank table is a publication route; the original data source is the Bank of Ghana.
+It reads the table metadata, selects the monthly time dimension and indicator dimension, maps the published indicator codes to readable labels, and writes long-format observations to `data/raw/bog_financial_soundness.csv`. It does not overwrite `data_first.csv` or `data_first2.csv`. The connector is experimental until its live API response is retrieved and reconciled with the BoG publication. The selected StatsBank page advertises 222 monthly periods from January 2006 through June 2024; check the latest returned month rather than assuming the mirror is up to date. BoG reports that CAR from April 2023 is adjusted for regulatory reliefs, so the CAR series has a documented comparability break. The GSS StatsBank table is a publication route; the original data source is the Bank of Ghana.
 
 ### Refresh quarterly GDP directly from GSS StatsBank (experimental)
 
