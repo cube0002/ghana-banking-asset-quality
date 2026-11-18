@@ -199,36 +199,49 @@ class VARModel:
         return str(self.results.summary())
     
     def get_lag_order(self, maxlags: int = 8) -> dict:
-        """Find the best number of lags to use.
-        
-        Tests different lag lengths and shows which is optimal
-        according to AIC and BIC criteria.
-        
+        """Compare VAR lag orders using standard information criteria.
+
+        Returned criterion values are selected lag counts, not raw
+        information-criterion scores. Selection is conditional on the data
+        and transformations used when fitting this model.
+
         Args:
-            maxlags: Test up to this many lags
-        
+            maxlags: Largest lag order to evaluate.
+
         Returns:
-            Information criteria for each lag option
-        
+            Selected lag counts for AIC, BIC, FPE and HQIC, including a
+            nested selected_orders mapping.
+
         Example:
-            lag_results = model.get_lag_order(maxlags=12)
-            # BIC usually picks the most parsimonious model
+            selection = model.get_lag_order(maxlags=12)
+            print(selection["selected_orders"])
         """
         if self.var_data is None:
             raise ValueError("Model not yet fitted. Call fit() first.")
-        
-        var_model = StatsmodelsVAR(self.var_data)
-        lag_order = var_model.select_order(maxlags=maxlags)
-        
+        if not isinstance(maxlags, int) or maxlags < 1:
+            raise ValueError("maxlags must be a positive integer.")
+
+        n_obs, n_vars = self.var_data.shape
+        # Statsmodels' upper bound for estimating a VAR with a constant.
+        max_estimable = (n_obs - n_vars - 1) // (n_vars + 1)
+        if maxlags > max_estimable:
+            raise ValueError(
+                f"maxlags={maxlags} is too large for {n_obs} observations "
+                f"and {n_vars} variables; use maxlags <= {max_estimable}."
+            )
+
+        selection = StatsmodelsVAR(self.var_data).select_order(maxlags=maxlags)
+        selected = dict(selection.selected_orders)
+
         return {
-            'aic': lag_order.aic,
-            'bic': lag_order.bic,
-            'fpe': lag_order.fpe,
-            'hqic': lag_order.hqic,
-            'selected_aic': lag_order.aic,
-            'selected_bic': lag_order.bic
+            "aic": selected["aic"],
+            "bic": selected["bic"],
+            "fpe": selected["fpe"],
+            "hqic": selected["hqic"],
+            "selected_orders": selected,
+            "maxlags_evaluated": maxlags,
         }
-    
+
     def get_diagnostics(self, whiteness_lags: Optional[int] = None) -> dict:
         """Return stability, residual-whiteness and normality diagnostics.
 
