@@ -171,7 +171,7 @@ def _parse_bog_fsi_csv(payload: bytes) -> pd.DataFrame:
         canonical_labels = canonical_labels.mask(indicator_codes == code, label)
 
     result = pd.DataFrame({
-        "Month": frame[month_col].astype(str).str.extract(r"(\\d{4}M\\d{2})", expand=False),
+        "Month": frame[month_col].astype(str).str.extract(r"(\d{4}M\d{2})", expand=False),
         "Indicator Code": indicator_codes,
         "Indicator": canonical_labels,
         "Value": pd.to_numeric(frame[value_col], errors="coerce"),
