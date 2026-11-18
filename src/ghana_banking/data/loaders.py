@@ -109,6 +109,47 @@ def load_banking_data(raw_data_path: Optional[str] = None) -> pd.DataFrame:
     return master_df
 
 
+def load_quarterly_gdp(raw_data_path: Optional[str] = None) -> pd.DataFrame:
+    """Load real GDP at its original quarterly frequency.
+
+    Unlike ``load_banking_data``, this function does not interpolate GDP to
+    monthly dates. It preserves the source frequency for quarterly analysis.
+
+    Returns
+    -------
+    pandas.DataFrame
+        A one-column dataframe indexed by a quarterly PeriodIndex.
+    """
+    if raw_data_path is None:
+        raw_data_path = Path(__file__).resolve().parents[3] / "data" / "raw"
+    else:
+        raw_data_path = Path(raw_data_path)
+
+    gdp_file = raw_data_path / "data_first2.csv"
+    if not gdp_file.is_file():
+        raise FileNotFoundError(f"GDP data file not found: {gdp_file}")
+
+    source = pd.read_csv(gdp_file)
+    required = {
+        "Name of Series",
+        "Gross Domestic Product (GDP), production, real",
+    }
+    if not required.issubset(source.columns):
+        raise ValueError("GDP source is missing its expected date or GDP column.")
+
+    quarters = source["Name of Series"].astype(str).str.extract(
+        r"(\\d{4}Q[1-4])", expand=False
+    )
+    values = pd.to_numeric(
+        source["Gross Domestic Product (GDP), production, real"],
+        errors="coerce",
+    )
+    result = pd.DataFrame({"Quarter": quarters, "GDP_Real": values})
+    result = result.dropna(subset=["Quarter", "GDP_Real"])
+    result["Quarter"] = pd.PeriodIndex(result["Quarter"], freq="Q")
+    result = result.sort_values("Quarter").drop_duplicates("Quarter")
+    return result.set_index("Quarter")[["GDP_Real"]]
+
 def interpolate_quarterly_to_monthly(
     quarterly_series: pd.Series,
     method: str = "linear",
