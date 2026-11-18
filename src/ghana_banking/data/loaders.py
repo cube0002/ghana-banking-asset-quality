@@ -150,6 +150,7 @@ def load_quarterly_gdp(raw_data_path: Optional[str] = None) -> pd.DataFrame:
     result = result.sort_values("Quarter").drop_duplicates("Quarter")
     return result.set_index("Quarter")[["GDP_Real"]]
 
+
 def interpolate_quarterly_to_monthly(
     quarterly_series: pd.Series,
     method: str = "linear",
