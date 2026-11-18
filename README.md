@@ -42,7 +42,7 @@ See data/README.md for the variable dictionary and source notes.
 
 ### Frequency and measurement
 
-Most banking and macro-financial series are monthly, while real GDP is quarterly. The current preparation workflow converts quarterly GDP to a monthly index by linear interpolation so that it can be aligned with monthly indicators. Those interpolated values are estimates between quarterly observations; they are **not observed monthly GDP**. This choice should be considered when interpreting monthly regression or VAR results. A more complete macroeconomic study would compare this approach with quarterly modelling or a documented temporal-disaggregation method.
+Most banking and macro-financial series are monthly, while real GDP is quarterly. The current monthly preparation workflow converts quarterly GDP to a monthly index by linear interpolation so that it can be aligned with monthly indicators. Those interpolated values are estimates between quarterly observations; they are **not observed monthly GDP**. I have also added `load_quarterly_gdp()` to preserve the original quarterly observations for analysis at their source frequency. This allows me to compare a quarterly specification with monthly workflows rather than treating interpolated GDP as genuine monthly information.
 
 The raw monthly file also contains missing values for some indicators near the end of the sample. Estimation samples should therefore be reported for each model rather than assumed to be identical.
 
@@ -145,6 +145,7 @@ I am currently prioritising:
 - reproducing the notebooks from a clean environment;
 - validating the data-loading and transformation steps;
 - testing stationarity, serial correlation, stability and other time-series assumptions;
+- comparing monthly and quarterly specifications, especially where GDP is involved;
 - comparing VAR specifications and making impulse-response identification explicit;
 - improving the scenario model with chronological validation and uncertainty estimates.
 
