@@ -27,8 +27,8 @@ DEFAULT_GSS_GDP_API_URL = (
     "https://statsbank.statsghana.gov.gh:443/api/v1/en/"
     + quote(_GSS_TABLE_PATH, safe="/")
 )
-GDP_SERIES_TERMS = ("real", "2013")
-GDP_TOTAL_TERMS = ("overall", "total")
+GDP_SERIES_LABELS = {"real gdp (constant 2013 prices)"}
+GDP_TOTAL_LABELS = {"total gdp", "overall gdp"}
 
 
 def _request_bytes(url: str, data: bytes = None, timeout: int = 60) -> bytes:
@@ -67,9 +67,9 @@ def build_gss_gdp_query(metadata: Dict) -> Dict:
         labels = variable.get("valueTexts", values)
         for value, label in zip(values, labels):
             combined = (str(label) + " " + str(value)).lower()
-            if all(term in combined for term in GDP_SERIES_TERMS):
+            if label_text.strip() in GDP_SERIES_LABELS or value_text.strip() in GDP_SERIES_LABELS:
                 matched_series.append((variable.get("code"), value))
-            if any(term in combined for term in GDP_TOTAL_TERMS):
+            if label_text.strip() in GDP_TOTAL_LABELS or value_text.strip() in GDP_TOTAL_LABELS:
                 matched_total.append((variable.get("code"), value))
 
     if len(matched_series) != 1:
