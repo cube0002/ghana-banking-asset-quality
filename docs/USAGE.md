@@ -28,7 +28,7 @@ Run it manually:
 PYTHONPATH=src python -m ghana_banking.data.gss --raw-data-path data/raw
 ```
 
-The connector writes the normalised quarterly observations to `data/raw/data_first2.csv` and refuses to replace a newer local file with older data. The live GSS API response has not yet been validated end to end, so treat this as experimental until a manual run succeeds and the returned values are reconciled with the published GSS table. It is not currently part of the scheduled refresh workflow.
+The connector writes the normalised quarterly observations to `data/raw/data_first2.csv`, preserves GSS's provisional (`**`) and revised (`*`) observation flags in an `Observation Status` column, and refuses to replace a newer local file with older data. The live GSS API response has not yet been validated end to end, so treat this as experimental until a manual run succeeds and the returned values are reconciled with the published GSS table. It is not currently part of the scheduled refresh workflow.
 
 ## Load the prepared data
 
