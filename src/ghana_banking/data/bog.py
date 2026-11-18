@@ -145,20 +145,18 @@ def _parse_bog_fsi_csv(payload: bytes) -> pd.DataFrame:
         re.sub(r"[^a-z0-9]+", " ", value.lower()).strip()
         for value in result["Indicator"].unique()
     }
-    required_indicators = {
-        "capital adequacy ratio",
-        "non performing loan ratio",
-        "return on assets roa before tax",
+    required_prefixes = {
+        "capital adequacy ratio": lambda value: value.startswith("capital adequacy ratio"),
+        "non performing loans": lambda value: value.startswith("non performing loan"),
+        "return on assets": lambda value: value.startswith("return on assets"),
     }
-    # The provider's displayed ROA label may omit the parenthetical mnemonic.
-    has_roa = any(value.startswith("return on assets") for value in normalized_indicators)
-    missing = required_indicators.difference(normalized_indicators)
-    missing.discard("return on assets roa before tax")
-    if missing or not has_roa:
+    missing = [
+        label for label, matches in required_prefixes.items()
+        if not any(matches(value) for value in normalized_indicators)
+    ]
+    if missing:
         raise ValueError(
-            "FSI response is missing required core indicators: {}".format(
-                sorted(missing | (set() if has_roa else {"return on assets"}))
-            )
+            "FSI response is missing required core indicators: {}".format(missing)
         )
 
     result = result.sort_values(["Month", "Indicator"])
