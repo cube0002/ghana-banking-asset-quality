@@ -228,6 +228,37 @@ def fetch_bog_financial_soundness(
     return _parse_bog_fsi_csv(payload)
 
 
+
+def load_bog_summary_snapshot(path: str) -> pd.DataFrame:
+    """Load and validate the manually transcribed BoG monthly summary snapshot.
+
+    The source PDF and publication date are retained on every row. This is a
+    publication snapshot, not an automated live feed.
+    """
+    frame = pd.read_csv(path)
+    required = {
+        "Date", "Indicator Code", "Indicator", "Value", "Unit",
+        "Publication Date", "Source URL",
+    }
+    missing = required.difference(frame.columns)
+    if missing:
+        raise ValueError("BoG summary snapshot is missing columns: {}".format(sorted(missing)))
+
+    frame["Date"] = pd.to_datetime(frame["Date"], errors="coerce")
+    frame["Publication Date"] = pd.to_datetime(
+        frame["Publication Date"], errors="coerce"
+    )
+    frame["Value"] = pd.to_numeric(frame["Value"], errors="coerce")
+    if frame[["Date", "Publication Date", "Value"]].isna().any().any():
+        raise ValueError("BoG summary snapshot contains invalid dates or values.")
+    if frame.duplicated(["Date", "Indicator Code"]).any():
+        raise ValueError("BoG summary snapshot contains duplicate date-indicator rows.")
+    if frame["Source URL"].isna().any() or (frame["Source URL"].str.strip() == "").any():
+        raise ValueError("BoG summary snapshot must retain a source URL for every row.")
+
+    return frame.sort_values(["Date", "Indicator Code"]).reset_index(drop=True)
+
+
 def update_bog_financial_soundness(
     raw_data_path: str = None, api_url: str = None, timeout: int = 60
 ) -> Dict[str, str]:
