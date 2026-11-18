@@ -18,6 +18,18 @@ The GitHub Actions workflow supports manual refresh and a weekly schedule. Add r
 
 **Current limitation:** the refresh mechanism is ready, but the provider export URLs still need to be configured. It does not yet connect to a live Bank of Ghana or Ghana Statistical Service API, and it cannot promise real-time updates where the providers publish data periodically.
 
+### Refresh quarterly GDP directly from GSS StatsBank (experimental)
+
+I have added a separate PxWeb connector for the GSS quarterly GDP table. It first reads the table metadata, identifies the time dimension and the real-GDP/total categories, then requests the observations. It deliberately stops if the provider's metadata is ambiguous.
+
+Run it manually:
+
+```bash
+PYTHONPATH=src python -m ghana_banking.data.gss --raw-data-path data/raw
+```
+
+The connector writes the normalised quarterly observations to `data/raw/data_first2.csv` and refuses to replace a newer local file with older data. The live GSS API response has not yet been validated end to end, so treat this as experimental until a manual run succeeds and the returned values are reconciled with the published GSS table. It is not currently part of the scheduled refresh workflow.
+
 ## Load the prepared data
 
 ```python
