@@ -64,7 +64,8 @@ def test_build_fsi_query_selects_all_months_and_indicators():
 
 def test_build_fsi_query_rejects_unidentified_indicator_dimension():
     metadata = fsi_metadata()
-    metadata["variables"][1]["valueTexts"] = ["CAR", "NPL", "ROA"]
+    metadata["variables"][1]["values"] = ["X1", "X2", "X3"]
+    metadata["variables"][1]["valueTexts"] = ["Other 1", "Other 2", "Other 3"]
     with pytest.raises(ValueError, match="indicator dimension"):
         bog.build_bog_fsi_query(metadata)
 
@@ -167,3 +168,18 @@ def test_parse_fsi_csv_rejects_missing_core_indicator():
     payload = frame.to_csv(index=False).encode("utf-8")
     with pytest.raises(ValueError, match="missing required core indicators"):
         bog._parse_bog_fsi_csv(payload)
+
+
+def test_default_fsi_endpoint_uses_published_table_path():
+    assert bog.DEFAULT_BOG_FSI_API_URL.startswith(
+        "https://statsbank.statsghana.gov.gh:443/api/v1/en/"
+    )
+    assert bog.DEFAULT_BOG_FSI_API_URL.endswith(
+        "/Search%20Bar/-/financial_sector_soundness.px"
+    )
+
+
+def test_fsi_query_accepts_published_indicator_codes():
+    query = bog.build_bog_fsi_query(fsi_metadata())
+    selected = {item["code"]: item["selection"] for item in query["query"]}
+    assert selected["Indicator"] == {"filter": "all", "values": ["*"]}
