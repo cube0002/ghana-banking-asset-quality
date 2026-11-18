@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import tempfile
 from pathlib import Path
 from typing import Dict
@@ -57,8 +58,13 @@ def build_bog_fsi_query(metadata: Dict) -> Dict:
     for variable in variables:
         if variable is time_variables[0]:
             continue
-        labels = [str(value).strip().lower() for value in variable.get("valueTexts", [])]
-        if "capital adequacy ratio" in labels and any("non-performing loan" in x for x in labels):
+        labels = [
+            re.sub(r"[^a-z0-9]+", " ", str(value).lower()).strip()
+            for value in variable.get("valueTexts", [])
+        ]
+        has_car = any("capital adequacy ratio" in label for label in labels)
+        has_npl = any("non performing loan" in label for label in labels)
+        if has_car and has_npl:
             indicator_variables.append(variable)
     if len(indicator_variables) != 1:
         raise ValueError("Could not identify the unique financial-soundness indicator dimension.")
