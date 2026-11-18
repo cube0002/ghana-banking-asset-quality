@@ -43,7 +43,7 @@ The source names below are recorded in the CSV metadata. These official portals 
 
 The Bank of Ghana says its database portal contains monthly and quarterly series from the Bank and other institutions, with updates and revisions made according to its published data release calendar. The portal is therefore the right place to investigate a consolidated macro-financial export, but its current downloadable interface must be tested before automating it. The GSS StatsBank quarterly production-approach table exposes the dimensions `Quarter`, `GDP_Series` and `Variable`, with the required categories `Real GDP (constant 2013 prices)` and `Total GDP`. I have added a metadata-driven PxWeb connector in `src/ghana_banking/data/gss.py` that discovers dimension codes rather than hard-coding them. It also preserves the provider's provisional (`**`) and revised (`*`) markers in an `Observation Status` column. The public table confirms the labels and marker definitions, but the API request has not yet been validated end-to-end against a live response; this connector remains experimental.
 
-The Bank of Ghana's public time-series page lists monthly indicators including the policy rate, non-performing loans, ROA, M2+ and capital adequacy, and its Financial Soundness page publishes banking-sector monthly tables. The separate BoG Database Portal was announced as a central extraction and visualisation environment, with 255 monthly and 86 quarterly series at launch. Its current disclaimer says data revisions may occur without prior notice. I have not yet verified a stable public API/export endpoint for it.\n\nThe source names above reflect the metadata included in the downloaded files. Consult the providers for updated definitions, revisions, release calendars and terms of use. The existing refresh workflow accepts CSV URLs, but these are not yet verified provider export URLs. It must not be described as connected to live official data until each source has been tested end to end.
+The GSS StatsBank [Financial Sector Soundness table](https://statsbank.statsghana.gov.gh/pxweb/en/Search%20Bar/-/financial_sector_soundness.px/) publishes nine monthly Bank of Ghana indicators from the CAR, CDR, CLASTL, CLATA, NPL, OC_I, ROA, ROE and TCGIR series. The table defines NPL as loans more than 90 days in arrears divided by total loans, ROA before tax, and ROE after tax. The BoG's own monthly banking-sector table is the reconciliation reference. The separate BoG Database Portal was announced as a central extraction and visualisation environment, with 255 monthly and 86 quarterly series at launch. Its current disclaimer says data revisions may occur without prior notice. I have not yet verified a stable public API/export endpoint for it.\n\nThe source names above reflect the metadata included in the downloaded files. Consult the providers for updated definitions, revisions, release calendars and terms of use. The existing refresh workflow accepts CSV URLs, but these are not yet verified provider export URLs. It must not be described as connected to live official data until each source has been tested end to end.
 
 
 ## Updating the source files
@@ -53,3 +53,24 @@ The repository includes a configurable refresh script and a GitHub Actions workf
 The URLs are not hard-coded because the provider export endpoints must be confirmed and may change. Configure the repository Actions secrets `MONTHLY_DATA_URL` and `GDP_DATA_URL` to enable manual or scheduled refreshes. See [the usage guide](../docs/USAGE.md#refresh-source-data) for setup instructions.
 
 A refresh is only as current as the provider's latest published release. The workflow does not imply real-time data availability.
+
+
+### Bank of Ghana financial-soundness definitions and comparability
+
+The FSI connector uses the official GSS StatsBank table `Search Bar/-/financial_sector_soundness.px`, whose source is the Bank of Ghana. The nine indicator codes and labels are:
+
+| Code | Published indicator | Interpretation |
+|---|---|---|
+| CAR | Capital Adequacy Ratio | Capital relative to risk-weighted assets and current liabilities |
+| CDR | Credit to Deposits | Banking-industry credit divided by deposits |
+| CLASTL | Core Liquid Assets to Short-term Liabilities | Short-term liquidity coverage |
+| CLATA | Core Liquid Assets to Total Assets | Core liquid assets relative to total assets |
+| NPL | Non-Performing Loans | Loans more than 90 days in arrears divided by total loans |
+| OC_I | Operational Cost/Income | Operating efficiency |
+| ROA | Return on Assets - Before Tax | Profitability before tax relative to assets |
+| ROE | Return on Equity - After Tax | Profitability after tax relative to equity |
+| TCGIR | Total Cost to Gross Income Ratio | Operating expenses relative to operating income |
+
+**Comparability warning:** the Bank of Ghana states that CAR from April 2023 is adjusted for regulatory reliefs. Its July 2025 publication reports June 2025 CAR of 19.7%, CAR without regulatory reliefs of 18.2%, NPL of 23.1%, NPL excluding the loss category of 8.5%, ROA before tax of 5.6%, and ROE after tax of 32.2%. These definitions are not interchangeable. A time-series analysis must preserve the relief-adjusted CAR break and must not substitute the adjusted NPL measure for headline NPL.
+
+The StatsBank table currently advertises 216 monthly periods beginning in January 2006. Its latest available month must be inspected after retrieval; do not assume it is current simply because the endpoint responds. The connector is a data-extraction prototype until its latest month and overlapping observations have been reconciled with the BoG monthly publication. BoG notes that data are subject to revision.
