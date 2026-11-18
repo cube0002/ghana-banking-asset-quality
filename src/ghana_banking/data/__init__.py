@@ -2,7 +2,12 @@
 
 from .refresh import refresh_source_data
 from .gss import fetch_gss_quarterly_gdp, update_gss_quarterly_gdp
-from .bog import fetch_bog_financial_soundness, update_bog_financial_soundness, load_bog_summary_snapshot
+from .bog import (
+    fetch_bog_financial_soundness,
+    update_bog_financial_soundness,
+    load_bog_summary_snapshot,
+)
+from .revisions import build_bog_revision_report
 from .loaders import (
     handle_missing_values,
     interpolate_quarterly_to_monthly,
@@ -19,6 +24,7 @@ __all__ = [
     "fetch_bog_financial_soundness",
     "update_bog_financial_soundness",
     "load_bog_summary_snapshot",
+    "build_bog_revision_report",
     "load_banking_data",
     "load_quarterly_gdp",
     "interpolate_quarterly_to_monthly",
