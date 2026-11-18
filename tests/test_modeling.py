@@ -180,16 +180,30 @@ class TestVARModel:
         with pytest.raises(ValueError):
             model.get_diagnostics(whiteness_lags=2)
 
-    def test_var_model_forecast_requires_transformed_lag_data(self, sample_timeseries):
-        """Forecast input must match fitted columns and lag count."""
+    def test_var_model_forecast_rejects_wrong_lag_count(self, sample_timeseries):
+        """Forecast input must contain exactly the fitted lag count."""
         model = VARModel(lags=2)
         data = sample_timeseries[
             ['Non Performing Loan Ratio', 'Monetary Policy Rate (%)', 'GDP_Real']
         ]
         model.fit(data, use_diff=True)
 
-        with pytest.raises(ValueError):
-            model.forecast(data.iloc[-2:], steps=3)
+        with pytest.raises(ValueError, match="exactly 2 rows"):
+            model.forecast(data.diff().dropna().iloc[-1:], steps=3)
+
+    def test_var_model_forecast_rejects_wrong_column_order(self, sample_timeseries):
+        """Forecast input columns must match the fitted variable order."""
+        model = VARModel(lags=2)
+        data = sample_timeseries[
+            ['Non Performing Loan Ratio', 'Monetary Policy Rate (%)', 'GDP_Real']
+        ]
+        model.fit(data, use_diff=True)
+        last_diff = data.diff().dropna().iloc[-2:][
+            ['GDP_Real', 'Monetary Policy Rate (%)', 'Non Performing Loan Ratio']
+        ]
+
+        with pytest.raises(ValueError, match="columns and order"):
+            model.forecast(last_diff, steps=3)
 
     def test_var_model_invalid_lag_order(self):
         """A VAR must have a positive lag order."""
