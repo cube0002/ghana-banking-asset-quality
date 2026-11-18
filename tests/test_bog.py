@@ -24,11 +24,17 @@ def fsi_metadata():
             {
                 "code": "Indicator",
                 "text": "Indicator",
-                "values": ["CAR", "NPL", "ROA"],
+                "values": ["CAR", "CDR", "CLASTL", "CLATA", "NPL", "OC_I", "ROA", "ROE", "TCGIR"],
                 "valueTexts": [
                     "Capital adequacy ratio",
-                    "Non Performing Loans",
-                    "Return on Assets",
+                    "Credit to Deposits",
+                    "Core Liquid Assets to Short-term Liabilities",
+                    "Core Liquid Assets to Total Assets",
+                    "Non-Performing Loans",
+                    "Operational Cost/Income",
+                    "Return on Assets - Before Tax",
+                    "Return on Equity - After Tax",
+                    "Total Cost to Gross Income Ratio",
                 ],
             },
         ]
@@ -41,9 +47,9 @@ def fsi_csv(months=12):
     for i, period in enumerate(periods):
         label = "{}M{:02d}".format(period.year, period.month)
         rows.extend([
-            {"Month": label, "Indicator": "Capital adequacy ratio", "value": 18 + i / 10},
-            {"Month": label, "Indicator": "Non Performing Loans", "value": 14 - i / 10},
-            {"Month": label, "Indicator": "Return on Assets", "value": 4 + i / 100},
+            {"Month": label, "Indicator": "CAR", "value": 18 + i / 10},
+            {"Month": label, "Indicator": "NPL", "value": 14 - i / 10},
+            {"Month": label, "Indicator": "ROA", "value": 4 + i / 100},
         ])
     return pd.DataFrame(rows).to_csv(index=False).encode("utf-8")
 
@@ -65,11 +71,13 @@ def test_build_fsi_query_rejects_unidentified_indicator_dimension():
 
 def test_parse_fsi_csv_returns_long_monthly_data():
     result = bog._parse_bog_fsi_csv(fsi_csv())
-    assert list(result.columns) == ["Month", "Indicator", "Value"]
+    assert list(result.columns) == ["Month", "Indicator Code", "Indicator", "Value"]
     assert len(result) == 36
     assert result["Month"].nunique() == 12
     assert result["Indicator"].nunique() == 3
+    assert set(result["Indicator Code"]) == {"CAR", "NPL", "ROA"}
     assert result.iloc[0]["Month"] == "2024M01"
+    assert result.iloc[0]["Indicator"] in {"Capital Adequacy Ratio", "Non-Performing Loans", "Return on Assets - Before Tax"}
 
 
 def test_parse_fsi_csv_rejects_short_data():
@@ -153,7 +161,7 @@ def test_parse_fsi_csv_rejects_duplicate_month_indicator_rows():
 def test_parse_fsi_csv_rejects_missing_core_indicator():
     frame = pd.DataFrame({
         "Month": ["2024M{:02d}".format(month) for month in range(1, 13)],
-        "Indicator": ["Capital adequacy ratio"] * 12,
+        "Indicator": ["CAR"] * 12,
         "value": [18] * 12,
     })
     payload = frame.to_csv(index=False).encode("utf-8")
