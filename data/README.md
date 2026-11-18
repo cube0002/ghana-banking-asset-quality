@@ -28,13 +28,21 @@ The banking indicators are monthly. GDP is quarterly. The current loader linearl
 
 Some monthly series have missing observations near the end of the sample. Do not assume that every model uses the full source-file date range; inspect the effective sample after selecting variables and handling missing values.
 
-## Sources
+## Sources and refresh readiness
 
-- [Bank of Ghana](https://www.bog.gov.gh/)
-- [Ghana Statistical Service](https://statsghana.gov.gh/)
-- [Reuters](https://www.reuters.com/)
+The source names below are recorded in the CSV metadata. These official portals are the first places to verify updated observations and revisions:
 
-The source names above reflect the metadata included in the downloaded files. Consult the providers for updated definitions, revisions and terms of use.
+| Data group | Recorded source | Official data access | Automation status |
+|---|---|---|---|
+| Monetary policy rate, exchange rates, M2+, NPLs, ROA and capital adequacy | Bank of Ghana | [BoG economic data](https://www.bog.gov.gh/economic-data/) and [time-series catalogue](https://www.bog.gov.gh/economic-data/time-series/) | Portal/export route must be confirmed for a reproducible download |
+| CPI | Ghana Statistical Service | [GSS StatsBank](https://statsbank.statsghana.gov.gh/pxweb/en/) | Table and export route must be confirmed |
+| Real GDP, quarterly | Ghana Statistical Service | [Quarterly GDP Production Approach table](https://statsbank.statsghana.gov.gh/pxweb/en/Macroeconomic%20Indicators/Macroeconomic%20Indicators__Real%20Sector%20%28GDP%29__Quarterly%20GDP/qgdp_p_px.px/) | Official table identified; machine-readable query/export still needs to be wired into the refresh script |
+| Gold price | Reuters | [Reuters](https://www.reuters.com/) | Requires a licensed or otherwise permitted source/export; do not silently substitute a different gold benchmark |
+
+The Bank of Ghana says its database portal contains monthly and quarterly series from the Bank and other institutions, with updates and revisions made according to its published data release calendar. The portal is therefore the right place to investigate a consolidated macro-financial export, but its current downloadable interface must be tested before automating it. The GSS StatsBank exposes the quarterly GDP table and allows users to select periods and series for export.
+
+The source names above reflect the metadata included in the downloaded files. Consult the providers for updated definitions, revisions, release calendars and terms of use. The existing refresh workflow accepts CSV URLs, but these are not yet verified provider export URLs. It must not be described as connected to live official data until each source has been tested end to end.
+
 
 ## Updating the source files
 
