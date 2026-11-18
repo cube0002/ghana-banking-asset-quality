@@ -143,9 +143,19 @@ def _parse_bog_fsi_csv(payload: bytes) -> pd.DataFrame:
     value_col = value_columns[0]
 
     raw_indicators = frame[indicator_col].astype(str).str.strip()
-    indicator_codes = raw_indicators.map(
-        lambda value: value.upper() if value.upper() in FSI_INDICATOR_LABELS else ""
-    )
+
+    def identify_indicator_code(value: str) -> str:
+        upper_value = value.upper()
+        if upper_value in FSI_INDICATOR_LABELS:
+            return upper_value
+        normalized_value = re.sub(r"[^a-z0-9]+", " ", value.lower()).strip()
+        for code, label in FSI_INDICATOR_LABELS.items():
+            normalized_label = re.sub(r"[^a-z0-9]+", " ", label.lower()).strip()
+            if normalized_value == normalized_label or normalized_value.startswith(normalized_label + " "):
+                return code
+        return ""
+
+    indicator_codes = raw_indicators.map(identify_indicator_code)
     canonical_labels = raw_indicators.copy()
     for code, label in FSI_INDICATOR_LABELS.items():
         canonical_labels = canonical_labels.mask(indicator_codes == code, label)
