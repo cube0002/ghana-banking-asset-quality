@@ -1,25 +1,37 @@
-# Data Sources & Dictionary
+# Data sources and dictionary
 
-## Variable Definitions
+This directory separates the downloaded source files from the prepared analysis dataset.
 
-| Variable | Mnemonic | Description | Unit | Source |
-|----------|----------|-------------|------|--------|
-| Policy Rate | GHA_INR_1 | Monetary policy interest rate | % p.a. | Bank of Ghana |
-| Inflation (CPI) | GH_PRI_1 | Consumer Price Index (2021=100) | Index | Ghana Statistical Service |
-| Exchange Rate | GHA_EXR_1 | GHS per USD | GHC/USD | Bank of Ghana |
-| Money Supply | GHA_MAG_8 | Broad money | GHC million | Bank of Ghana |
-| Gold Price | GHA_CMP_06 | Gold price | USD/oz | Reuters |
-| Capital Adequacy | GHA_FSI_5 | Capital adequacy ratio | % | Bank of Ghana |
-| ROA | GHA_FSI_2 | Return on assets | % | Bank of Ghana |
-| NPL Ratio | GHA_FSI_1 | Non-performing loans ratio | % | Bank of Ghana |
-| Real GDP | GHA_NAT_1 | Real GDP (2013 prices) | GHC million | Ghana Statistical Service |
+- `raw/data_first.csv`: monthly banking and macro-financial indicators.
+- `raw/data_first2.csv`: quarterly real GDP observations.
+- `processed/ghana_banking_master.csv`: a prepared dataset retained from the original workflow.
 
-## Data Sources
+The source files include metadata rows after the observations. The loader identifies dated observations by parsing the date or quarter field rather than relying on a fixed number of rows.
 
-- **Bank of Ghana**: https://www.bog.gov.gh/
-- **Ghana Statistical Service**: https://www.statsghana.gov.gh/
-- **Reuters**: https://www.reuters.com/
+## Variable dictionary
 
-## How to Download
+| Source field / indicator | Mnemonic | Description | Unit | Frequency | Source recorded in file |
+|---|---|---|---|---|---|
+| Monetary Policy Rate (%) | GHA_INR_1 | Monetary policy interest rate | Percent p.a. | Monthly | Bank of Ghana |
+| Consumer Price Index, All Items | GH_PRI_1 | Consumer price index | Index (2021=100) | Monthly | Ghana Statistical Service |
+| USD Exchange Rate, monthly averages | GHA_EXR_1 | Ghana cedi per US dollar | GHS/USD | Monthly | Bank of Ghana |
+| Total Liquidity (M2+) | GHA_MAG_8 | Broad money aggregate | GHS million | Monthly | Bank of Ghana |
+| Gold Price (Realised Gold Price) | GHA_CMP_06 | Gold price | USD/fine ounce | Monthly | Reuters |
+| Return on Assets | GHA_FSI_2 | Banking-sector return on assets | Percent | Monthly | Bank of Ghana |
+| Non Performing Loan Ratio | GHA_FSI_1 | Non-performing loans ratio | Percent | Monthly | Bank of Ghana |
+| Capital Adequacy Ratio | GHA_FSI_5 | Capital adequacy ratio | Percent | Monthly | Bank of Ghana |
+| Gross Domestic Product (GDP), production, real | GHA_NAT_1 | Real GDP at 2013 prices | GHS million | Quarterly | Ghana Statistical Service |
 
-Run: `python data/download_data.py`
+## Frequency treatment
+
+The banking indicators are monthly. GDP is quarterly. The current loader linearly interpolates GDP onto month-start dates to permit a monthly merge. This is a convenience for exploratory alignment, not a formal temporal-disaggregation procedure. Interpolated GDP values are estimates and should not be described as observed monthly output.
+
+Some monthly series have missing observations near the end of the sample. Do not assume that every model uses the full source-file date range; inspect the effective sample after selecting variables and handling missing values.
+
+## Sources
+
+- [Bank of Ghana](https://www.bog.gov.gh/)
+- [Ghana Statistical Service](https://statsghana.gov.gh/)
+- [Reuters](https://www.reuters.com/)
+
+The source names above reflect the metadata included in the downloaded files. Consult the providers for updated definitions, revisions and terms of use.
