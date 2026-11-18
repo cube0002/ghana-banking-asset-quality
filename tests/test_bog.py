@@ -24,17 +24,25 @@ def fsi_metadata():
             {
                 "code": "Indicator",
                 "text": "Indicator",
-                "values": ["CAR", "CDR", "CLASTL", "CLATA", "NPL", "OC_I", "ROA", "ROE", "TCGIR"],
+                "values": [
+                    "Capital adequacy ratio",
+                    "Core liquid assets to short-term liabilities",
+                    "Core liquidity to total assets",
+                    "Non-performing loan ratio",
+                    "Operational cost/income ratio",
+                    "Return on assets",
+                    "Return on equity",
+                    "Total cost to gross income ratio",
+                ],
                 "valueTexts": [
                     "Capital adequacy ratio",
-                    "Credit to Deposits",
-                    "Core Liquid Assets to Short-term Liabilities",
-                    "Core Liquid Assets to Total Assets",
-                    "Non-Performing Loans",
-                    "Operational Cost/Income",
-                    "Return on Assets - Before Tax",
-                    "Return on Equity - After Tax",
-                    "Total Cost to Gross Income Ratio",
+                    "Core liquid assets to short-term liabilities",
+                    "Core liquidity to total assets",
+                    "Non-performing loan ratio",
+                    "Operational cost/income ratio",
+                    "Return on assets",
+                    "Return on equity",
+                    "Total cost to gross income ratio",
                 ],
             },
         ]
@@ -175,7 +183,7 @@ def test_default_fsi_endpoint_uses_published_table_path():
         "https://statsbank.statsghana.gov.gh:443/api/v1/en/"
     )
     assert bog.DEFAULT_BOG_FSI_API_URL.endswith(
-        "/Search%20Bar/-/financial_sector_soundness.px"
+        "/Search%20Bar/-/fin_sound.px"
     )
 
 
