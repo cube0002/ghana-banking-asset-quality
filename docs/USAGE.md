@@ -13,6 +13,18 @@ print(df.isna().sum())
 
 The loader joins monthly indicators to linearly interpolated monthly estimates of quarterly GDP. These interpolated GDP values are not observed monthly data; see the project README and data dictionary before using them in time-series models.
 
+For analysis that should preserve the source frequency, load quarterly GDP separately:
+
+```python
+from ghana_banking.data import load_quarterly_gdp
+
+gdp_quarterly = load_quarterly_gdp()
+print(gdp_quarterly.head())
+print(gdp_quarterly.index.freq)
+```
+
+This returns the original quarterly GDP observations as a quarterly `PeriodIndex`. It does not interpolate them or create artificial monthly observations. Monthly banking indicators and quarterly GDP should be modelled at a compatible frequency; do not combine them in a monthly VAR by treating interpolated GDP as observed monthly data.
+
 ## Fit an OLS model
 
 ```python
