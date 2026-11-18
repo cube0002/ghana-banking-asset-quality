@@ -119,3 +119,29 @@ def test_update_gss_gdp_rejects_older_data_without_replacing_file(tmp_path, monk
     with pytest.raises(ValueError, match="stale"):
         gss.update_gss_quarterly_gdp(raw_data_path=str(tmp_path))
     assert destination.read_bytes() == original
+
+
+def test_fetch_gss_gdp_reads_metadata_then_posts_selected_query(monkeypatch):
+    metadata_payload = __import__("json").dumps(metadata()).encode("utf-8")
+    csv_payload = pxweb_csv()
+    calls = []
+
+    def fake_request(url, data=None, timeout=60):
+        calls.append({"url": url, "data": data, "timeout": timeout})
+        return metadata_payload if data is None else csv_payload
+
+    monkeypatch.setattr(gss, "_request_bytes", fake_request)
+    result = gss.fetch_gss_quarterly_gdp(
+        api_url="https://example.test/table.px", timeout=15
+    )
+
+    assert len(calls) == 2
+    assert calls[0]["data"] is None
+    assert calls[1]["data"] is not None
+    assert calls[0]["timeout"] == 15
+    assert len(result) == 8
+
+
+def test_fetch_gss_gdp_requires_https():
+    with pytest.raises(ValueError, match="HTTPS"):
+        gss.fetch_gss_quarterly_gdp(api_url="http://example.test/table.px")
