@@ -20,7 +20,7 @@ from urllib.request import Request, urlopen
 import pandas as pd
 
 
-_BOG_FSI_TABLE_PATH = "Search Bar/-/fin_sound.px"
+_BOG_FSI_TABLE_PATH = "Search Bar/-/financial_sector_soundness.px"
 DEFAULT_BOG_FSI_API_URL = (
     "https://statsbank.statsghana.gov.gh:443/api/v1/en/"
     + quote(_BOG_FSI_TABLE_PATH, safe="/")
