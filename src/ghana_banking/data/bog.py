@@ -68,7 +68,6 @@ def build_bog_fsi_query(metadata: Dict) -> Dict:
         raise ValueError("Could not identify exactly one monthly time dimension.")
 
     indicator_variables = []
-    expected_codes = {"CAR", "CDR", "CLASTL", "CLATA", "NPL", "OC_I", "ROA", "ROE", "TCGIR"}
     for variable in variables:
         if variable is time_variables[0]:
             continue
