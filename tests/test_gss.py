@@ -78,7 +78,7 @@ def test_parse_pxweb_gdp_csv_normalises_repository_schema():
     assert len(result) == 8
     assert result["Name of Series"].iloc[0] == "2023Q1"
     assert result["Name of Series"].iloc[-1] == "2024Q4"
-    assert result.iloc[-1, 1] == 1070
+    assert result.iloc[-1, 1] == 1070\n    assert result.loc[0, "Observation Status"] == "revised"\n    assert result.loc[1, "Observation Status"] == "provisional"
 
 
 def test_parse_pxweb_gdp_rejects_short_or_invalid_response():
