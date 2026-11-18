@@ -174,7 +174,7 @@ def test_parse_fsi_csv_rejects_missing_core_indicator():
         "value": [18] * 12,
     })
     payload = frame.to_csv(index=False).encode("utf-8")
-    with pytest.raises(ValueError, match="missing required core indicators"):
+    with pytest.raises(ValueError, match="missing required core indicator codes"):
         bog._parse_bog_fsi_csv(payload)
 
 
