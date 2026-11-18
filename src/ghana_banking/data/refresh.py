@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import argparse
 import os
-import re
 import sys
 import tempfile
 from pathlib import Path
@@ -134,7 +133,7 @@ def refresh_source_data(
     writing, and the original CSV payloads are preserved byte-for-byte.
     """
     if raw_data_path is None:
-        raw_data_path = Path(__file__).resolve().parents[4] / "data" / "raw"
+        raw_data_path = Path(__file__).resolve().parents[3] / "data" / "raw"
     else:
         raw_data_path = Path(raw_data_path)
     raw_data_path.mkdir(parents=True, exist_ok=True)
