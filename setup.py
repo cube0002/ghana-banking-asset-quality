@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="ghana-banking-analysis",
-    version="1.0.0",
+    version="1.0.1",
     description="Empirical analysis of asset quality in Ghana's banking sector",
     author="Kwame Ansere-Mensah",
     author_email="anseremensa1@gmail.com",

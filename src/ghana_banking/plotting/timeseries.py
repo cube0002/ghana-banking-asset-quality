@@ -191,46 +191,22 @@ def plot_dual_axis(
     left_color: str = '#2C3E50',
     right_color: str = '#E67E22'
 ) -> Tuple[plt.Figure, plt.Axes]:
-    """Plot two variables on different y-axes when scales don't match.
-    
-    Useful for comparing variables with different ranges:
-    e.g., NPL ratio (5-28%) vs Policy Rate (8-30%) - both fit nicely.
-    
+    """Plot two variables on different y-axes when scales differ.
+
     Args:
-        df: Data indexed by date
-        left_col: Variable for left y-axis
-        right_col: Variable for right y-axis
-        figsize: Figure size
-        left_color: Color for left line
-        right_color: Color for right line
-    
+        df: Data indexed by date.
+        left_col: Column name for the left y-axis.
+        right_col: Column name for the right y-axis.
+        figsize: Figure size.
+        left_color: Color for the left-axis line.
+        right_color: Color for the right-axis line.
+
     Returns:
-        Figure and left axes
-    
+        A tuple containing the figure and left-axis object.
+
     Example:
-        fig, ax1 = plot_dual_axis(df, 'NPL_Ratio', 'Policy_Rate')
-        # Both variables visible on same timeline
-    """
-    left_col : str
-        Column name for left y-axis.
-    right_col : str
-        Column name for right y-axis.
-    figsize : tuple, default (14, 6)
-        Figure size.
-    left_color : str
-        Color for left axis line.
-    right_color : str
-        Color for right axis line.
-    
-    Returns
-    -------
-    Tuple[plt.Figure, plt.Axes]
-        Figure and axes objects.
-    
-    Examples
-    --------
-    >>> fig, ax = plot_dual_axis(df, 'NPL_Ratio', 'Policy_Rate')
-    >>> plt.show()
+        fig, ax = plot_dual_axis(df, 'NPL_Ratio', 'Policy_Rate')
+        plt.show()
     """
     fig, ax1 = plt.subplots(figsize=figsize, dpi=100)
     

@@ -98,12 +98,6 @@ def plot_acf_pacf(
         # Spikes = dependencies to investigate
         # All in shaded region = good, errors are random
     """
-    --------
-    >>> from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
-    >>> resid = model.resid
-    >>> fig, axes = plot_acf_pacf(resid, lags=20)
-    >>> plt.show()
-    """
     from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
     
     fig, axes = plt.subplots(1, 2, figsize=figsize, dpi=100)
@@ -154,20 +148,6 @@ def plot_irf(
         fig, axes = plot_irf(irf.irfs, ['NPL', 'Rate', 'GDP'], periods=12)
         # Each row = shock to one variable
         # Each column = response of one variable
-    """
-    title : str
-        Plot title.
-    
-    Returns
-    -------
-    Tuple[plt.Figure, np.ndarray]
-        Figure and axes array.
-    
-    Examples
-    --------
-    >>> irf = var_model.irf(periods=12)
-    >>> fig, axes = plot_irf(irf.irfs, ['NPL', 'Rate', 'GDP'], periods=12)
-    >>> plt.show()
     """
     n_vars = len(variable_names)
     fig, axes = plt.subplots(n_vars, n_vars, figsize=figsize, dpi=100)

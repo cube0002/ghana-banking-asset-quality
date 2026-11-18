@@ -30,11 +30,14 @@ class VARModel:
     """
     
     def __init__(self, lags: int = 2):
-        """Set up a VAR with specified number of lags."""
+        """Set up a VAR with a positive number of lags."""
+        if not isinstance(lags, int) or lags < 1:
+            raise ValueError("lags must be a positive integer.")
         self.lags = lags
         self.results = None
         self.var_data = None
         self.column_names = None
+        self.use_diff = None
     
     def fit(self, df: pd.DataFrame, use_diff: bool = True) -> 'VARModel':
         """
@@ -58,6 +61,14 @@ class VARModel:
             If data has insufficient observations or missing values.
         """
         # Validate input
+        if not isinstance(df, pd.DataFrame):
+            raise TypeError("df must be a pandas DataFrame.")
+        if df.shape[1] < 2:
+            raise ValueError("A VAR requires at least two endogenous variables.")
+        if not df.columns.is_unique:
+            raise ValueError("VAR input columns must have unique names.")
+        if not all(pd.api.types.is_numeric_dtype(df[col]) for col in df.columns):
+            raise TypeError("All VAR input columns must be numeric.")
         if len(df) < self.lags + 2:
             raise ValueError(
                 f"Insufficient observations for {self.lags} lags: need at least "
@@ -81,6 +92,7 @@ class VARModel:
         # Store column names and data
         self.column_names = data_for_fit.columns.tolist()
         self.var_data = data_for_fit
+        self.use_diff = use_diff
         
         # Fit VAR model
         var_model = StatsmodelsVAR(data_for_fit)
@@ -129,14 +141,19 @@ class VARModel:
     ) -> pd.DataFrame:
         """Make predictions for the next several months.
         
-        Takes the last few months of data and projects forward.
-        
+        Forecast from the final lag observations in the model's estimation
+        scale. If the model was fitted with use_diff=True, pass the last
+        self.lags rows of first-differenced data—not raw level data.
+        Returned values remain in that same differenced scale; this method
+        does not integrate forecasts back to levels.
+
         Args:
-            last_obs: The most recent n observations (n = number of lags)
-            steps: How many months to forecast
-        
+            last_obs: Exactly self.lags recent rows, with the same columns
+                and transformations used when fitting the model.
+            steps: Number of forecast steps.
+
         Returns:
-            Forecast values with dates and variable names
+            Forecast values in the fitted model's variable order.
         
         Example:
             pred = model.forecast(df.iloc[-2:], steps=6)
@@ -145,6 +162,21 @@ class VARModel:
         if self.results is None:
             raise ValueError("Model not yet fitted. Call fit() first.")
         
+        if not isinstance(last_obs, pd.DataFrame):
+            raise TypeError("last_obs must be a pandas DataFrame.")
+        if list(last_obs.columns) != self.column_names:
+            raise ValueError(
+                "last_obs columns and order must match the fitted VAR variables."
+            )
+        if len(last_obs) != self.lags:
+            raise ValueError(
+                f"last_obs must contain exactly {self.lags} rows; got {len(last_obs)}."
+            )
+        if last_obs.isna().any().any():
+            raise ValueError("last_obs cannot contain missing values.")
+        if not isinstance(steps, int) or steps < 1:
+            raise ValueError("steps must be a positive integer.")
+
         forecast_array = self.results.forecast(last_obs.values, steps=steps)
         forecast_df = pd.DataFrame(forecast_array, columns=self.column_names)
         
@@ -167,36 +199,84 @@ class VARModel:
         return str(self.results.summary())
     
     def get_lag_order(self, maxlags: int = 8) -> dict:
-        """Find the best number of lags to use.
-        
-        Tests different lag lengths and shows which is optimal
-        according to AIC and BIC criteria.
-        
+        """Compare VAR lag orders using standard information criteria.
+
+        Returned criterion values are selected lag counts, not raw
+        information-criterion scores. Selection is conditional on the data
+        and transformations used when fitting this model.
+
         Args:
-            maxlags: Test up to this many lags
-        
+            maxlags: Largest lag order to evaluate.
+
         Returns:
-            Information criteria for each lag option
-        
+            Selected lag counts for AIC, BIC, FPE and HQIC, including a
+            nested selected_orders mapping.
+
         Example:
-            lag_results = model.get_lag_order(maxlags=12)
-            # BIC usually picks the most parsimonious model
+            selection = model.get_lag_order(maxlags=12)
+            print(selection["selected_orders"])
         """
         if self.var_data is None:
             raise ValueError("Model not yet fitted. Call fit() first.")
-        
-        var_model = StatsmodelsVAR(self.var_data)
-        lag_order = var_model.select_order(maxlags=maxlags)
-        
+        if not isinstance(maxlags, int) or maxlags < 1:
+            raise ValueError("maxlags must be a positive integer.")
+
+        n_obs, n_vars = self.var_data.shape
+        # Statsmodels' upper bound for estimating a VAR with a constant.
+        max_estimable = (n_obs - n_vars - 1) // (n_vars + 1)
+        if maxlags > max_estimable:
+            raise ValueError(
+                f"maxlags={maxlags} is too large for {n_obs} observations "
+                f"and {n_vars} variables; use maxlags <= {max_estimable}."
+            )
+
+        selection = StatsmodelsVAR(self.var_data).select_order(maxlags=maxlags)
+        selected = dict(selection.selected_orders)
+
         return {
-            'aic': lag_order.aic,
-            'bic': lag_order.bic,
-            'fpe': lag_order.fpe,
-            'hqic': lag_order.hqic,
-            'selected_aic': lag_order.aic,
-            'selected_bic': lag_order.bic
+            "aic": selected["aic"],
+            "bic": selected["bic"],
+            "fpe": selected["fpe"],
+            "hqic": selected["hqic"],
+            "selected_orders": selected,
+            "maxlags_evaluated": maxlags,
         }
-    
+
+    def get_diagnostics(self, whiteness_lags: Optional[int] = None) -> dict:
+        """Return stability, residual-whiteness and normality diagnostics.
+
+        whiteness_lags must be greater than the fitted VAR lag order.
+        The Portmanteau whiteness test's null hypothesis is that residuals
+        have no autocorrelation up to the specified lag. The normality test's
+        null hypothesis is that residuals are jointly normally distributed.
+        These tests are diagnostics, not proof that a model is correctly
+        specified.
+        """
+        if self.results is None:
+            raise ValueError("Model not yet fitted. Call fit() first.")
+
+        if whiteness_lags is None:
+            whiteness_lags = self.lags + 1
+        if not isinstance(whiteness_lags, int) or whiteness_lags <= self.lags:
+            raise ValueError(
+                "whiteness_lags must be an integer greater than the fitted lag order."
+            )
+
+        whiteness = self.results.test_whiteness(
+            nlags=whiteness_lags,
+            adjusted=True,
+        )
+        normality = self.results.test_normality()
+
+        return {
+            "stable": bool(self.results.is_stable()),
+            "whiteness_lags": whiteness_lags,
+            "whiteness_statistic": float(whiteness.test_statistic),
+            "whiteness_pvalue": float(whiteness.pvalue),
+            "normality_statistic": float(normality.test_statistic),
+            "normality_pvalue": float(normality.pvalue),
+        }
+
     def get_covariance(self) -> pd.DataFrame:
         """Get residual covariance matrix.
         

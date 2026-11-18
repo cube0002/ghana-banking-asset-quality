@@ -154,6 +154,62 @@ class TestVARModel:
         assert isinstance(forecast, pd.DataFrame)
         assert len(forecast) == 3
     
+    def test_var_model_diagnostics(self, sample_timeseries):
+        """Test stability and residual diagnostic output."""
+        model = VARModel(lags=2)
+        data = sample_timeseries[
+            ['Non Performing Loan Ratio', 'Monetary Policy Rate (%)', 'GDP_Real']
+        ]
+        model.fit(data, use_diff=True)
+
+        diagnostics = model.get_diagnostics(whiteness_lags=4)
+
+        assert isinstance(diagnostics['stable'], bool)
+        assert diagnostics['whiteness_lags'] == 4
+        assert 0 <= diagnostics['whiteness_pvalue'] <= 1
+        assert 0 <= diagnostics['normality_pvalue'] <= 1
+
+    def test_var_model_diagnostics_reject_invalid_lags(self, sample_timeseries):
+        """Whiteness test lag count must exceed the fitted VAR order."""
+        model = VARModel(lags=2)
+        data = sample_timeseries[
+            ['Non Performing Loan Ratio', 'Monetary Policy Rate (%)', 'GDP_Real']
+        ]
+        model.fit(data, use_diff=True)
+
+        with pytest.raises(ValueError):
+            model.get_diagnostics(whiteness_lags=2)
+
+    def test_var_model_forecast_rejects_wrong_lag_count(self, sample_timeseries):
+        """Forecast input must contain exactly the fitted lag count."""
+        model = VARModel(lags=2)
+        data = sample_timeseries[
+            ['Non Performing Loan Ratio', 'Monetary Policy Rate (%)', 'GDP_Real']
+        ]
+        model.fit(data, use_diff=True)
+
+        with pytest.raises(ValueError, match="exactly 2 rows"):
+            model.forecast(data.diff().dropna().iloc[-1:], steps=3)
+
+    def test_var_model_forecast_rejects_wrong_column_order(self, sample_timeseries):
+        """Forecast input columns must match the fitted variable order."""
+        model = VARModel(lags=2)
+        data = sample_timeseries[
+            ['Non Performing Loan Ratio', 'Monetary Policy Rate (%)', 'GDP_Real']
+        ]
+        model.fit(data, use_diff=True)
+        last_diff = data.diff().dropna().iloc[-2:][
+            ['GDP_Real', 'Monetary Policy Rate (%)', 'Non Performing Loan Ratio']
+        ]
+
+        with pytest.raises(ValueError, match="columns and order"):
+            model.forecast(last_diff, steps=3)
+
+    def test_var_model_invalid_lag_order(self):
+        """A VAR must have a positive lag order."""
+        with pytest.raises(ValueError):
+            VARModel(lags=0)
+
     def test_var_model_summary(self, sample_timeseries):
         """Test that VAR model summary works."""
         model = VARModel(lags=2)
@@ -169,7 +225,24 @@ class TestVARModel:
         model.fit(data, use_diff=True)
         lag_order = model.get_lag_order(maxlags=4)
         assert isinstance(lag_order, dict)
-        assert 'aic' in lag_order
+        assert set(lag_order["selected_orders"]) == {"aic", "bic", "fpe", "hqic"}
+        assert lag_order["maxlags_evaluated"] == 4
+        assert lag_order["aic"] == lag_order["selected_orders"]["aic"]
+        assert 0 <= lag_order["bic"] <= 4
+
+    def test_var_model_lag_order_rejects_invalid_maxlags(self, sample_timeseries):
+        """Lag selection rejects invalid or infeasible maximum lag orders."""
+        model = VARModel(lags=2)
+        data = sample_timeseries[
+            ["Non Performing Loan Ratio", "Monetary Policy Rate (%)", "GDP_Real"]
+        ]
+        model.fit(data, use_diff=True)
+
+        with pytest.raises(ValueError, match="positive integer"):
+            model.get_lag_order(maxlags=0)
+
+        with pytest.raises(ValueError, match="too large"):
+            model.get_lag_order(maxlags=100)
     
     def test_var_model_error_insufficient_data(self):
         """Test that insufficient data raises error."""
@@ -252,6 +325,38 @@ class TestStressTest:
         assert isinstance(coefs, pd.DataFrame)
         assert 'Coefficient' in coefs.columns
     
+    def test_stress_test_reports_chronological_holdout_metrics(self, sample_timeseries):
+        """Diagnostics should report performance on later, unseen observations."""
+        features = ['Monetary Policy Rate (%)', 'CPI']
+        stress_test = StressTest(
+            sample_timeseries,
+            'Non Performing Loan Ratio',
+            features,
+            train_ratio=0.8
+        )
+
+        diagnostics = stress_test.get_model_diagnostics()
+
+        assert diagnostics['n_train'] == 80
+        assert diagnostics['n_test'] == 20
+        assert diagnostics['r2_score'] == diagnostics['test_r2']
+        assert diagnostics['test_r2'] is not None
+        assert diagnostics['test_rmse'] >= 0
+        assert np.allclose(
+            stress_test.scaler.mean_,
+            sample_timeseries.iloc[:80][features].mean().values
+        )
+
+    def test_stress_test_rejects_invalid_train_ratio(self, sample_timeseries):
+        """Training split must leave valid training and test samples."""
+        with pytest.raises(ValueError):
+            StressTest(
+                sample_timeseries,
+                'Non Performing Loan Ratio',
+                ['Monetary Policy Rate (%)', 'CPI'],
+                train_ratio=1.0
+            )
+
     def test_stress_test_error_missing_var(self, sample_timeseries):
         """Test that missing stress variable raises error."""
         with pytest.raises(ValueError):

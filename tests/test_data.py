@@ -11,6 +11,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from ghana_banking.data.loaders import (
     load_banking_data,
+    load_quarterly_gdp,
     handle_missing_values,
     standardize_features,
     interpolate_quarterly_to_monthly,
@@ -56,6 +57,16 @@ class TestLoadBankingData:
         """Test that data is sorted by date."""
         df = load_banking_data()
         assert df.index.is_monotonic_increasing
+
+    def test_load_quarterly_gdp_preserves_quarterly_frequency(self):
+        """The GDP-specific loader must preserve source quarterly periods."""
+        quarterly = load_quarterly_gdp()
+        assert isinstance(quarterly.index, pd.PeriodIndex)
+        assert quarterly.index.freqstr == "Q-DEC"
+        assert quarterly.index.is_monotonic_increasing
+        assert quarterly.index.is_unique
+        assert list(quarterly.columns) == ["GDP_Real"]
+        assert quarterly["GDP_Real"].notna().all()
 
 
 class TestHandleMissingValues:

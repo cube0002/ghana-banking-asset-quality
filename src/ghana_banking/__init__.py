@@ -1,12 +1,10 @@
-"""Ghana Banking Asset Quality Analysis Package."""
+"""Tools for analysing Ghanaian banking-sector asset quality."""
 
-__version__ = "1.0.0"
-__author__ = "Your Name"
+__version__ = "1.0.1"
+__author__ = "Kwame Ansere-Mensah"
 
-from .data.loaders import load_banking_data
-from .modeling.regression import OLSModel
-from .modeling.var_model import VARModel
-from .modeling.stress_test import StressTest
+from .data import load_banking_data
+from .modeling import OLSModel, StressTest, VARModel
 
 __all__ = [
     "load_banking_data",

@@ -1,53 +1,55 @@
-# Installation Guide
+# Installation
 
-## System Requirements
-- Python 3.9+
-- pip or conda
+## Requirements
+
+- Python 3.9 or newer
 - Git
+- pip
 
-## Step 1: Clone Repository
+## Clone the repository
+
 ```bash
-git clone https://github.com/yourusername/ghana-banking-analysis.git
-cd ghana-banking-analysis
+git clone https://github.com/cube0002/ghana-banking-asset-quality.git
+cd ghana-banking-asset-quality
 ```
 
-## Step 2: Create Virtual Environment (macOS/Linux)
+## Create and activate a virtual environment
+
+**Windows PowerShell**
+
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+```
+
+**macOS / Linux**
+
 ```bash
-python3.11 -m venv venv
-source venv/bin/activate
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 
-## Step 3: Create Virtual Environment (Windows)
-```cmd
-python -m venv venv
-venv\Scripts\activate
-```
+## Install dependencies
 
-## Step 4: Install Package
 ```bash
-pip install -e ".[dev]"
+python -m pip install --upgrade pip
+pip install -e .
+pip install -r requirements-dev.txt
 ```
 
-## Step 5: Verify Installation
+## Verify the installation
+
 ```bash
 python -c "import ghana_banking; print(ghana_banking.__version__)"
 pytest tests/ -v
 ```
 
-## Troubleshooting
+The project reads the source CSV files from `data/raw/` by default. If you keep the data elsewhere, pass that directory to `load_banking_data(raw_data_path=...)`.
 
-**ModuleNotFoundError: No module named 'ghana_banking'**
+## Open the notebooks
+
 ```bash
-pip install -e .
+jupyter lab notebooks/
 ```
 
-**statsmodels import fails**
-```bash
-pip install --upgrade statsmodels
-```
-
-**Jupyter kernel not found**
-```bash
-python -m ipykernel install --user --name ghana --display-name "Ghana Banking"
-jupyter lab  # Then select "Ghana Banking" kernel
-```
+Run the notebooks in numerical order. The notebooks document the analysis; the Python package provides reusable functions.
