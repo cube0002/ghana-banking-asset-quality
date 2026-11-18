@@ -166,8 +166,13 @@ def _parse_bog_fsi_csv(payload: bytes) -> pd.DataFrame:
         # a parenthetical abbreviation differs from the canonical label.
         aliases = {
             "CAR": ("capital adequacy ratio",),
+            "CLASTL": ("core liquid assets to short term liabilities",),
+            "CLATA": ("core liquidity to total assets", "core liquid assets to total assets"),
             "NPL": ("non performing loan",),
+            "OC_I": ("operational cost income",),
             "ROA": ("return on assets",),
+            "ROE": ("return on equity",),
+            "TCGIR": ("total cost to gross income ratio",),
         }
         for code, prefixes in aliases.items():
             if any(normalized_value.startswith(prefix) for prefix in prefixes):
