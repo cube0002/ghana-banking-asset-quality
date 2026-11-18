@@ -204,3 +204,31 @@ def update_gss_quarterly_gdp(
         "observations": str(len(frame)),
         "file": str(destination),
     }
+
+
+def main() -> int:
+    """Command-line entry point for a manual GSS GDP refresh."""
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Fetch and update quarterly real GDP from GSS StatsBank."
+    )
+    parser.add_argument("--api-url", default=None)
+    parser.add_argument("--raw-data-path", default=None)
+    parser.add_argument("--timeout", type=int, default=60)
+    args = parser.parse_args()
+    try:
+        result = update_gss_quarterly_gdp(
+            raw_data_path=args.raw_data_path,
+            api_url=args.api_url,
+            timeout=args.timeout,
+        )
+    except Exception as exc:
+        parser.exit(1, "GSS GDP refresh failed: {}\\n".format(exc))
+    for key, value in result.items():
+        print("{}: {}".format(key, value))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
