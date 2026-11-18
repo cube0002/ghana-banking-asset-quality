@@ -136,3 +136,19 @@ This is a conditional prediction from a fitted linear model, not a validated sup
 jupyter lab notebooks/
 pytest tests/ -v
 ```
+
+
+### Load the November 2026 Bank of Ghana publication snapshot
+
+The official BoG November 2026 summary PDF has been transcribed into a separate, source-attributed CSV. It covers October 2025 to October 2026 and should be treated as a rounded publication snapshot, not a live feed.
+
+```python
+from ghana_banking.data import load_bog_summary_snapshot
+
+fsi = load_bog_summary_snapshot(
+    "data/raw/bog_summary_nov_2026.csv"
+)
+print(fsi.tail())
+```
+
+The loader validates dates, numeric values, source attribution and duplicate month-indicator rows. The snapshot is kept separate from the original monthly macro dataset. An overlap test checks that CAR, NPL and ROA for October–December 2025 agree with the original source after rounding to the one-decimal precision used in the BoG publication. The comparison is a consistency check, not a full historical-series reconciliation.
