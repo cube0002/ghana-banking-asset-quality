@@ -106,12 +106,23 @@ def _parse_bog_fsi_csv(payload: bytes) -> pd.DataFrame:
         if frame[column].astype(str).str.contains(r"\d{4}M\d{2}", regex=True).any():
             month_col = column
             break
+    if month_col is None:
+        raise ValueError("Could not identify month column in FSI response.")
+
+    # PxWeb CSVs may be parsed with pandas' dedicated string dtype rather
+    # than NumPy object dtype. Identify the categorical indicator column by
+    # excluding the month field and columns that are fully numeric.
+    categorical_columns = []
     for column in frame.columns:
-        if column != month_col and frame[column].dtype == object:
-            indicator_col = column
-            break
-    if month_col is None or indicator_col is None:
-        raise ValueError("Could not identify month and indicator columns in FSI response.")
+        if column == month_col:
+            continue
+        converted = pd.to_numeric(frame[column], errors="coerce")
+        if converted.notna().sum() < frame[column].notna().sum():
+            categorical_columns.append(column)
+
+    if len(categorical_columns) != 1:
+        raise ValueError("Could not identify a unique indicator column in FSI response.")
+    indicator_col = categorical_columns[0]
 
     value_columns = [
         column for column in frame.columns
