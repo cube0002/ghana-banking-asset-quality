@@ -233,7 +233,8 @@ def load_bog_summary_snapshot(path: str) -> pd.DataFrame:
     """Load and validate the manually transcribed BoG monthly summary snapshot.
 
     The source PDF and publication date are retained on every row. This is a
-    publication snapshot, not an automated live feed.
+    rounded publication snapshot, not an automated live feed. Preserve older
+    snapshots when adding new releases so that source revisions remain auditable.
     """
     frame = pd.read_csv(path)
     required = {
