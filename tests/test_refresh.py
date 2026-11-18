@@ -65,7 +65,7 @@ def test_refresh_rejects_stale_download_without_changing_local_files(
     payloads = iter([monthly_csv("01/02/2026"), gdp_csv("2026Q1")])
     monkeypatch.setattr(refresh, "_download_csv", lambda *args, **kwargs: next(payloads))
 
-    with pytest.raises(ValueError, match="older than the local file"):
+    with pytest.raises(ValueError, match="stale"):
         refresh.refresh_source_data(
             "https://example.test/monthly.csv",
             "https://example.test/gdp.csv",
