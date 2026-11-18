@@ -32,7 +32,7 @@ jobs:
             echo "Refresh skipped: configure MONTHLY_DATA_URL and GDP_DATA_URL repository secrets."
             exit 0
           fi
-          python -m src.ghana_banking.data.refresh
+          PYTHONPATH=src python -m ghana_banking.data.refresh
 
       - name: Commit refreshed data when changed
         run: |
