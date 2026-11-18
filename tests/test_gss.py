@@ -107,7 +107,7 @@ def test_update_gss_gdp_writes_normalised_csv(tmp_path, monkeypatch):
 def test_update_gss_gdp_rejects_older_data_without_replacing_file(tmp_path, monkeypatch):
     destination = tmp_path / "data_first2.csv"
     existing = pd.DataFrame({
-        "Name of Series": ["2024Q1", "2024Q2", "2024Q3", "2024Q4"],
+        "Name of Series": ["2025Q1", "2025Q2", "2025Q3", "2025Q4"],
         "Gross Domestic Product (GDP), production, real": [1, 2, 3, 4],
     })
     existing.to_csv(destination, index=False)
