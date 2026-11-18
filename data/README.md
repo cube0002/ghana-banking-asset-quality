@@ -8,6 +8,8 @@ This directory separates the downloaded source files from the prepared analysis 
 
 The source files include metadata rows after the observations. The loader identifies dated observations by parsing the date or quarter field rather than relying on a fixed number of rows.
 
+- `raw/bog_financial_soundness.csv`: monthly Bank of Ghana financial soundness indicators, retrieved through the GSS StatsBank publication table (experimental connector; kept separate from the original monthly macro file).
+
 ## Variable dictionary
 
 | Source field / indicator | Mnemonic | Description | Unit | Frequency | Source recorded in file |
