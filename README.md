@@ -1,16 +1,16 @@
-# Ghana Banking Asset Quality
+# Building a Ghana Banking Asset Quality Research Project
 
-An empirical study of non-performing loans and macro-financial conditions in Ghana.
+I am building an applied financial econometrics project to investigate how non-performing loans (NPLs) in Ghana's banking sector move alongside monetary, price, exchange-rate and real-economy conditions.
 
-This project examines how banking-sector asset quality has evolved alongside monetary, price, exchange-rate and real-economy conditions. It brings together exploratory analysis, regression modelling, multivariate time-series methods and scenario analysis using published Ghanaian banking and macroeconomic indicators.
+I am developing the project in stages: assembling and documenting the data, building a reproducible Python workflow, exploring the relationships in the data, and testing regression, multivariate time-series and scenario-based approaches. The goal is to understand what the available aggregate evidence can—and cannot—tell us about banking-sector credit risk.
 
-The aim is not to claim that one model explains every movement in non-performing loans. It is to document the data, make the modelling choices visible, and assess what the available aggregate evidence can—and cannot—say about credit risk.
+**This is a work in progress.** I am still validating the data pipeline, checking model assumptions, improving out-of-sample evaluation and refining the interpretation of results. I will update the findings as those checks are completed; I do not present exploratory outputs as established conclusions.
 
 ## Research question
 
 **How have macroeconomic conditions and banking-sector indicators moved alongside the NPL ratio in Ghana, and what do econometric and scenario-based models suggest about the transmission of macro-financial shocks?**
 
-The analysis is organised around four tasks:
+I am organising the work around four tasks:
 
 1. Describe the evolution of the NPL ratio and selected macro-financial indicators.
 2. Examine contemporaneous associations between NPLs and potential explanatory variables.
@@ -50,21 +50,21 @@ The raw monthly file also contains missing values for some indicators near the e
 
 ### Exploratory analysis
 
-The notebooks examine the time paths, distributions and pairwise relationships of the main indicators. Figures in figures/ are exploratory outputs; their interpretation should be read alongside the notebook code and data definitions.
+I use the notebooks to examine the time paths, distributions and pairwise relationships of the main indicators. I treat the figures in figures/ as exploratory outputs and interpret them alongside the notebook code and data definitions.
 
 ### OLS regression
 
-The regression module provides a reusable ordinary least squares wrapper. OLS is used as a descriptive conditional-association model. With trending macroeconomic series, serially correlated residuals and possible structural changes, a high in-sample fit or a small conventional p-value is not, by itself, evidence of a stable economic relationship or causality.
+I have built a reusable ordinary least squares wrapper as a descriptive conditional-association baseline. With trending macroeconomic series, serially correlated residuals and possible structural changes, a high in-sample fit or a small conventional p-value is not, by itself, evidence of a stable economic relationship or causality.
 
 Previously reported coefficient significance and fit statistics are not presented here as independently verified headline findings. They should be regenerated from the current data and code before being used in a research summary.
 
 ### Vector autoregression
 
-The VAR module supports multivariate lag models and impulse-response calculations. The transformation applied before estimation, lag order, variable ordering and identification assumptions matter for the interpretation of impulse responses. A reduced-form VAR response should not automatically be described as a causal structural shock.
+I am developing the VAR workflow to estimate multivariate lag models and examine impulse responses. The transformation applied before estimation, lag order, variable ordering and identification assumptions matter for the interpretation of impulse responses. A reduced-form VAR response should not automatically be described as a causal structural shock.
 
 ### Scenario analysis
 
-The stress-testing module fits a standardised linear regression and evaluates user-specified predictor values. This is best understood as a **conditional scenario exercise**, not a bank-level regulatory stress test or a validated forecast. Its results depend on the historical sample, model specification and plausibility of the scenario inputs. Extrapolation beyond the observed data range should be treated cautiously.
+I have built an initial scenario-analysis module that fits a standardised linear regression and evaluates user-specified predictor values. This is best understood as a **conditional scenario exercise**, not a bank-level regulatory stress test or a validated forecast. Its results depend on the historical sample, model specification and plausibility of the scenario inputs. Extrapolation beyond the observed data range should be treated cautiously.
 
 ## Selected figures
 
@@ -136,7 +136,19 @@ pytest tests/ -v
 jupyter lab notebooks/
 ~~~
 
-Run the notebooks in numerical order, starting with data preparation. The notebooks are the research record; the package under src/ contains reusable functions.
+Run the notebooks in numerical order, starting with data preparation. I use the notebooks as the research record and the package under src/ for reusable functions.
+
+## Current development priorities
+
+I am currently prioritising:
+
+- reproducing the notebooks from a clean environment;
+- validating the data-loading and transformation steps;
+- testing stationarity, serial correlation, stability and other time-series assumptions;
+- comparing VAR specifications and making impulse-response identification explicit;
+- improving the scenario model with chronological validation and uncertainty estimates.
+
+I will treat empirical findings as provisional until these checks are complete.
 
 ## Interpretation and limitations
 
@@ -168,7 +180,7 @@ The original downloaded source files are retained in data/raw/. Consult the sour
 @software{ansere_mensah_ghana_banking_asset_quality,
   author = {Ansere-Mensah, Kwame},
   title  = {Ghana Banking Asset Quality},
-  year   = {2025},
+  year   = {2026},
   url    = {https://github.com/cube0002/ghana-banking-asset-quality}
 }
 ~~~
