@@ -1,6 +1,5 @@
 """Tests for safe source-data refresh behaviour."""
 
-from io import BytesIO
 from pathlib import Path
 import sys
 
@@ -13,37 +12,41 @@ from ghana_banking.data import refresh
 
 
 def monthly_csv(latest="01/02/2026"):
+    end = pd.to_datetime(latest, format="%d/%m/%Y")
+    dates = pd.date_range(end=end, periods=12, freq="MS")
     frame = pd.DataFrame({
-        "Name of Series": ["01/01/2026", latest],
-        "Monetary Policy Rate (%)": [15, 15],
-        "Consumer Price Index, All Items": [100, 101],
-        "USD Exchange Rate, monthly averages": [10, 10.1],
-        "Total Liquidity (M2+)": [1000, 1010],
-        "Gold Price (Realised Gold Price)": [2000, 2010],
-        "Return on Assets": [2.0, 2.1],
-        "Non Performing Loan Ratio": [15.0, 14.9],
-        "Capital Adequacy Ratio": [18.0, 18.1],
+        "Name of Series": dates.strftime("%d/%m/%Y"),
+        "Monetary Policy Rate (%)": [15.0] * 12,
+        "Consumer Price Index, All Items": range(100, 112),
+        "USD Exchange Rate, monthly averages": [10.0 + i / 10 for i in range(12)],
+        "Total Liquidity (M2+)": range(1000, 1012),
+        "Gold Price (Realised Gold Price)": range(2000, 2012),
+        "Return on Assets": [2.0 + i / 10 for i in range(12)],
+        "Non Performing Loan Ratio": [15.0 - i / 10 for i in range(12)],
+        "Capital Adequacy Ratio": [18.0] * 12,
     })
     return frame.to_csv(index=False).encode("utf-8")
 
 
 def gdp_csv(latest="2026Q1"):
+    end = pd.Period(latest, freq="Q")
+    quarters = pd.period_range(end=end, periods=8, freq="Q")
     frame = pd.DataFrame({
-        "Name of Series": ["2025Q4", latest],
-        "Gross Domestic Product (GDP), production, real": [50000, 51000],
+        "Name of Series": quarters.astype(str),
+        "Gross Domestic Product (GDP), production, real": range(50000, 50008),
     })
     return frame.to_csv(index=False).encode("utf-8")
 
 
 def test_parse_monthly_refresh_payload_validates_required_schema():
     frame, latest = refresh._parse_monthly(monthly_csv())
-    assert len(frame) == 2
+    assert len(frame) == 12
     assert latest == pd.Timestamp("2026-02-01")
 
 
 def test_parse_gdp_refresh_payload_preserves_quarter():
     frame, latest = refresh._parse_gdp(gdp_csv())
-    assert len(frame) == 2
+    assert len(frame) == 8
     assert latest == pd.Period("2026Q1", freq="Q")
 
 
@@ -62,7 +65,7 @@ def test_refresh_rejects_stale_download_without_changing_local_files(
     payloads = iter([monthly_csv("01/02/2026"), gdp_csv("2026Q1")])
     monkeypatch.setattr(refresh, "_download_csv", lambda *args, **kwargs: next(payloads))
 
-    with pytest.raises(ValueError, match="stale"):
+    with pytest.raises(ValueError, match="older than the local file"):
         refresh.refresh_source_data(
             "https://example.test/monthly.csv",
             "https://example.test/gdp.csv",
