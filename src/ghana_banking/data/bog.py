@@ -153,6 +153,16 @@ def _parse_bog_fsi_csv(payload: bytes) -> pd.DataFrame:
             normalized_label = re.sub(r"[^a-z0-9]+", " ", label.lower()).strip()
             if normalized_value == normalized_label or normalized_value.startswith(normalized_label + " "):
                 return code
+        # Accept the provider's descriptive labels even when punctuation or
+        # a parenthetical abbreviation differs from the canonical label.
+        aliases = {
+            "CAR": ("capital adequacy ratio",),
+            "NPL": ("non performing loan",),
+            "ROA": ("return on assets",),
+        }
+        for code, prefixes in aliases.items():
+            if any(normalized_value.startswith(prefix) for prefix in prefixes):
+                return code
         return ""
 
     indicator_codes = raw_indicators.map(identify_indicator_code)
@@ -170,22 +180,12 @@ def _parse_bog_fsi_csv(payload: bytes) -> pd.DataFrame:
     if result.duplicated(["Month", "Indicator"]).any():
         raise ValueError("FSI response contains duplicate month-indicator observations.")
 
-    normalized_indicators = {
-        re.sub(r"[^a-z0-9]+", " ", value.lower()).strip()
-        for value in result["Indicator"].unique()
-    }
-    required_prefixes = {
-        "capital adequacy ratio": lambda value: value.startswith("capital adequacy ratio"),
-        "non performing loans": lambda value: value.startswith("non performing loan"),
-        "return on assets": lambda value: value.startswith("return on assets"),
-    }
-    missing = [
-        label for label, matches in required_prefixes.items()
-        if not any(matches(value) for value in normalized_indicators)
-    ]
-    if missing:
+    observed_codes = set(result["Indicator Code"].dropna())
+    required_codes = {"CAR", "NPL", "ROA"}
+    missing_codes = sorted(required_codes.difference(observed_codes))
+    if missing_codes:
         raise ValueError(
-            "FSI response is missing required core indicators: {}".format(missing)
+            "FSI response is missing required core indicator codes: {}".format(missing_codes)
         )
 
     result = result.sort_values(["Month", "Indicator"])
