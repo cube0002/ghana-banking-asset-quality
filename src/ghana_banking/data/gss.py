@@ -24,7 +24,7 @@ _GSS_TABLE_PATH = (
     "qgdp_p_px.px"
 )
 DEFAULT_GSS_GDP_API_URL = (
-    "https://statsbank.statsghana.gov.gh/pxweb/api/v1/en/"
+    "https://statsbank.statsghana.gov.gh:443/api/v1/en/"
     + quote(_GSS_TABLE_PATH, safe="/")
 )
 GDP_SERIES_TERMS = ("real", "2013")
