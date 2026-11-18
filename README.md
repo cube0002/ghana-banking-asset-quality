@@ -60,7 +60,7 @@ Previously reported coefficient significance and fit statistics are not presente
 
 ### Vector autoregression
 
-I am developing the VAR workflow to estimate multivariate lag models and examine impulse responses. The transformation applied before estimation, lag order, variable ordering and identification assumptions matter for the interpretation of impulse responses. A reduced-form VAR response should not automatically be described as a causal structural shock.
+I am developing the VAR workflow to estimate multivariate lag models, examine impulse responses and check model stability and residual behaviour. The module now exposes a companion-matrix stability check, a Portmanteau residual-whiteness test and a joint residual-normality test. I still need to compare lag choices, investigate specification sensitivity and justify the shock-identification strategy before drawing economic conclusions. The transformation applied before estimation, lag order, variable ordering and identification assumptions matter for interpreting impulse responses. A reduced-form VAR response should not automatically be described as a causal structural shock.
 
 ### Scenario analysis
 
