@@ -34,7 +34,7 @@ def metadata():
                 "code": "Aggregate",
                 "text": "Aggregate",
                 "values": ["overall", "agriculture"],
-                "valueTexts": ["Overall GDP", "Agriculture"],
+                "valueTexts": ["Total GDP", "Agriculture"],
             },
         ]
     }
