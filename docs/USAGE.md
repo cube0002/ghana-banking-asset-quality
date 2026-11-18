@@ -18,6 +18,18 @@ The GitHub Actions workflow supports manual refresh and a weekly schedule. Add r
 
 **Current limitation:** the refresh mechanism is ready, but the provider export URLs still need to be configured. It does not yet connect to a live Bank of Ghana or Ghana Statistical Service API, and it cannot promise real-time updates where the providers publish data periodically.
 
+### Refresh Bank of Ghana financial soundness indicators (experimental)
+
+The Bank of Ghana's monthly financial soundness indicators are also published in a GSS StatsBank PxWeb table. The table identifies the Bank of Ghana as the original source and includes capital adequacy, non-performing loans, liquidity, ROA, ROE and cost/income measures.
+
+Run the connector manually:
+
+```bash
+PYTHONPATH=src python -m ghana_banking.data.bog --raw-data-path data/raw
+```
+
+It reads the table metadata, selects the monthly time dimension and indicator dimension, and writes long-format observations to `data/raw/bog_financial_soundness.csv`. It does not overwrite `data_first.csv` or `data_first2.csv`. The connector is experimental until its live API response is retrieved and reconciled with the BoG publication. The GSS StatsBank table is a publication route; the original data source is the Bank of Ghana.
+
 ### Refresh quarterly GDP directly from GSS StatsBank (experimental)
 
 I have added a separate PxWeb connector for the GSS quarterly GDP table. It uses the documented StatsBank API root (`https://statsbank.statsghana.gov.gh:443/api/v1/en/`), reads the table metadata, identifies the time dimension and the real-GDP/total categories, then requests the observations. It deliberately stops if the provider's metadata is ambiguous. The published table labels the aggregate `Total GDP` and the real series `Real GDP (constant 2013 prices)`.
