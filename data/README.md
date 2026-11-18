@@ -35,3 +35,11 @@ Some monthly series have missing observations near the end of the sample. Do not
 - [Reuters](https://www.reuters.com/)
 
 The source names above reflect the metadata included in the downloaded files. Consult the providers for updated definitions, revisions and terms of use.
+
+## Updating the source files
+
+The repository includes a configurable refresh script and a GitHub Actions workflow. The script expects CSV export URLs for the monthly banking dataset and quarterly GDP dataset. It validates the required columns and date coverage before replacing local files, and rejects a download that is older than the current local data.
+
+The URLs are not hard-coded because the provider export endpoints must be confirmed and may change. Configure the repository Actions secrets `MONTHLY_DATA_URL` and `GDP_DATA_URL` to enable manual or scheduled refreshes. See [the usage guide](../docs/USAGE.md#refresh-source-data) for setup instructions.
+
+A refresh is only as current as the provider's latest published release. The workflow does not imply real-time data availability.
