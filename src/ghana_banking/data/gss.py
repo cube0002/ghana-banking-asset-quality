@@ -122,12 +122,17 @@ def _parse_pxweb_gdp_csv(payload: bytes) -> pd.DataFrame:
         raise ValueError("GSS PxWeb response did not contain quarterly period labels.")
 
     value_col = [column for column in frame.columns if column != period_col][-1]
-    periods = frame[period_col].astype(str).str.extract(r"(\d{4}Q[1-4])", expand=False)
+    raw_periods = frame[period_col].astype(str)
+    periods = raw_periods.str.extract(r"(\d{4}Q[1-4])", expand=False)
+    status = raw_periods.map(
+        lambda value: "provisional" if "**" in value else ("revised" if "*" in value else "unmarked")
+    )
     values = pd.to_numeric(frame[value_col], errors="coerce")
     result = pd.DataFrame({
         "Name of Series": periods,
         "Gross Domestic Product (GDP), production, real": values,
-    }).dropna()
+        "Observation Status": status,
+    }).dropna(subset=["Name of Series", "Gross Domestic Product (GDP), production, real"])
     result["Name of Series"] = result["Name of Series"].astype(str)
     result = result.drop_duplicates("Name of Series").sort_values("Name of Series")
     if len(result) < 8:
