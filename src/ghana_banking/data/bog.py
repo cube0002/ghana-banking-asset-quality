@@ -138,7 +138,30 @@ def _parse_bog_fsi_csv(payload: bytes) -> pd.DataFrame:
         "Value": pd.to_numeric(frame[value_col], errors="coerce"),
     }).dropna()
     result = result[result["Indicator"] != ""]
-    result = result.drop_duplicates(["Month", "Indicator"]).sort_values(["Month", "Indicator"])
+    if result.duplicated(["Month", "Indicator"]).any():
+        raise ValueError("FSI response contains duplicate month-indicator observations.")
+
+    normalized_indicators = {
+        re.sub(r"[^a-z0-9]+", " ", value.lower()).strip()
+        for value in result["Indicator"].unique()
+    }
+    required_indicators = {
+        "capital adequacy ratio",
+        "non performing loan ratio",
+        "return on assets roa before tax",
+    }
+    # The provider's displayed ROA label may omit the parenthetical mnemonic.
+    has_roa = any(value.startswith("return on assets") for value in normalized_indicators)
+    missing = required_indicators.difference(normalized_indicators)
+    missing.discard("return on assets roa before tax")
+    if missing or not has_roa:
+        raise ValueError(
+            "FSI response is missing required core indicators: {}".format(
+                sorted(missing | (set() if has_roa else {"return on assets"}))
+            )
+        )
+
+    result = result.sort_values(["Month", "Indicator"])
     if result["Month"].nunique() < 12:
         raise ValueError("FSI response contained fewer than twelve distinct monthly observations.")
     return result.reset_index(drop=True)
