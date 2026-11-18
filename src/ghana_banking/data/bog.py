@@ -143,12 +143,21 @@ def _parse_bog_fsi_csv(payload: bytes) -> pd.DataFrame:
         raise ValueError("Expected exactly one numeric value column in FSI response.")
     value_col = value_columns[0]
 
+    raw_indicators = frame[indicator_col].astype(str).str.strip()
+    indicator_codes = raw_indicators.map(
+        lambda value: value.upper() if value.upper() in FSI_INDICATOR_LABELS else ""
+    )
+    canonical_labels = raw_indicators.copy()
+    for code, label in FSI_INDICATOR_LABELS.items():
+        canonical_labels = canonical_labels.mask(indicator_codes == code, label)
+
     result = pd.DataFrame({
-        "Month": frame[month_col].astype(str).str.extract(r"(\d{4}M\d{2})", expand=False),
-        "Indicator": frame[indicator_col].astype(str).str.strip(),
+        "Month": frame[month_col].astype(str).str.extract(r"(\\d{4}M\\d{2})", expand=False),
+        "Indicator Code": indicator_codes,
+        "Indicator": canonical_labels,
         "Value": pd.to_numeric(frame[value_col], errors="coerce"),
-    }).dropna()
-    result = result[result["Indicator"] != ""]
+    }).dropna(subset=["Month", "Value"])
+    result = result[result["Indicator"].str.strip() != ""]
     if result.duplicated(["Month", "Indicator"]).any():
         raise ValueError("FSI response contains duplicate month-indicator observations.")
 
