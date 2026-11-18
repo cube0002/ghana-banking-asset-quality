@@ -183,3 +183,17 @@ def test_fsi_query_accepts_published_indicator_codes():
     query = bog.build_bog_fsi_query(fsi_metadata())
     selected = {item["code"]: item["selection"] for item in query["query"]}
     assert selected["Indicator"] == {"filter": "all", "values": ["*"]}
+
+
+def test_parse_fsi_csv_maps_published_indicator_labels_to_codes():
+    frame = pd.DataFrame({
+        "Month": ["2024M{:02d}".format(month) for month in range(1, 13)],
+        "Indicator": [
+            "Capital Adequacy Ratio",
+            "Non-Performing Loans",
+            "Return on Assets - Before Tax",
+        ] * 4,
+        "value": [18.0, 14.0, 4.0] * 4,
+    })
+    result = bog._parse_bog_fsi_csv(frame.to_csv(index=False).encode("utf-8"))
+    assert set(result["Indicator Code"]) == {"CAR", "NPL", "ROA"}
