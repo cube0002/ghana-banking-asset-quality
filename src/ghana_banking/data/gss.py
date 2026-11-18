@@ -66,7 +66,8 @@ def build_gss_gdp_query(metadata: Dict) -> Dict:
         values = variable.get("values", [])
         labels = variable.get("valueTexts", values)
         for value, label in zip(values, labels):
-            combined = (str(label) + " " + str(value)).lower()
+            label_text = str(label).lower()
+            value_text = str(value).lower()
             if label_text.strip() in GDP_SERIES_LABELS or value_text.strip() in GDP_SERIES_LABELS:
                 matched_series.append((variable.get("code"), value))
             if label_text.strip() in GDP_TOTAL_LABELS or value_text.strip() in GDP_TOTAL_LABELS:
