@@ -138,7 +138,7 @@ def load_quarterly_gdp(raw_data_path: Optional[str] = None) -> pd.DataFrame:
         raise ValueError("GDP source is missing its expected date or GDP column.")
 
     quarters = source["Name of Series"].astype(str).str.extract(
-        r"(\\d{4}Q[1-4])", expand=False
+        r"(\d{4}Q[1-4])", expand=False
     )
     values = pd.to_numeric(
         source["Gross Domestic Product (GDP), production, real"],
