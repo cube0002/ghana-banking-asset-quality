@@ -1,56 +1,74 @@
-# Usage Guide
+# Usage
 
-## Running the Full Analysis
-
-### 1. Download Data (one-time)
-```bash
-python data/download_data.py
-```
-
-### 2. Start Jupyter
-```bash
-make notebooks
-# or
-jupyter lab notebooks/
-```
-
-### 3. Run Notebooks in Order
-- `01_EDA.ipynb` – Exploratory analysis
-- `02_Regression.ipynb` – OLS results
-- `03_VAR_Modeling.ipynb` – Dynamic analysis
-- `04_StressTest.ipynb` – Scenario analysis
-
-## Using the Package Programmatically
+## Load the prepared data
 
 ```python
-from ghana_banking import load_banking_data, OLSModel, StressTest
+from ghana_banking.data import load_banking_data
 
-# Load data
 df = load_banking_data()
+print(df.head())
+print(df.index.min(), df.index.max())
+print(df.isna().sum())
+```
 
-# Fit OLS model
+The loader joins monthly indicators to linearly interpolated monthly estimates of quarterly GDP. These interpolated GDP values are not observed monthly data; see the project README and data dictionary before using them in time-series models.
+
+## Fit an OLS model
+
+```python
+from ghana_banking.modeling import OLSModel
+
 model = OLSModel()
-model.fit(df, y_col="NPL_Ratio", x_cols=["Policy_Rate", "CPI", ...])
-
-# Stress test
-stress = StressTest(model)
-stress.set_baseline(df.iloc[-1])
-results = stress.run_scenarios()
-print(results)
+model.fit(
+    df,
+    y_col="Non Performing Loan Ratio",
+    x_cols=["Monetary Policy Rate (%)", "GDP_Real"],
+)
+print(model.summary())
+print(model.get_diagnostics())
 ```
 
-## Running Tests
-```bash
-make test
-make lint
-make format
+The default OLS summary uses conventional standard errors. For macroeconomic time series, inspect residual autocorrelation, stationarity, structural stability and collinearity before interpreting conventional p-values. A fitted association is not a causal estimate.
+
+## Fit a VAR
+
+```python
+from ghana_banking.modeling import VARModel
+
+variables = df[
+    ["Non Performing Loan Ratio", "Monetary Policy Rate (%)", "GDP_Real"]
+].dropna()
+
+var_model = VARModel(lags=2)
+var_model.fit(variables, use_diff=True)
+print(var_model.summary())
 ```
 
-## Common Commands
+The `use_diff` argument controls whether first differences are used. Choose transformations based on time-series diagnostics rather than assuming that differencing is always appropriate. Interpret impulse responses in the units and transformations of the fitted system.
+
+## Run a scenario exercise
+
+```python
+from ghana_banking.modeling import StressTest
+
+stress = StressTest(
+    df,
+    target_var="Non Performing Loan Ratio",
+    stress_vars=["Monetary Policy Rate (%)", "GDP_Real"],
+)
+
+scenario = {
+    "Monetary Policy Rate (%)": 20.0,
+    "GDP_Real": float(df["GDP_Real"].iloc[-1]),
+}
+print(stress.run_scenario(scenario))
+```
+
+This is a conditional prediction from a fitted linear model, not a validated supervisory stress test. Scenario values should be documented, economically justified and checked against the model's estimation range.
+
+## Run the notebooks and tests
+
 ```bash
-make help      # Show all available commands
-make test      # Run tests with coverage
-make lint      # Check code quality
-make format    # Auto-format code
-make clean     # Remove cache files
+jupyter lab notebooks/
+pytest tests/ -v
 ```
