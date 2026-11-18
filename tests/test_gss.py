@@ -66,7 +66,7 @@ def test_gss_query_rejects_ambiguous_metadata():
     ambiguous = metadata()
     ambiguous["variables"][1]["values"].append("real_alt")
     ambiguous["variables"][1]["valueTexts"].append(
-        "Real GDP (constant 2013 prices), revised"
+        "Real GDP (constant 2013 prices)"
     )
     with pytest.raises(ValueError, match="unique"):
         gss.build_gss_gdp_query(ambiguous)
