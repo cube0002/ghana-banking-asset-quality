@@ -20,7 +20,7 @@ from urllib.request import Request, urlopen
 import pandas as pd
 
 
-_BOG_FSI_TABLE_PATH = "Search Bar/-/financial_sector_soundness.px"
+_BOG_FSI_TABLE_PATH = "Search Bar/-/fin_sound.px"
 FSI_INDICATOR_LABELS = {
     "CAR": "Capital Adequacy Ratio",
     "CDR": "Credit to Deposits",
@@ -71,10 +71,19 @@ def build_bog_fsi_query(metadata: Dict) -> Dict:
     for variable in variables:
         if variable is time_variables[0]:
             continue
-        values = [str(value).strip().upper() for value in variable.get("values", [])]
-        labels = [str(value).strip().upper() for value in variable.get("valueTexts", [])]
-        available_codes = set(values) | set(labels)
-        if {"CAR", "NPL", "ROA"}.issubset(available_codes):
+        values = [
+            re.sub(r"[^a-z0-9]+", " ", str(value).lower()).strip()
+            for value in variable.get("values", [])
+        ]
+        labels = [
+            re.sub(r"[^a-z0-9]+", " ", str(value).lower()).strip()
+            for value in variable.get("valueTexts", [])
+        ]
+        available_labels = set(values) | set(labels)
+        has_car = any(value.startswith("capital adequacy ratio") for value in available_labels)
+        has_npl = any(value.startswith("non performing loan") for value in available_labels)
+        has_roa = any(value.startswith("return on assets") for value in available_labels)
+        if has_car and has_npl and has_roa:
             indicator_variables.append(variable)
     if len(indicator_variables) != 1:
         raise ValueError("Could not identify the unique financial-soundness indicator dimension.")
