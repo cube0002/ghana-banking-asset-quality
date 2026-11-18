@@ -225,7 +225,24 @@ class TestVARModel:
         model.fit(data, use_diff=True)
         lag_order = model.get_lag_order(maxlags=4)
         assert isinstance(lag_order, dict)
-        assert 'aic' in lag_order
+        assert set(lag_order["selected_orders"]) == {"aic", "bic", "fpe", "hqic"}
+        assert lag_order["maxlags_evaluated"] == 4
+        assert lag_order["aic"] == lag_order["selected_orders"]["aic"]
+        assert 0 <= lag_order["bic"] <= 4
+
+    def test_var_model_lag_order_rejects_invalid_maxlags(self, sample_timeseries):
+        """Lag selection rejects invalid or infeasible maximum lag orders."""
+        model = VARModel(lags=2)
+        data = sample_timeseries[
+            ["Non Performing Loan Ratio", "Monetary Policy Rate (%)", "GDP_Real"]
+        ]
+        model.fit(data, use_diff=True)
+
+        with pytest.raises(ValueError, match="positive integer"):
+            model.get_lag_order(maxlags=0)
+
+        with pytest.raises(ValueError, match="too large"):
+            model.get_lag_order(maxlags=100)
     
     def test_var_model_error_insufficient_data(self):
         """Test that insufficient data raises error."""
