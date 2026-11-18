@@ -42,9 +42,15 @@ variables = df[
 var_model = VARModel(lags=2)
 var_model.fit(variables, use_diff=True)
 print(var_model.summary())
+
+# Check stability and residual behaviour before interpreting IRFs
+diagnostics = var_model.get_diagnostics(whiteness_lags=12)
+print(diagnostics)
 ```
 
-The `use_diff` argument controls whether first differences are used. Choose transformations based on time-series diagnostics rather than assuming that differencing is always appropriate. Interpret impulse responses in the units and transformations of the fitted system.
+The `use_diff` argument controls whether first differences are used. Choose transformations based on time-series diagnostics rather than assuming that differencing is always appropriate. Interpret impulse responses in the units and transformations of the fitted system. The diagnostic method reports a companion-matrix stability check, a Portmanteau residual-whiteness test and a joint residual-normality test. These are minimum specification checks, not proof that the model is correct.
+
+When forecasting a model fitted with `use_diff=True`, pass the last `lags` observations of the differenced data, in the same column order. Forecasts remain in differences; the current method does not reconstruct level forecasts.
 
 ## Run a scenario exercise
 
