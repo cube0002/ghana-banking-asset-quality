@@ -1,6 +1,7 @@
 """Tests for the GSS StatsBank GDP connector."""
 
 from pathlib import Path
+import json
 import sys
 
 import pandas as pd
@@ -22,8 +23,8 @@ def metadata():
                 "time": True,
             },
             {
-                "code": "GDPType",
-                "text": "GDP type",
+                "code": "GDP_Series",
+                "text": "GDP series",
                 "values": ["real2013", "nominal"],
                 "valueTexts": [
                     "Real GDP (constant 2013 prices)",
@@ -31,9 +32,9 @@ def metadata():
                 ],
             },
             {
-                "code": "Aggregate",
-                "text": "Aggregate",
-                "values": ["overall", "agriculture"],
+                "code": "Variable",
+                "text": "Variable",
+                "values": ["total", "agriculture"],
                 "valueTexts": ["Total GDP", "Agriculture"],
             },
         ]
@@ -41,7 +42,9 @@ def metadata():
 
 
 def pxweb_csv():
-    periods = pd.period_range("2023Q1", periods=8, freq="Q").astype(str)
+    periods = pd.period_range("2023Q1", periods=8, freq="Q").astype(str).tolist()
+    periods[0] += "*"
+    periods[1] += "**"
     frame = pd.DataFrame({
         "Quarter": periods,
         "value": [1000 + i * 10 for i in range(8)],
@@ -54,8 +57,8 @@ def test_gss_query_discovers_dimensions_and_selects_real_total_gdp():
     selections = {item["code"]: item["selection"] for item in query["query"]}
 
     assert selections["Quarter"] == {"filter": "all", "values": ["*"]}
-    assert selections["GDPType"] == {"filter": "item", "values": ["real2013"]}
-    assert selections["Aggregate"] == {"filter": "item", "values": ["overall"]}
+    assert selections["GDP_Series"] == {"filter": "item", "values": ["real2013"]}
+    assert selections["Variable"] == {"filter": "item", "values": ["total"]}
     assert query["response"]["format"] == "csv"
 
 
@@ -69,11 +72,12 @@ def test_gss_query_rejects_ambiguous_metadata():
         gss.build_gss_gdp_query(ambiguous)
 
 
-def test_parse_pxweb_gdp_csv_normalises_repository_schema():
+def test_parse_pxweb_gdp_csv_normalises_schema_and_keeps_revision_markers():
     result = gss._parse_pxweb_gdp_csv(pxweb_csv())
     assert list(result.columns) == [
         "Name of Series",
         "Gross Domestic Product (GDP), production, real",
+        "Observation Status",
     ]
     assert len(result) == 8
     assert result["Name of Series"].iloc[0] == "2023Q1"
@@ -104,6 +108,7 @@ def test_update_gss_gdp_writes_normalised_csv(tmp_path, monkeypatch):
     assert result["latest_quarter"] == "2024Q4"
     assert len(saved) == 8
     assert saved["Name of Series"].iloc[0] == "2023Q1"
+    assert saved["Observation Status"].iloc[0] == "revised"
 
 
 def test_update_gss_gdp_rejects_older_data_without_replacing_file(tmp_path, monkeypatch):
@@ -124,7 +129,7 @@ def test_update_gss_gdp_rejects_older_data_without_replacing_file(tmp_path, monk
 
 
 def test_fetch_gss_gdp_reads_metadata_then_posts_selected_query(monkeypatch):
-    metadata_payload = __import__("json").dumps(metadata()).encode("utf-8")
+    metadata_payload = json.dumps(metadata()).encode("utf-8")
     csv_payload = pxweb_csv()
     calls = []
 
