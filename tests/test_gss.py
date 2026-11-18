@@ -147,3 +147,11 @@ def test_fetch_gss_gdp_reads_metadata_then_posts_selected_query(monkeypatch):
 def test_fetch_gss_gdp_requires_https():
     with pytest.raises(ValueError, match="HTTPS"):
         gss.fetch_gss_quarterly_gdp(api_url="http://example.test/table.px")
+
+
+def test_default_gss_endpoint_uses_documented_pxweb_api_base():
+    assert gss.DEFAULT_GSS_GDP_API_URL.startswith(
+        "https://statsbank.statsghana.gov.gh:443/api/v1/en/"
+    )
+    assert "/pxweb/api/" not in gss.DEFAULT_GSS_GDP_API_URL
+    assert gss.DEFAULT_GSS_GDP_API_URL.endswith("/qgdp_p_px.px")
