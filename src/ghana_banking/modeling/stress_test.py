@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
 from typing import Dict, Optional
 
 
@@ -50,6 +51,9 @@ class StressTest:
         Raises:
             ValueError: If variables don't exist
         """
+        if not 0 < train_ratio < 1:
+            raise ValueError("train_ratio must be strictly between 0 and 1.")
+
         # Validate inputs
         missing_vars = [v for v in [target_var] + stress_vars if v not in df.columns]
         if missing_vars:
@@ -65,18 +69,30 @@ class StressTest:
         
         # Split into train/test
         n_train = int(len(data) * train_ratio)
+        if n_train < len(stress_vars) + 1 or len(data) - n_train < 1:
+            raise ValueError(
+                "The chronological split leaves too few observations for "
+                "training or testing. Adjust train_ratio or provide more data."
+            )
+
+        # Preserve time order: fit preprocessing and model on the training
+        # period only, then evaluate on the later holdout period.
         data_train = data.iloc[:n_train]
-        
-        # Extract and standardize features
-        X = data_train[stress_vars].values
-        y = data_train[target_var].values
-        
+        data_test = data.iloc[n_train:]
+        X_train = data_train[stress_vars].values
+        y_train = data_train[target_var].values
+        X_test = data_test[stress_vars].values
+        y_test = data_test[target_var].values
+
         self.scaler = StandardScaler()
-        X_scaled = self.scaler.fit_transform(X)
-        
-        # Fit regression model
+        self._X_train_scaled = self.scaler.fit_transform(X_train)
+        self._X_test_scaled = self.scaler.transform(X_test)
+        self._y_train = y_train
+        self._y_test = y_test
+
+        # Fit regression model on the training period only.
         self.regression_model = LinearRegression()
-        self.regression_model.fit(X_scaled, y)
+        self.regression_model.fit(self._X_train_scaled, self._y_train)
         self.feature_names = stress_vars
         self.target_var = target_var
     
@@ -220,29 +236,31 @@ class StressTest:
         return coeff_df
     
     def get_model_diagnostics(self) -> Dict:
-        """Check how good the stress model is.
-        
-        Returns model stats so you know whether to trust the scenarios.
-        
-        Returns:
-            Dictionary with R-squared, intercept, etc.
-        
-        Example:
-            diags = st.get_model_diagnostics()
-            if diags['r2_score'] > 0.7:
-                print("Good fit, scenarios are trustworthy")
+        """Report chronological holdout performance and training fit.
+
+        The test period follows the training period. Scaling parameters are
+        estimated on training observations only, avoiding look-ahead leakage.
+        The returned r2_score is the holdout R-squared for backwards
+        compatibility; it is None when the holdout has fewer than two rows.
         """
-        from sklearn.metrics import r2_score
-        
-        # Get training data predictions for R2
-        if hasattr(self, '_X_train_scaled'):
-            y_pred = self.regression_model.predict(self._X_train_scaled)
-            r2 = r2_score(self._y_train, y_pred)
-        else:
-            r2 = None
-        
+        train_predictions = self.regression_model.predict(self._X_train_scaled)
+        test_predictions = self.regression_model.predict(self._X_test_scaled)
+
+        train_r2 = r2_score(self._y_train, train_predictions)
+        test_r2 = (
+            r2_score(self._y_test, test_predictions)
+            if len(self._y_test) >= 2
+            else None
+        )
+        test_rmse = float(np.sqrt(mean_squared_error(self._y_test, test_predictions)))
+
         return {
-            'intercept': self.regression_model.intercept_,
-            'n_features': len(self.feature_names),
-            'r2_score': r2
+            "intercept": self.regression_model.intercept_,
+            "n_features": len(self.feature_names),
+            "r2_score": test_r2,
+            "train_r2": train_r2,
+            "test_r2": test_r2,
+            "test_rmse": test_rmse,
+            "n_train": len(self._y_train),
+            "n_test": len(self._y_test),
         }
