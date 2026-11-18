@@ -8,7 +8,8 @@ This directory separates the downloaded source files from the prepared analysis 
 
 The source files include metadata rows after the observations. The loader identifies dated observations by parsing the date or quarter field rather than relying on a fixed number of rows.
 
-- `raw/bog_financial_soundness.csv`: monthly Bank of Ghana financial soundness indicators, retrieved through the GSS StatsBank publication table (experimental connector; kept separate from the original monthly macro file).
+- `raw/bog_financial_soundness.csv`: historical monthly Bank of Ghana financial soundness indicators from the GSS StatsBank mirror (experimental connector; kept separate from the original monthly macro file).
+- `raw/bog_summary_nov_2026.csv`: manually transcribed monthly banking-sector indicators from the Bank of Ghana's 17 November 2026 Summary of Economic and Financial Data, covering October 2025–October 2026. Each observation retains the publication date and official PDF URL.
 
 ## Variable dictionary
 
@@ -74,3 +75,16 @@ The FSI connector uses the official GSS StatsBank table `Search Bar/-/financial_
 **Comparability warning:** the Bank of Ghana states that CAR from April 2023 is adjusted for regulatory reliefs. Its July 2025 publication reports June 2025 CAR of 19.7%, CAR without regulatory reliefs of 18.2%, NPL of 23.1%, NPL excluding the loss category of 8.5%, ROA before tax of 5.6%, and ROE after tax of 32.2%. These definitions are not interchangeable. A time-series analysis must preserve the relief-adjusted CAR break and must not substitute the adjusted NPL measure for headline NPL.
 
 The selected StatsBank table advertises 222 monthly periods beginning January 2006 and ending June 2024. The alternative nine-indicator table advertises 216 months ending December 2023. The connector now targets the newer table and maps descriptive labels to stable indicator codes. The selected source is a data-extraction prototype until its API response and overlapping observations are reconciled with BoG monthly publications. BoG notes that data are subject to revision.
+
+
+## Bank of Ghana November 2026 publication snapshot
+
+I have added `raw/bog_summary_nov_2026.csv`, a separate publication snapshot transcribed from the Bank of Ghana's [November 2026 Summary of Economic and Financial Data](https://www.bog.gov.gh/wp-content/uploads/2026/11/Summary-of-Economic-and-Financial-Data-November-2026.pdf), published 17 November 2026. It contains 11 banking-sector indicators for each month from October 2025 through October 2026 (143 rows). The source publication reports values to one decimal place and states that data are subject to revision.
+
+The snapshot includes headline and adjusted NPL, headline and regulatory-relief-excluded CAR, profitability, liquidity and efficiency measures. It is deliberately stored separately: it does not overwrite `data_first.csv`, because the latter also contains macroeconomic variables and more precise historical observations. Use `load_bog_summary_snapshot()` to load and validate the snapshot while retaining its source metadata.
+
+### Initial overlap check
+
+For October–December 2025, the original monthly file's CAR, NPL and ROA values round to the one-decimal figures in the November 2026 BoG publication. This is a useful consistency check, not proof that the complete historical series is identical. The publication snapshot should be treated as a rounded, later-vintage reference, and the original values should remain intact until the full series is reconciled.
+
+The snapshot is manually transcribed from the cited PDF; it is not yet an automated PDF ingestion pipeline or a live feed. Future updates should add a new dated snapshot and compare revisions rather than silently replace prior values.
