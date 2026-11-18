@@ -11,7 +11,7 @@ import os
 import tempfile
 from pathlib import Path
 from typing import Dict
-from urllib.request import Request, urlopen
+from urllib.request import Request, urlopen\nfrom urllib.parse import quote
 
 import pandas as pd
 
