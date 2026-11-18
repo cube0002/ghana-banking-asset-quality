@@ -1,5 +1,23 @@
 # Usage
 
+## Refresh source data
+
+I have added a validated refresh utility. It downloads the monthly banking CSV and quarterly GDP CSV from configurable export URLs, checks the expected schemas and observation dates, and only replaces the local files after both downloads pass validation. It refuses to replace a newer local dataset with an older download.
+
+The refresh utility does not guess source URLs. Configure the official CSV export URLs supplied by the relevant data providers:
+
+```bash
+export MONTHLY_DATA_URL="https://provider.example/monthly-export.csv"
+export GDP_DATA_URL="https://provider.example/quarterly-gdp-export.csv"
+PYTHONPATH=src python -m ghana_banking.data.refresh
+```
+
+On Windows PowerShell, set the variables with `$env:MONTHLY_DATA_URL` and `$env:GDP_DATA_URL` before running the command.
+
+The GitHub Actions workflow supports manual refresh and a weekly schedule. Add repository Actions secrets named `MONTHLY_DATA_URL` and `GDP_DATA_URL` before enabling it. The scheduled workflow runs from the repository's default branch; manual runs can be launched against a selected branch. A successful refresh commits changed raw CSVs, while unchanged files are left alone.
+
+**Current limitation:** the refresh mechanism is ready, but the provider export URLs still need to be configured. It does not yet connect to a live Bank of Ghana or Ghana Statistical Service API, and it cannot promise real-time updates where the providers publish data periodically.
+
 ## Load the prepared data
 
 ```python
