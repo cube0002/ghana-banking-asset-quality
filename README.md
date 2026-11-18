@@ -1,506 +1,178 @@
-# Ghana Banking Asset Quality Analysis
+# Ghana Banking Asset Quality
 
-[![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/downloads/)
-[![Tests](https://img.shields.io/badge/tests-passing-green)](tests/)
-[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+An empirical study of non-performing loans and macro-financial conditions in Ghana.
 
-Analyzing what drives non-performing loans in Ghana's banking sector over 2010-2025. 
-## Getting Started
+This project examines how banking-sector asset quality has evolved alongside monetary, price, exchange-rate and real-economy conditions. It brings together exploratory analysis, regression modelling, multivariate time-series methods and scenario analysis using published Ghanaian banking and macroeconomic indicators.
 
-### Install
+The aim is not to claim that one model explains every movement in non-performing loans. It is to document the data, make the modelling choices visible, and assess what the available aggregate evidence can—and cannot—say about credit risk.
 
-```bash
-git clone https://github.com/cube0002/ghana-banking-analysis.git
-cd ghana-banking-analysis
+## Research question
 
-# Simple installation
-pip install -e .
+**How have macroeconomic conditions and banking-sector indicators moved alongside the NPL ratio in Ghana, and what do econometric and scenario-based models suggest about the transmission of macro-financial shocks?**
 
-# With development tools (testing, linting)
-pip install -e ".[dev]"
-```
+The analysis is organised around four tasks:
 
-### Quick Example
+1. Describe the evolution of the NPL ratio and selected macro-financial indicators.
+2. Examine contemporaneous associations between NPLs and potential explanatory variables.
+3. Explore dynamic relationships among selected variables using a vector autoregression (VAR).
+4. Translate selected macroeconomic assumptions into conditional NPL scenarios.
 
-```python
-from ghana_banking.data import load_banking_data
-from ghana_banking.modeling import OLSModel
-from ghana_banking.plotting import plot_npl_timeline
-import matplotlib.pyplot as plt
+## Data
 
-# Load the data (handles quarterly→monthly interpolation automatically)
-df = load_banking_data()
+The repository contains two source files:
 
-# Run a quick regression
-model = OLSModel()
-model.fit(df, 'Non Performing Loan Ratio', 
-          ['Monetary Policy Rate (%)', 'GDP_Real', 'USD Exchange Rate, monthly averages'])
-print(model.summary())
+- data/raw/data_first.csv: monthly banking and macro-financial indicators.
+- data/raw/data_first2.csv: quarterly real GDP observations.
 
-# Plot the NPL timeline
-plot_npl_timeline(df)
-plt.show()
-```
+The monthly source file contains observations from January 2010 to December 2025. The GDP source file contains quarterly observations from 2006Q1 to 2025Q3. These are source-file coverage dates, not a claim that every model uses every observation. Missing values and transformations can change the effective estimation sample.
 
-### Test Everything
+| Indicator | Description | Source recorded in the source file |
+|---|---|---|
+| NPL ratio | Non-performing loans ratio | Bank of Ghana |
+| Monetary policy rate | Policy interest rate | Bank of Ghana |
+| CPI | Consumer price index | Ghana Statistical Service |
+| Exchange rate | Ghana cedi per US dollar | Bank of Ghana |
+| Broad money | Monetary aggregate (M2+) | Bank of Ghana |
+| Gold price | Realised gold price, USD per fine ounce | Reuters |
+| Return on assets | Banking-sector profitability indicator | Bank of Ghana |
+| Capital adequacy ratio | Banking-sector capital indicator | Bank of Ghana |
+| Real GDP | Quarterly GDP at 2013 prices | Ghana Statistical Service |
 
-```bash
-pytest tests/ -v              # Run all tests
-pytest tests/test_data.py -v  # Just data tests
-pytest tests/ --cov           # Show code coverage
-```
+See data/README.md for the variable dictionary and source notes.
 
-### Run Notebooks
+### Frequency and measurement
 
-The Jupyter notebooks in `notebooks/` now import from the package instead of copy-pasting code:
+Most banking and macro-financial series are monthly, while real GDP is quarterly. The current preparation workflow converts quarterly GDP to a monthly index by linear interpolation so that it can be aligned with monthly indicators. Those interpolated values are estimates between quarterly observations; they are **not observed monthly GDP**. This choice should be considered when interpreting monthly regression or VAR results. A more complete macroeconomic study would compare this approach with quarterly modelling or a documented temporal-disaggregation method.
 
-```bash
-jupyter lab notebooks/
-```
+The raw monthly file also contains missing values for some indicators near the end of the sample. Estimation samples should therefore be reported for each model rather than assumed to be identical.
 
----
+## Analytical approach
 
-## What's Inside
+### Exploratory analysis
 
-```
-src/ghana_banking/
+The notebooks examine the time paths, distributions and pairwise relationships of the main indicators. Figures in figures/ are exploratory outputs; their interpretation should be read alongside the notebook code and data definitions.
+
+### OLS regression
+
+The regression module provides a reusable ordinary least squares wrapper. OLS is used as a descriptive conditional-association model. With trending macroeconomic series, serially correlated residuals and possible structural changes, a high in-sample fit or a small conventional p-value is not, by itself, evidence of a stable economic relationship or causality.
+
+Previously reported coefficient significance and fit statistics are not presented here as independently verified headline findings. They should be regenerated from the current data and code before being used in a research summary.
+
+### Vector autoregression
+
+The VAR module supports multivariate lag models and impulse-response calculations. The transformation applied before estimation, lag order, variable ordering and identification assumptions matter for the interpretation of impulse responses. A reduced-form VAR response should not automatically be described as a causal structural shock.
+
+### Scenario analysis
+
+The stress-testing module fits a standardised linear regression and evaluates user-specified predictor values. This is best understood as a **conditional scenario exercise**, not a bank-level regulatory stress test or a validated forecast. Its results depend on the historical sample, model specification and plausibility of the scenario inputs. Extrapolation beyond the observed data range should be treated cautiously.
+
+## Selected figures
+
+The repository includes the following existing outputs:
+
+- [NPL timeline](figures/initial_npl_trend.png)
+- [Correlation matrix](figures/correlation_matrix.png)
+- [Monetary policy dynamics](figures/monetary_policy_dynamics.png)
+- [Impulse responses](figures/irf_npl_shocks.png)
+- [Scenario results](figures/npl_stress_testing_results.png)
+
+These figures are analysis outputs, not a substitute for inspecting the notebooks that generated them.
+
+## Repository structure
+
+~~~text
+.
 ├── data/
-│   └── loaders.py              # Load CSVs, harmonize frequencies
-├── modeling/
-│   ├── regression.py           # OLS: What variables matter?
-│   ├── var_model.py            # VAR: How do shocks spread?
-│   └── stress_test.py          # Scenarios: What if?
-└── plotting/
-    ├── timeseries.py           # Timeline plots with events
-    └── diagnostics.py          # Check if models are reasonable
+│   ├── raw/                 # Source CSV files
+│   ├── processed/           # Prepared analysis dataset
+│   └── README.md            # Data dictionary and source notes
+├── docs/                    # Installation and usage notes
+├── figures/                 # Saved analysis figures
+├── notebooks/               # Research workflow
+├── src/ghana_banking/
+│   ├── data/                # Data loading and preparation
+│   ├── modeling/            # OLS, VAR and scenario models
+│   └── plotting/            # Time-series and diagnostic plots
+├── tests/                   # Unit tests
+├── requirements.txt
+├── requirements-dev.txt
+└── setup.py
+~~~
 
-tests/                           # Unit tests for everything
-notebooks/                       # Jupyter analysis
-data/raw/                        # Original CSV files
-```
+## Reproducing the analysis
 
----
+The project uses Python. The steps below assume Git and Python are installed.
 
-## Using the Package
+~~~bash
+git clone https://github.com/cube0002/ghana-banking-asset-quality.git
+cd ghana-banking-asset-quality
+python -m venv .venv
+~~~
 
-### Data Loading
+Activate the environment.
 
-**`load_banking_data()`** - Load everything you need
+**Windows PowerShell**
+~~~powershell
+.venv\Scripts\Activate.ps1
+~~~
 
-```python
-from ghana_banking.data import load_banking_data
+**macOS / Linux**
+~~~bash
+source .venv/bin/activate
+~~~
 
-df = load_banking_data()  # Returns monthly data, 2010-2025
-# Automatically handles BoG monthly data + GSS quarterly GDP
-# Interpolates GDP to monthly, merges everything, ready to analyze
-```
+Install the project and development dependencies:
 
-**`standardize_features()`** - Normalize for machine learning
+~~~bash
+python -m pip install --upgrade pip
+pip install -e .
+pip install -r requirements-dev.txt
+~~~
 
-```python
-from ghana_banking.data import standardize_features
+Run the tests and open the notebooks:
 
-df_std = standardize_features(df, cols=['NPL_Ratio', 'Rate'])
-# Mean ~0, std ~1, good for sklearn algorithms
-```
+~~~bash
+pytest tests/ -v
+jupyter lab notebooks/
+~~~
 
-### Regression (`ghana_banking.modeling.regression`)
+Run the notebooks in numerical order, starting with data preparation. The notebooks are the research record; the package under src/ contains reusable functions.
 
-**`OLSModel`** - Understand what drives NPLs
+## Interpretation and limitations
 
-```python
-from ghana_banking.modeling import OLSModel
+- The data are aggregate banking-sector indicators. They do not identify differences across individual banks or borrower groups.
+- The analysis is observational. Contemporaneous regression coefficients and correlations do not establish causal effects.
+- Linear interpolation of quarterly GDP creates estimated monthly values and can affect time-series inference.
+- Macro-financial series may be non-stationary, serially correlated, collinear or affected by structural breaks. These properties require explicit testing and suitable inference.
+- VAR impulse responses depend on model specification and the shock-identification convention.
+- The scenario model is a reduced-form linear exercise. It does not model bank-level balance sheets, capital depletion, feedback loops or supervisory loss parameters.
+- Results are conditional on the supplied data and assumptions. They should not be interpreted as forecasts or policy recommendations without further validation.
 
-model = OLSModel()
-model.fit(df, 'Non Performing Loan Ratio', 
-          ['Policy Rate (%)', 'GDP_Real', 'CPI'])
+These limitations are part of the research, not footnotes to hide.
 
-# See the regression table
-print(model.summary())
+## Sources
 
-# Which variables actually matter? (p-value < 0.05)
-print(model.get_coefficients())
+The source files identify the Bank of Ghana, Ghana Statistical Service and Reuters as data providers. For background and updated releases, consult the institutions directly:
 
-# How good is the model?
-print(model.get_diagnostics())
+- [Bank of Ghana](https://www.bog.gov.gh/)
+- [Ghana Statistical Service](https://statsghana.gov.gh/)
+- [Reuters](https://www.reuters.com/)
 
-# Make predictions
-predictions = model.predict(df)
-```
+The original downloaded source files are retained in data/raw/. Consult the source institutions for current definitions, revisions and usage conditions.
 
-### Shock Analysis (`ghana_banking.modeling.var_model`)
+## Author and citation
 
-**`VARModel`** - See how shocks ripple through the system
+**Kwame Ansere-Mensah**
 
-```python
-from ghana_banking.modeling import VARModel
-
-model = VARModel(lags=2)
-model.fit(df[['NPL_Ratio', 'Policy_Rate', 'GDP_Real']])
-
-# How does a 1% shock to Policy Rate affect NPL over 12 months?
-irf = model.impulse_responses(periods=12)
-
-# What's the forecast?
-forecast = model.forecast(df.iloc[-2:], steps=6)
-```
-
-### Stress Testing (`ghana_banking.modeling.stress_test`)
-
-**`StressTest`** - "What if" scenarios
-
-```python
-from ghana_banking.modeling import StressTest
-
-st = StressTest(df, 'Non Performing Loan Ratio',
-                ['Policy_Rate', 'GDP_Real', 'CPI'])
-
-# Run scenarios
-scenarios = {
-    'Baseline': {'Policy_Rate': 20, 'GDP_Real': 1500, 'CPI': 110},
-    'Currency Crisis': {'Policy_Rate': 35, 'GDP_Real': 1200, 'CPI': 150}
+~~~bibtex
+@software{ansere_mensah_ghana_banking_asset_quality,
+  author = {Ansere-Mensah, Kwame},
+  title  = {Ghana Banking Asset Quality},
+  year   = {2025},
+  url    = {https://github.com/cube0002/ghana-banking-asset-quality}
 }
-
-results = st.run_scenarios(scenarios)
-print(results)  # NPL could hit 28% in crisis vs 16% baseline
-
-# Sensitivity: How much does 10% GDP shock hurt?
-sensitivity = st.sensitivity_analysis(
-    base={'Policy_Rate': 20, 'GDP_Real': 1500, 'CPI': 110},
-    variable='GDP_Real',
-    range_pct=0.1
-)
-```
-
-### Plotting (`ghana_banking.plotting`)
-
-```python
-from ghana_banking.plotting import (
-    plot_npl_timeline,      # NPL with events annotated
-    plot_dual_axis,         # Two vars on different scales
-    plot_correlation_heatmap,  # Correlation matrix
-    plot_distributions,     # Histograms
-    plot_residuals,         # 4-panel diagnostics
-    plot_acf_pacf,          # Autocorrelation
-    plot_stress_results     # Scenario comparison
-)
-
-plot_npl_timeline(df)  # Shows IMF, COVID, elections
-plot_residuals(ols_model.results)  # Check if model is reasonable
-```
-
----
-
-## The Data
-
-| Variable | What It Is | Why It Matters |
-|----------|-----------|-----------------|
-| **NPL Ratio** | Bad loans / Total loans | Main health indicator |
-| **Policy Rate** | Central bank rate | Cost of credit |
-| **CPI** | Inflation | Borrower's ability to repay |
-| **Exchange Rate** | GHS per USD | Dollar debt burden |
-| **GDP** | Economic output | Overall health |
-| **CAR** | Bank's capital buffer | Resilience |
-| **ROA** | Bank profits | Health & profitability |
-
-Sources: Bank of Ghana, Ghana Statistical Service, World Bank
-
----
-
-## Contributing
-
-Found a bug? Have an idea? Send a pull request.
-
-```bash
-# Development workflow
-pip install -e ".[dev]"   # Install dev tools
-pytest tests/ -v           # Run tests
-black src/ tests/          # Format code
-flake8 src/ tests/         # Check code quality
-```
-
----
-
-## Roadmap
-
-Potential additions:
-- CLI tool for forecasting
-- REST API (Flask/FastAPI)
-- Interactive dashboard (Streamlit)
-- Publish to PyPI
-- Real-time data monitoring
-
----
+~~~
 
 ## License
 
-MIT - Use it, modify it, share it. See [LICENSE](LICENSE) for details.
-
----
-
-## Citation
-
-If this work is useful to you, cite it:
-
-```bibtex
-@software{ghana_banking_2025,
-  title={Ghana Banking Asset Quality Analysis},
-  author={Kwame Ansere-Mensah},
-  year={2025},
-  url={https://github.com/cube0002/ghana-banking-asset-quality}
-}
-```
-
-This project uses official macroeconomic and banking-sector data for Ghana from the following institutions:
-
-### Banking & Financial Indicators
-**Bank of Ghana (BoG)**  
-  Policy Interest Rate (GHA_INR_1)  
-  Exchange Rate, GHS/USD (GHA_EXR_1)  
-  Monetary Aggregates (GHA_MAG_8)  
-  Financial Soundness Indicators:
-    Capital Adequacy Ratio (GHA_FSI_5)
-    Return on Assets (GHA_FSI_2)
-    Non-Performing Loans Ratio (GHA_FSI_1)
-
-### Inflation
-**Ghana Statistical Service (GSS)**  
-  Consumer Price Index (GH_PRI_1)
-
-### Commodity Prices
-**Reuters**
-  - Gold Price, USD per fine ounce (GHA_CMP_06)
-
-### Output / Economic Activity
-**Ghana Statistical Service (GSS)**  
-  Real Gross Domestic Product, quarterly (GHA_NAT_1)
-
-All monthly indicators are harmonized to a common monthly frequency. Quarterly GDP data is converted to monthly frequency using linear interpolation for analytical consistency.
----
-## Variable Definitions
-
-| Variable | Mnemonic | Description | Unit | Frequency | Source |
-|--------|---------|------------|------|----------|--------|
-| Policy Rate | GHA_INR_1 | Monetary policy interest rate | % p.a. | Monthly | Bank of Ghana |
-| Inflation (CPI) | GH_PRI_1 | Consumer Price Index (2021=100) | Index | Monthly | GSS |
-| Exchange Rate | GHA_EXR_1 | GHS per USD | GHC/USD | Monthly | BoG |
-| Money Supply | GHA_MAG_8 | Broad money | GHC million | Monthly | BoG |
-| Gold Price | GHA_CMP_06 | Gold price | USD/oz | Monthly | Reuters |
-| Capital Adequacy | GHA_FSI_5 | Capital adequacy ratio | % | Monthly | BoG |
-| ROA | GHA_FSI_2 | Return on assets | % | Monthly | BoG |
-| NPL Ratio | GHA_FSI_1 | Non-performing loans ratio | % | Monthly | BoG |
-| Real GDP | GHA_NAT_1 | Real GDP (2013 prices) | GHC million | Quarterly | GSS |
-##  Exploratory Data Analysis (EDA)
-
-This section summarizes the key insights from the exploratory phase, focusing on the interaction between macroeconomic volatility and the resilience of Ghana’s banking sector.
-
-### 1. Macro-Financial Timeline & Structural Shocks
-
-The Non-Performing Loan (NPL) Ratio was analyzed alongside major macroeconomic and regulatory events:
-
- **2017–2019 Banking Sector Cleanup:**  
-  A sharp spike in NPLs (peaking above 20%) reflects regulatory enforcement and the recognition of legacy bad debts following the Bank of Ghana–led sector cleanup. This period represents a transparency shock rather than a sudden deterioration in borrower fundamentals.
-
- **COVID-19 Period (2020–2021):**  
-  Contrary to expectations, asset quality remained relatively stable. This likely reflects regulatory forbearance, loan restructuring programs, and swift policy interventions that cushioned borrowers and financial institutions.
-
-**2022–2023 Domestic Debt Crisis:**  
-  The Domestic Debt Exchange Programme (DDEP), combined with inflation exceeding 50%, represents the most severe macro-financial stress episode in the dataset, with renewed pressure on bank balance sheets and borrower repayment capacity.
-
-### 2. Monetary Policy & Inflation Dynamics
-
-Monetary policy conditions were examined by comparing the Monetary Policy Rate (MPR) with inflation dynamics:
-
-**Policy Discipline:**  
-  For much of the sample period, the central bank maintained positive real interest rates, supporting currency stability and anchoring inflation expectations.
-
-**2022 Policy Lag:**  
-  During the inflation surge of 2022, inflation significantly outpaced the policy rate, resulting in negative real interest rates. This environment placed pressure on bank margins and weakened borrower repayment capacity.
-
-### 3. Sectoral Health: Profitability vs. Capitalization
-
-To assess the structural resilience of the banking sector, profitability and capitalization indicators were analyzed:
-
-**Profitability (ROA):**  
-  Return on Assets is predominantly clustered between 3% and 5%, indicating that despite periods of elevated risk, the banking sector remained broadly profitable.
-
-**Solvency (CAR):**  
-  The Capital Adequacy Ratio remains well above the 13% regulatory minimum for most banks, suggesting that post-2017 reforms created a durable capital buffer against macroeconomic shocks.
-
-### 4. Correlation & Leading Indicators of Credit Risk
-
-Correlation and regression analysis were used to identify macro-financial drivers of asset quality:
-
-**Exchange Rate Channel:**  
-  USD/GHS depreciation exhibits the strongest positive relationship with NPL growth (R² ≈ 0.51), highlighting the role of foreign exchange exposure and imported inflation in credit risk transmission.
-
-**Growth as a Stabilizer:**  
-  Real GDP growth shows a consistent inverse relationship with NPLs, underscoring the counter-cyclical nature of credit risk and the importance of macroeconomic growth for financial stability.
-
-Overall, the EDA results motivate a formal modeling and stress-testing framework to quantify macroeconomic impacts on banking sector asset quality.
-
-
-## Statistical Modeling & Macroeconomic Drivers of NPLs
-
-### Overview
-This study employs a two-stage econometric strategy to analyze the determinants and dynamic propagation of credit risk in Ghana’s banking sector. The modelling framework combines static regression analysis with dynamic multivariate time-series methods to ensure both interpretability and robustness.
-
-Beginning with a multivariate Ordinary Least Squares (OLS) regression to identify contemporaneous macro-financial drivers of banking sector asset quality.
-
-$$NPL_{t} = \alpha + \beta_{1}MPR_{t} + \beta_{2}CPI_{t} + \beta_{3}USD_{t} + \beta_{4}M2_{t} + \beta_{5}Gold_{t} + \beta_{6}GDP_{t} + \beta_{7}CAR_{t} + \beta_{8}ROA_{t} + \varepsilon_{t}$$
-
-Where:
-
-NPL = Non-Performing Loan Ratio
-
-MPR = Monetary Policy Rate
-
-CPI = Consumer Price Index (inflation proxy)
-
-USD = USD/GHS exchange rate
-
-M2 = Total liquidity
-
-Gold = Realised gold price
-
-GDP = Real GDP
-
-CAR = Capital Adequacy Ratio
-
-ROA = Return on Assets
-
-**Analysis Period:** January 2010 – July 2025 (187 monthly observations) 
-**Model Performance:** R² = 0.597 (explains 59.7% of NPL variation), F-statistic = 32.96 (p < 0.001)
-
-% (further deterioration expected)
-
-**Statistically Significant Drivers (5% level):**
-
-Inflation (CPI): Positive and significant → inflation deteriorates asset quality
-
-Exchange Rate (USD/GHS): Significant → currency instability amplifies credit risk
-
-Real GDP: Negative → economic growth improves loan performance
-
-Gold Prices: Negative → safe-haven effects and portfolio rebalancing
-
-ROA: Strong negative effect → profitable banks manage credit risk better
-
-Non-significant variables:
-Monetary Policy Rate, Total Liquidity (M2+), Capital Adequacy Ratio
-
-Diagnostic Notes
-
-Durbin-Watson ≈ 0.40 indicates serial correlation, motivating dynamic modelling.
-
-High condition number suggests multicollinearity, expected in macroeconomic systems.
-
-Residuals exhibit non-normality, reinforcing the need for time-series methods.
-
-### Vector Autoregression (VAR)
-
-Impulse Response Functions (12-month horizon) reveal how shocks propagate through the financial system:
-
-**Exchange Rate Shock** 
-- Impact at 1 month: +0.25 pp NPL increase
-- Peak effect: Months 1–2
-- Duration: 12+ months with gradual decay
-- Severity: **CRITICAL**
-
-**NPL Shock (Persistence)** 
-- Impact at 1 month: +0.0175 pp persistence
-- Decay pattern: Sharp decline Months 1–3
-- Duration: 12+ months
-- Severity: **MODERATE**
-
-**Monetary Policy Shock** 
-- Impact at 1 month: -0.0157 pp
-- Pattern: Months 2–4 oscillation
-- Duration: Visible throughout 12-month window
-- Severity: **MODERATE**
-
-**GDP Shock** 
-- Impact at 1 month: -0.00018 pp (minimal)
-- Duration: Limited persistence
-- Severity: **LOW**
-
-## Stress Testing & Scenario Analysis
-**Overview**
-
-Following the identification of key macroeconomic drivers and their dynamic interactions, a forward-looking stress testing framework is implemented to quantify the vulnerability of Ghana’s banking sector asset quality under adverse but plausible macro-financial scenarios.
-
-Stress testing is conducted in a separate notebook to ensure modularity and conceptual separation from the econometric modeling stage. While the VAR framework captures dynamic shock propagation, the stress tests translate macroeconomic stress into levels of NPL ratios, which are directly relevant for supervisory and policy analysis.
-
-**Methodology**
-A reduced form predictive model is estimated using macroeconomic variables identified as economically and statistically relevant in prior analysis. To ensure comparability across drivers, all regressors are standardized prior to estimation.
-
-The stress testing relationship can be summarized as:
-
-NPLₜ = f(MPRₜ, USDₜ, CPIₜ, GDPₜ)
-
-Where:
-
-MPR – Monetary Policy Rate (financing cost channel)
-
-USD – USD/GHS exchange rate (currency mismatch and imported inflation)
-
-CPI – Consumer Price Index (macroeconomic instability proxy)
-
-GDP – Real Gross Domestic Product (repayment capacity channel)
-
-The model is calibrated using historical data and evaluated under counterfactual macroeconomic scenarios relative to the most recent observed conditions.
-
-**Stress Scenarios**
-
-Four macro-financial scenarios are considered:
-
-Baseline
-Continuation of prevailing macroeconomic conditions.
-
-Moderate Monetary Tightening
-A policy-induced increase in interest rates combined with mild output deceleration.
-
-Severe Currency Crisis
-Sharp exchange-rate depreciation accompanied by elevated inflation and tighter monetary conditions.
-
-Severe Economic Recession
-A significant contraction in real economic activity with weaker price pressures.
-
-## Stress Test Results
-
-| Scenario | Predicted NPL (%) | Δ vs Current (pp) | vs Baseline (pp) |
-| :--- | :---: | :---: | :---: |
-| **Baseline** | 24.39 | +2.65 | 0.00 |
-| **Moderate Tightening** | 25.26 | +3.52 | +0.87 |
-| **Severe Currency Crisis** | 27.21 | +5.47 | +2.82 |
-| **Severe Recession** | 24.89 | +3.15 | +0.50 |
-
-Interpretation of Stress Outcomes
-
-Key findings from the stress tests are as follows:
-
-Exchange Rate Dominance:
-The Severe Currency Crisis scenario produces the largest deterioration in asset quality, confirming the exchange-rate channel as the most critical driver of systemic credit risk.
-
-Monetary Tightening Effects:
-Interest rate increases materially worsen loan performance through higher debt servicing costs, though the effect is smaller than under currency stress.
-
-Growth Sensitivity":
-Economic contractions increase NPLs, but their impact is more moderate unless combined with financial instability.
-
-Baseline Vulnerability:
-Even under baseline conditions, predicted NPL levels remain elevated, suggesting persistent structural fragilities despite post-2017 banking sector reforms.
-
-**Conclusion**
-
-This study provides an empirical assessment of asset quality dynamics and macroeconomic resilience in Ghana’s banking sector over the period 2010–2025. By integrating exploratory data analysis, multivariate regression, dynamic VAR modelling, and scenario-based stress testing, the analysis offers both structural and forward-looking insights into the drivers of non-performing loans (NPLs).
-
-The results confirm that macroeconomic instability is the dominant transmission channel for credit risk in Ghana. Exchange rate depreciation and inflation emerge as the most statistically and economically significant drivers of NPL deterioration, while real economic growth plays a stabilising role. Profitability (ROA) is shown to materially mitigate credit risk, highlighting the importance of internal bank strength alongside macroeconomic conditions.
-
-Dynamic analysis using Vector Autoregression reveals strong shock persistence, particularly from exchange rate disturbances, which generate immediate and prolonged increases in NPLs. In contrast, monetary policy shocks exhibit more moderate and transitory effects, while GDP shocks have comparatively limited short-run impact. These findings underscore the asymmetric nature of macro-financial shock propagation in a small open economy with high import dependence and foreign-currency exposure.
-
-The stress testing framework reinforces these conclusions. Under severe but plausible macroeconomic scenarios, especially a currency crisis, the banking sector experiences substantial increases in predicted NPL ratios relative to both current conditions and baseline expectations. While post-2017 regulatory reforms have strengthened capital buffers, the results indicate that systemic vulnerability remains closely tied to external and inflationary shocks.
-
-
-### Project status: Complete
-*Last updated: 05/01/26*
+This repository is distributed under the MIT License. See LICENSE for details.
