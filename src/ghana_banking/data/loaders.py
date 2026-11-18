@@ -8,7 +8,7 @@ these interpolated values are estimates, not observed monthly GDP.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -146,7 +146,7 @@ def standardize_features(
     df: pd.DataFrame,
     cols: Optional[list] = None,
     return_params: bool = False,
-) -> Tuple[pd.DataFrame, dict] | pd.DataFrame:
+) -> Union[Tuple[pd.DataFrame, dict], pd.DataFrame]:
     """Z-score selected numeric columns.
 
     For predictive evaluation, estimate scaling parameters on the training
