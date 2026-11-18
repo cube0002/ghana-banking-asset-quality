@@ -20,7 +20,7 @@ The GitHub Actions workflow supports manual refresh and a weekly schedule. Add r
 
 ### Refresh quarterly GDP directly from GSS StatsBank (experimental)
 
-I have added a separate PxWeb connector for the GSS quarterly GDP table. It first reads the table metadata, identifies the time dimension and the real-GDP/total categories, then requests the observations. It deliberately stops if the provider's metadata is ambiguous.
+I have added a separate PxWeb connector for the GSS quarterly GDP table. It uses the documented StatsBank API root (`https://statsbank.statsghana.gov.gh:443/api/v1/en/`), reads the table metadata, identifies the time dimension and the real-GDP/total categories, then requests the observations. It deliberately stops if the provider's metadata is ambiguous. The published table labels the aggregate `Total GDP` and the real series `Real GDP (constant 2013 prices)`.
 
 Run it manually:
 
