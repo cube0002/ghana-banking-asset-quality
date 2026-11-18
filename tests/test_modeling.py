@@ -252,6 +252,38 @@ class TestStressTest:
         assert isinstance(coefs, pd.DataFrame)
         assert 'Coefficient' in coefs.columns
     
+    def test_stress_test_reports_chronological_holdout_metrics(self, sample_timeseries):
+        """Diagnostics should report performance on later, unseen observations."""
+        features = ['Monetary Policy Rate (%)', 'CPI']
+        stress_test = StressTest(
+            sample_timeseries,
+            'Non Performing Loan Ratio',
+            features,
+            train_ratio=0.8
+        )
+
+        diagnostics = stress_test.get_model_diagnostics()
+
+        assert diagnostics['n_train'] == 80
+        assert diagnostics['n_test'] == 20
+        assert diagnostics['r2_score'] == diagnostics['test_r2']
+        assert diagnostics['test_r2'] is not None
+        assert diagnostics['test_rmse'] >= 0
+        assert np.allclose(
+            stress_test.scaler.mean_,
+            sample_timeseries.iloc[:80][features].mean().values
+        )
+
+    def test_stress_test_rejects_invalid_train_ratio(self, sample_timeseries):
+        """Training split must leave valid training and test samples."""
+        with pytest.raises(ValueError):
+            StressTest(
+                sample_timeseries,
+                'Non Performing Loan Ratio',
+                ['Monetary Policy Rate (%)', 'CPI'],
+                train_ratio=1.0
+            )
+
     def test_stress_test_error_missing_var(self, sample_timeseries):
         """Test that missing stress variable raises error."""
         with pytest.raises(ValueError):
