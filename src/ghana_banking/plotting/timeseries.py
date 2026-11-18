@@ -211,26 +211,20 @@ def plot_dual_axis(
         fig, ax1 = plot_dual_axis(df, 'NPL_Ratio', 'Policy_Rate')
         # Both variables visible on same timeline
     """
-    left_col : str
-        Column name for left y-axis.
-    right_col : str
-        Column name for right y-axis.
-    figsize : tuple, default (14, 6)
-        Figure size.
-    left_color : str
-        Color for left axis line.
-    right_color : str
-        Color for right axis line.
-    
-    Returns
-    -------
-    Tuple[plt.Figure, plt.Axes]
-        Figure and axes objects.
-    
-    Examples
-    --------
-    >>> fig, ax = plot_dual_axis(df, 'NPL_Ratio', 'Policy_Rate')
-    >>> plt.show()
+    Args:
+        df: Data indexed by date.
+        left_col: Column name for the left y-axis.
+        right_col: Column name for the right y-axis.
+        figsize: Figure size.
+        left_color: Color for the left-axis line.
+        right_color: Color for the right-axis line.
+
+    Returns:
+        A tuple containing the figure and left-axis object.
+
+    Example:
+        fig, ax = plot_dual_axis(df, 'NPL_Ratio', 'Policy_Rate')
+        plt.show()
     """
     fig, ax1 = plt.subplots(figsize=figsize, dpi=100)
     
