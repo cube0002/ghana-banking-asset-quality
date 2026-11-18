@@ -133,3 +133,29 @@ def test_fetch_fsi_reads_metadata_then_posts_query(monkeypatch):
 def test_fetch_fsi_requires_https():
     with pytest.raises(ValueError, match="HTTPS"):
         bog.fetch_bog_financial_soundness(api_url="http://example.test/fin_sound.px")
+
+
+def test_parse_fsi_csv_rejects_duplicate_month_indicator_rows():
+    frame = pd.DataFrame({
+        "Month": ["2024M01"] * 3 + ["2024M02"] * 3,
+        "Indicator": [
+            "Capital adequacy ratio", "Capital adequacy ratio",
+            "Non Performing Loans", "Non Performing Loans",
+            "Return on Assets", "Return on Assets",
+        ],
+        "value": [18, 18, 14, 14, 4, 4],
+    })
+    payload = frame.to_csv(index=False).encode("utf-8")
+    with pytest.raises(ValueError, match="duplicate"):
+        bog._parse_bog_fsi_csv(payload)
+
+
+def test_parse_fsi_csv_rejects_missing_core_indicator():
+    frame = pd.DataFrame({
+        "Month": ["2024M{:02d}".format(month) for month in range(1, 13)],
+        "Indicator": ["Capital adequacy ratio"] * 12,
+        "value": [18] * 12,
+    })
+    payload = frame.to_csv(index=False).encode("utf-8")
+    with pytest.raises(ValueError, match="missing required core indicators"):
+        bog._parse_bog_fsi_csv(payload)
