@@ -154,6 +154,48 @@ class TestVARModel:
         assert isinstance(forecast, pd.DataFrame)
         assert len(forecast) == 3
     
+    def test_var_model_diagnostics(self, sample_timeseries):
+        """Test stability and residual diagnostic output."""
+        model = VARModel(lags=2)
+        data = sample_timeseries[
+            ['Non Performing Loan Ratio', 'Monetary Policy Rate (%)', 'GDP_Real']
+        ]
+        model.fit(data, use_diff=True)
+
+        diagnostics = model.get_diagnostics(whiteness_lags=4)
+
+        assert isinstance(diagnostics['stable'], bool)
+        assert diagnostics['whiteness_lags'] == 4
+        assert 0 <= diagnostics['whiteness_pvalue'] <= 1
+        assert 0 <= diagnostics['normality_pvalue'] <= 1
+
+    def test_var_model_diagnostics_reject_invalid_lags(self, sample_timeseries):
+        """Whiteness test lag count must exceed the fitted VAR order."""
+        model = VARModel(lags=2)
+        data = sample_timeseries[
+            ['Non Performing Loan Ratio', 'Monetary Policy Rate (%)', 'GDP_Real']
+        ]
+        model.fit(data, use_diff=True)
+
+        with pytest.raises(ValueError):
+            model.get_diagnostics(whiteness_lags=2)
+
+    def test_var_model_forecast_requires_transformed_lag_data(self, sample_timeseries):
+        """Forecast input must match fitted columns and lag count."""
+        model = VARModel(lags=2)
+        data = sample_timeseries[
+            ['Non Performing Loan Ratio', 'Monetary Policy Rate (%)', 'GDP_Real']
+        ]
+        model.fit(data, use_diff=True)
+
+        with pytest.raises(ValueError):
+            model.forecast(data.iloc[-2:], steps=3)
+
+    def test_var_model_invalid_lag_order(self):
+        """A VAR must have a positive lag order."""
+        with pytest.raises(ValueError):
+            VARModel(lags=0)
+
     def test_var_model_summary(self, sample_timeseries):
         """Test that VAR model summary works."""
         model = VARModel(lags=2)
