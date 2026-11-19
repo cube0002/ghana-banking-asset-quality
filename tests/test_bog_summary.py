@@ -70,3 +70,22 @@ def test_bog_snapshot_matches_existing_series_at_published_precision():
         values = overlap[overlap["Indicator Code"] == code].set_index("Date")["Value"]
         original = pd.to_numeric(raw.loc[values.index, column])
         assert (original.round(1) == values).all()
+
+
+
+def test_july_and_november_bog_vintages_match_on_common_observations():
+    july = load_bog_summary_snapshot(
+        str(ROOT / "data" / "raw" / "bog_summary_jul_2026.csv")
+    )
+    november = load_bog_summary_snapshot(
+        str(ROOT / "data" / "raw" / "bog_summary_nov_2026.csv")
+    )
+    overlap = july.merge(
+        november,
+        on=["Date", "Indicator Code"],
+        suffixes=("_july", "_november"),
+        validate="one_to_one",
+    )
+
+    assert len(overlap) == 9 * 11
+    assert overlap["Value_july"].equals(overlap["Value_november"])
