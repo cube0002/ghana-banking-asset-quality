@@ -164,8 +164,10 @@ from ghana_banking.data import (
     build_bog_revision_report,
 )
 
+# First archive an earlier official BoG publication as a separate CSV.
+# Replace this path with the actual archived file; it is not included yet.
 previous = load_bog_summary_snapshot(
-    "data/raw/bog_summary_oct_2026.csv"
+    "data/raw/bog_summary_previous_vintage.csv"
 )
 current = load_bog_summary_snapshot(
     "data/raw/bog_summary_nov_2026.csv"
@@ -176,4 +178,4 @@ print(revisions[revisions["Observation Status"] != "unchanged"])
 
 The report joins on observation date and indicator code. It labels observations as `revised`, `unchanged`, `added` or `removed`, reports the numeric change, retains both publication dates and source URLs, and flags changes to indicator labels or units. The optional `tolerance` argument can treat small rounding differences as unchanged.
 
-This is a vintage comparison, not a claim that every difference is a statistical revision: additions and removals can reflect changed publication coverage, and metadata changes need substantive review. The current November 2026 snapshot is one publication vintage; an earlier BoG vintage must be retained separately before a real historical revision audit can be run.
+This is a vintage comparison, not a claim that every difference is a statistical revision: additions and removals can reflect changed publication coverage, and metadata changes need substantive review. The current November 2026 snapshot is one publication vintage. The example's previous-vintage path is a placeholder: an earlier official BoG vintage must be archived separately before the example can run or a real historical revision audit can be reported.
