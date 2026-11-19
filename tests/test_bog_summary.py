@@ -89,3 +89,31 @@ def test_july_and_november_bog_vintages_match_on_common_observations():
 
     assert len(overlap) == 9 * 11
     assert overlap["Value_july"].equals(overlap["Value_november"])
+
+
+
+@pytest.mark.parametrize(
+    "earlier_name,later_name",
+    [
+        ("bog_summary_jul_2026.csv", "bog_summary_sep_2026.csv"),
+        ("bog_summary_sep_2026.csv", "bog_summary_nov_2026.csv"),
+    ],
+)
+def test_adjacent_bog_publication_vintages_match_on_overlap(
+    earlier_name, later_name
+):
+    earlier = load_bog_summary_snapshot(
+        str(ROOT / "data" / "raw" / earlier_name)
+    )
+    later = load_bog_summary_snapshot(
+        str(ROOT / "data" / "raw" / later_name)
+    )
+    overlap = earlier.merge(
+        later,
+        on=["Date", "Indicator Code"],
+        suffixes=("_earlier", "_later"),
+        validate="one_to_one",
+    )
+
+    assert len(overlap) == 11 * 11
+    assert overlap["Value_earlier"].equals(overlap["Value_later"])
