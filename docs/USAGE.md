@@ -164,10 +164,9 @@ from ghana_banking.data import (
     build_bog_revision_report,
 )
 
-# First archive an earlier official BoG publication as a separate CSV.
-# Replace this path with the actual archived file; it is not included yet.
+# The July 2026 vintage is included as a separate source snapshot.
 previous = load_bog_summary_snapshot(
-    "data/raw/bog_summary_previous_vintage.csv"
+    "data/raw/bog_summary_jul_2026.csv"
 )
 current = load_bog_summary_snapshot(
     "data/raw/bog_summary_nov_2026.csv"
@@ -178,4 +177,4 @@ print(revisions[revisions["Observation Status"] != "unchanged"])
 
 The report joins on observation date and indicator code. It labels observations as `revised`, `unchanged`, `added` or `removed`, reports the numeric change, retains both publication dates and source URLs, and flags changes to indicator labels or units. The optional `tolerance` argument can treat small rounding differences as unchanged.
 
-This is a vintage comparison, not a claim that every difference is a statistical revision: additions and removals can reflect changed publication coverage, and metadata changes need substantive review. The current November 2026 snapshot is one publication vintage. The example's previous-vintage path is a placeholder: an earlier official BoG vintage must be archived separately before the example can run or a real historical revision audit can be reported.
+This is a vintage comparison, not a claim that every difference is a statistical revision: additions and removals can reflect changed publication coverage, and metadata changes need substantive review. The July 2026 PDF is hosted on the official BoG site and states a 21 July release date, but carries a DRAFT watermark; this caveat is retained in the CSV. The July and November files overlap for October 2025–June 2026 (99 date-indicator observations), and all displayed values match at one-decimal precision. This supports cross-publication consistency, not proof that the underlying unrounded data were never revised.
