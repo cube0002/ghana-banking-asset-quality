@@ -9,7 +9,7 @@ This directory separates the downloaded source files from the prepared analysis 
 The source files include metadata rows after the observations. The loader identifies dated observations by parsing the date or quarter field rather than relying on a fixed number of rows.
 
 - `raw/bog_financial_soundness.csv`: historical monthly Bank of Ghana financial soundness indicators from the GSS StatsBank mirror (experimental connector; kept separate from the original monthly macro file).
-- `raw/bog_summary_nov_2026.csv`: manually transcribed monthly banking-sector indicators from the Bank of Ghana's 17 November 2026 Summary of Economic and Financial Data, covering October 2025–October 2026. Each observation retains the publication date and official PDF URL.
+- `raw/bog_summary_jul_2026.csv`: manually transcribed July 2026 Bank of Ghana banking-sector indicator vintage, covering June 2025–June 2026. The PDF is publicly posted on the official BoG website but carries a DRAFT watermark; this status is retained in each row's source note.\n- `raw/bog_summary_nov_2026.csv`: manually transcribed monthly banking-sector indicators from the Bank of Ghana's 17 November 2026 Summary of Economic and Financial Data, covering October 2025–October 2026. Each observation retains the publication date and official PDF URL.
 
 ## Variable dictionary
 
@@ -88,3 +88,12 @@ The snapshot includes headline and adjusted NPL, headline and regulatory-relief-
 For October–December 2025, the original monthly file's CAR, NPL and ROA values round to the one-decimal figures in the November 2026 BoG publication. This is a useful consistency check, not proof that the complete historical series is identical. The publication snapshot should be treated as a rounded, later-vintage reference, and the original values should remain intact until the full series is reconciled.
 
 The snapshot is manually transcribed from the cited PDF; it is not yet an automated PDF ingestion pipeline or a live feed. Future updates should add a new dated snapshot and compare revisions rather than silently replace prior values.
+
+
+### Publication-vintage overlap check (July vs November 2026)
+
+I have archived the July 2026 BoG summary as a separate vintage rather than treating the November release as the only available snapshot. The July PDF is hosted on the official BoG website and states a 21 July 2026 release date, but it also carries a DRAFT watermark. That caveat is recorded in the CSV and must remain visible when interpreting the comparison.
+
+The July and November snapshots share nine observation months (October 2025–June 2026) across 11 indicators, giving 99 matched date-indicator observations. The displayed values match exactly at the one-decimal precision reported in both PDFs. This is evidence of consistency between the two published files at displayed precision; it does not prove that no underlying revisions occurred below that precision or that the PDFs are final versions.
+
+The comparison is now covered by a regression test. Both source files remain unchanged and separately attributed.
