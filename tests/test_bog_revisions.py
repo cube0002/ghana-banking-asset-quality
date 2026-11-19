@@ -86,3 +86,40 @@ def test_revision_report_rejects_duplicate_observations():
     )
     with pytest.raises(ValueError, match="duplicate"):
         build_bog_revision_report(frame, frame)
+
+
+@pytest.mark.parametrize("tolerance", [float("nan"), float("inf"), float("-inf")])
+def test_revision_report_rejects_non_finite_tolerance(tolerance):
+    frame = _snapshot(
+        [("2026-08-01", "NPL", "NPL ratio", 14.0, "Percent")],
+        "2026-10-17", "https://bog.gov.gh/source.pdf",
+    )
+    with pytest.raises(ValueError, match="finite"):
+        build_bog_revision_report(frame, frame, tolerance=tolerance)
+
+
+def test_revision_report_rejects_non_finite_observation_values():
+    frame = _snapshot(
+        [("2026-08-01", "NPL", "NPL ratio", float("inf"), "Percent")],
+        "2026-10-17", "https://bog.gov.gh/source.pdf",
+    )
+    with pytest.raises(ValueError, match="non-finite"):
+        build_bog_revision_report(frame, frame)
+
+
+def test_revision_report_does_not_mutate_input_snapshots():
+    previous = _snapshot(
+        [("2026-08-01", "NPL", "NPL ratio", 14.0, "Percent")],
+        "2026-10-17", "https://bog.gov.gh/old.pdf",
+    )
+    current = _snapshot(
+        [("2026-08-01", "NPL", "NPL ratio", 13.9, "Percent")],
+        "2026-11-17", "https://bog.gov.gh/new.pdf",
+    )
+    old_before = previous.copy(deep=True)
+    new_before = current.copy(deep=True)
+
+    build_bog_revision_report(previous, current)
+
+    pd.testing.assert_frame_equal(previous, old_before)
+    pd.testing.assert_frame_equal(current, new_before)
