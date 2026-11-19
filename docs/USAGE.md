@@ -166,7 +166,7 @@ from ghana_banking.data import (
 
 # The July 2026 vintage is included as a separate source snapshot.
 previous = load_bog_summary_snapshot(
-    "data/raw/bog_summary_jul_2026.csv"
+    "data/raw/bog_summary_sep_2026.csv"
 )
 current = load_bog_summary_snapshot(
     "data/raw/bog_summary_nov_2026.csv"
@@ -177,4 +177,4 @@ print(revisions[revisions["Observation Status"] != "unchanged"])
 
 The report joins on observation date and indicator code. It labels observations as `revised`, `unchanged`, `added` or `removed`, reports the numeric change, retains both publication dates and source URLs, and flags changes to indicator labels or units. The optional `tolerance` argument can treat small rounding differences as unchanged.
 
-This is a vintage comparison, not a claim that every difference is a statistical revision: additions and removals can reflect changed publication coverage, and metadata changes need substantive review. The July 2026 PDF is hosted on the official BoG site and states a 21 July release date, but carries a DRAFT watermark; this caveat is retained in the CSV. The July and November files overlap for October 2025–June 2026 (99 date-indicator observations), and all displayed values match at one-decimal precision. This supports cross-publication consistency, not proof that the underlying unrounded data were never revised.
+This is a vintage comparison, not a claim that every difference is a statistical revision: additions and removals can reflect changed publication coverage, and metadata changes need substantive review. The repository now contains July, September and November 2026 snapshots. All three PDFs are hosted in the official BoG publication archive, but each carries a DRAFT watermark; the caveat is retained in each CSV's source note. The adjacent July–September and September–November comparisons each have 121 matched date-indicator observations, and the July–November comparison has 99. All matched values agree exactly at one-decimal precision. This supports cross-publication consistency, not proof that unrounded data were never revised or that these are final certified releases.
