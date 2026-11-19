@@ -6,6 +6,7 @@ import pandas as pd
 import pytest
 
 from ghana_banking.data.bog import load_bog_summary_snapshot
+from ghana_banking.data.revisions import build_bog_revision_report
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -89,6 +90,9 @@ def test_july_and_november_bog_vintages_match_on_common_observations():
 
     assert len(overlap) == 9 * 11
     assert overlap["Value_july"].equals(overlap["Value_november"])
+    report = build_bog_revision_report(july, november)
+    assert len(report) == 9 * 11
+    assert (report["Observation Status"] == "unchanged").all()
 
 
 
@@ -117,3 +121,6 @@ def test_adjacent_bog_publication_vintages_match_on_overlap(
 
     assert len(overlap) == 11 * 11
     assert overlap["Value_earlier"].equals(overlap["Value_later"])
+    report = build_bog_revision_report(earlier, later)
+    assert len(report) == 11 * 11
+    assert (report["Observation Status"] == "unchanged").all()
