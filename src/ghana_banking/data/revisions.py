@@ -1,5 +1,6 @@
 """Compare Bank of Ghana publication vintages without overwriting source snapshots."""
 
+from math import isfinite
 from typing import Union
 
 import pandas as pd
@@ -21,6 +22,8 @@ def _prepare_snapshot(snapshot: Union[str, pd.DataFrame], label: str) -> pd.Data
     frame["Value"] = pd.to_numeric(frame["Value"], errors="coerce")
     if frame[["Date", "Publication Date", "Value"]].isna().any().any():
         raise ValueError("{} snapshot contains invalid dates or values.".format(label))
+    if not frame["Value"].map(isfinite).all():
+        raise ValueError("{} snapshot contains non-finite numeric values.".format(label))
     if frame["Indicator Code"].isna().any() or (frame["Indicator Code"].astype(str).str.strip() == "").any():
         raise ValueError("{} snapshot contains blank indicator codes.".format(label))
     if frame["Source URL"].isna().any() or (frame["Source URL"].astype(str).str.strip() == "").any():
@@ -42,8 +45,8 @@ def build_bog_revision_report(
     """
     if isinstance(tolerance, bool) or not isinstance(tolerance, (int, float)):
         raise TypeError("tolerance must be a non-negative number.")
-    if tolerance < 0:
-        raise ValueError("tolerance must be a non-negative number.")
+    if not isfinite(tolerance) or tolerance < 0:
+        raise ValueError("tolerance must be a finite, non-negative number.")
 
     old = _prepare_snapshot(previous, "Previous").rename(columns={
         "Value": "Previous Value",
