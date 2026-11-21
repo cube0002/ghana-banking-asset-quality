@@ -10,6 +10,8 @@ I am developing the project in stages: assembling and documenting the data, buil
 
 **How have macroeconomic conditions and banking-sector indicators moved alongside the NPL ratio in Ghana, and what do econometric and scenario-based models suggest about the transmission of macro-financial shocks?**
 
+The forward-looking methodology, hypotheses, data-frequency rules and model-selection framework are documented in [the research design and econometric protocol](docs/RESEARCH_DESIGN.md). The protocol defines how the analysis will be conducted; it is not a claim that the empirical tests or findings are complete.
+
 I am organising the work around four tasks:
 
 1. Describe the evolution of the NPL ratio and selected macro-financial indicators.
