@@ -137,6 +137,20 @@ jupyter lab notebooks/
 pytest tests/ -v
 ```
 
+Run the research notebooks in this order:
+
+1. `01_data_cleaning.ipynb` — prepares monthly banking observations and quarterly GDP separately.
+2. `02_exploratory_analysis.ipynb` — audits missingness, constructs preliminary transformations and explores the monthly data.
+3. `03_time_series_diagnostics.ipynb` — runs ADF, Phillips–Perron and KPSS tests on levels and first differences, adds a one-break Zivot–Andrews sensitivity test, checks large monthly changes and tests quarterly GDP at its original frequency.
+
+The third notebook uses the `arch` package for the Phillips–Perron and Zivot–Andrews tests. It is included in `requirements.txt` and the package dependencies. After pulling the branch, refresh the environment with:
+
+```bash
+pip install -e ".[dev]"
+```
+
+The diagnostics notebook does not automatically assign integration orders or select a final econometric model. Review deterministic terms, test conflicts, outlier flags and structural-break evidence before enabling its optional VAR lag-order cell. Its results are diagnostics, not causal findings.
+
 
 ### Load the November 2026 Bank of Ghana publication snapshot
 
