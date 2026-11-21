@@ -68,7 +68,7 @@ def build_bog_revision_report(
     )
     report["Observation Status"] = report["_merge"].map({
         "left_only": "removed", "right_only": "added", "both": "unchanged",
-    })
+    }).astype("object")
     matched = report["_merge"] == "both"
     changed = matched & (
         (report["Current Value"] - report["Previous Value"]).abs() > tolerance
