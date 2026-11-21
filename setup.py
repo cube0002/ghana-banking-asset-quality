@@ -15,6 +15,7 @@ setup(
         "numpy>=1.23.0",
         "scipy>=1.9.0",
         "statsmodels>=0.14.0",
+        "arch>=7.2.0",
         "scikit-learn>=1.3.0",
         "matplotlib>=3.7.0",
         "seaborn>=0.12.0",
