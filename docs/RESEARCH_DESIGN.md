@@ -285,11 +285,13 @@ No empirical conclusion should be promoted to the README's headline findings unt
 - Bai, J. and Perron, P. (2003). “Computation and analysis of multiple structural change models.” *Journal of Applied Econometrics*, 18(1), 1–22. https://doi.org/10.1002/jae.659
 - Johansen, S. (1991). “Estimation and hypothesis testing of cointegration vectors in Gaussian vector autoregressive models.” *Econometrica*, 59(6), 1551–1580. https://doi.org/10.2307/2938278
 - Kwiatkowski, D., Phillips, P. C. B., Schmidt, P. and Shin, Y. (1992). “Testing the null hypothesis of stationarity against the alternative of a unit root.” *Journal of Econometrics*, 54(1–3), 159–178. https://doi.org/10.1016/0304-4076(92)90104-Y
+- Dickey, D. A. and Fuller, W. A. (1979). “Distribution of the estimators for autoregressive time series with a unit root.” *Journal of the American Statistical Association*, 74(366a), 427–431. https://doi.org/10.1080/01621459.1979.10482531
+- Phillips, P. C. B. and Perron, P. (1988). “Testing for a unit root in time series regression.” *Biometrika*, 75(2), 335–346. https://doi.org/10.1093/biomet/75.2.335
 - Newey, W. K. and West, K. D. (1987). “A simple, positive semi-definite, heteroskedasticity and autocorrelation consistent covariance matrix.” *Econometrica*, 55(3), 703–708. https://doi.org/10.2307/1913610
 - Pesaran, M. H., Shin, Y. and Smith, R. J. (2001). “Bounds testing approaches to the analysis of level relationships.” *Journal of Applied Econometrics*, 16(3), 289–326. https://doi.org/10.1002/jae.616
 - Sims, C. A. (1980). “Macroeconomics and reality.” *Econometrica*, 48(1), 1–48. https://doi.org/10.2307/1912017
 - Toda, H. Y. and Yamamoto, T. (1995). “Statistical inference in vector autoregressions with possibly integrated processes.” *Journal of Econometrics*, 66(1–2), 225–250. https://doi.org/10.1016/0304-4076(94)01616-8
-- Zivot, E. and Andrews, D. W. K. (1992). “Further evidence on the great crash, the oil-price shock, and the unit-root hypothesis.” *Journal of Business & Economic Statistics*, 10(3), 251–270.
+- Zivot, E. and Andrews, D. W. K. (1992). “Further evidence on the great crash, the oil-price shock, and the unit-root hypothesis.” *Journal of Business & Economic Statistics*, 10(3), 251–270. https://doi.org/10.1080/07350015.1992.10509904
 
 For broader guidance on scenario design and the limits of system-wide stress testing, see the IMF's *Macro-Financial Stress Testing: Principles and Practices*, Chapter 2: https://www.elibrary.imf.org/display/book/9781484310717/ch002.xml
 
