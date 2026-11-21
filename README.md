@@ -54,6 +54,10 @@ The raw monthly file also contains missing values for some indicators near the e
 
 I use the notebooks to examine the time paths, distributions and pairwise relationships of the main indicators. I treat the figures in figures/ as exploratory outputs and interpret them alongside the notebook code and data definitions.
 
+### Time-series diagnostics
+
+The dedicated diagnostics workflow in `notebooks/03_time_series_diagnostics.ipynb` compares ADF, Phillips–Perron and KPSS evidence for the core monthly series in levels and first differences. It includes a one-break unit-root sensitivity test, a large-change screening audit and a separate quarterly GDP check using the original GDP frequency. The workflow does not mechanically assign integration orders or choose a final model; these decisions require review of deterministic terms, data quality, structural stability and the full test evidence. The notebook and its execution sequence are documented in [the usage guide](docs/USAGE.md#run-the-notebooks-and-tests).
+
 ### OLS regression
 
 I have built a reusable ordinary least squares wrapper as a descriptive conditional-association baseline. With trending macroeconomic series, serially correlated residuals and possible structural changes, a high in-sample fit or a small conventional p-value is not, by itself, evidence of a stable economic relationship or causality.
