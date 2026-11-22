@@ -1,7 +1,8 @@
-"""Stress test framework for "what if" scenarios.
+"""Legacy static regression scenario utility.
 
-Run plausible but extreme macroeconomic scenarios through the model
-to see how much damage the banking sector could take."""
+This module predicts one outcome from contemporaneous inputs. It is not a
+dynamic macro-financial stress test and should not be used as the primary
+research scenario engine. See ardl_scenarios for conditional path forecasts.
 
 import numpy as np
 import pandas as pd
@@ -12,12 +13,12 @@ from typing import Dict, Optional
 
 
 class StressTest:
-    """Simulate extreme macroeconomic shocks and see the damage.
-    
-    Useful for regulators and risk managers who need to ask:
-    "What if the currency collapses?" or "What if GDP contracts 15%?"
-    
-    You train on historical relationships, then apply them to stress scenarios.
+    """Legacy static regression predictions for supplied scenario inputs.
+
+    The model uses contemporaneous regressors and does not propagate
+    macroeconomic paths through time. Its outputs are conditional regression
+    predictions, not regulatory stress-test losses or dynamic NPL forecasts.
+    Prefer the ARDL scenario-path engine for a reviewed dynamic specification.
     
     Attributes:
         regression_model: The fitted predictor
@@ -97,7 +98,7 @@ class StressTest:
         self.target_var = target_var
     
     def run_scenario(self, scenario_values: Dict) -> float:
-        """Run one stress scenario and get the predicted outcome.
+        """Return a one-period static regression prediction for supplied inputs.
         
         Args:
             scenario_values: Dict like {'Rate': 20, 'GDP': 1500, 'CPI': 110}
