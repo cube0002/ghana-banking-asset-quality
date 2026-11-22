@@ -70,7 +70,7 @@ The VAR workflow estimates multivariate lag models, checks companion-matrix stab
 
 ### Scenario analysis
 
-I have built an initial scenario-analysis module that fits a standardised linear regression and evaluates user-specified predictor values. This is best understood as a **conditional scenario exercise**, not a bank-level regulatory stress test or a validated forecast. Its results depend on the historical sample, model specification and plausibility of the scenario inputs. Extrapolation beyond the observed data range should be treated cautiously.
+I retain the original standardised linear-regression scenario utility as a **static, one-period benchmark**; it is not a dynamic stress test. A separate ARDL scenario-path engine now propagates user-supplied baseline/adverse/severe exogenous paths through a fitted dynamic NPL equation and returns conditional forecasts, pointwise forecast intervals and point-estimate differences from baseline. The ARDL engine must only be used after integration, cointegration/bounds, lag and residual diagnostics support the fitted specification. Scenario paths are supplied in the model estimation scale and still require documented calibration. Neither tool is a bank-level regulatory stress test, and neither identifies causal effects. Extrapolation beyond the observed data range should be treated cautiously.
 
 ## Selected figures
 
@@ -154,7 +154,8 @@ I am currently prioritising:
 - testing stationarity, serial correlation, stability and other time-series assumptions;
 - comparing monthly and quarterly specifications, especially where GDP is involved;
 - comparing VAR specifications and making impulse-response identification explicit;
-- improving the scenario model with chronological validation and uncertainty estimates.
+- calibrating macroeconomic scenario paths from documented historical distributions or authoritative external scenarios;
+- extending scenario uncertainty analysis to parameter and model-selection uncertainty, beyond conditional forecast intervals.
 
 I will treat empirical findings as provisional until these checks are complete.
 
