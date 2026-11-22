@@ -38,9 +38,9 @@ def assess_model_eligibility(integration_assessments: Dict[str, str]) -> dict:
             "condition": "All included variables have I(0) evidence in the chosen scale.",
         },
         "ARDL_bounds": {
-            "eligible": not has_i2_or_unresolved and not has_uncertain and (all_i0 or mixed_i0_i1 or all_i1),
+            "eligible": not has_i2_or_unresolved and not has_uncertain and (mixed_i0_i1 or all_i1),
             "condition": (
-                "Screening eligibility only: no I(2) variable. Also require a plausible "
+                "Screening eligibility only for a non-all-I(0) I(0)/I(1) set: no I(2) variable. Also require a plausible "
                 "level relationship, adequate sample and a justified deterministic case; "
                 "perform bounds testing before reporting long-run estimates."
             ),
