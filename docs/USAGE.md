@@ -327,6 +327,44 @@ tests are conditional on the supplied OLS specification; rolling coefficients
 are descriptive. Do not apply these tests to a potentially spurious levels
 regression or interpret a rejection as proof of a specific economic event.
 
+## Reusable OLS residual diagnostics and HAC inference
+
+After selecting a defensible stationary regression specification, use the
+residual-diagnostics API to examine serial correlation, heteroskedasticity,
+conditional-variance dynamics, normality and functional form. It reports
+Breusch–Godfrey, Breusch–Pagan, White, ARCH-LM, Jarque–Bera and Ramsey RESET
+tests, alongside Durbin–Watson and conventional versus Newey–West/HAC
+coefficient inference:
+
+```python
+from ghana_banking.econometrics import run_ols_residual_diagnostics
+
+diagnostics = run_ols_residual_diagnostics(
+    data=stationary_model_data,
+    dependent_variable="NPL_change_pp",
+    regressors=[
+        "Policy_rate_change_pp",
+        "Inflation_mom_pct",
+        "Cedi_depreciation_mom_pct",
+    ],
+    autocorrelation_lags=12,
+    arch_lags=12,
+)
+print(diagnostics.to_dict())
+```
+
+The API requires a complete, ordered, full-rank sample and does not silently
+drop observations. The test null hypotheses are included in the returned
+records. A small p-value is evidence against the corresponding null, not an
+automatic instruction to transform or delete observations. Interpret tests
+jointly and revisit the conditional-mean specification where indicated.
+HAC standard errors adjust covariance-based inference for heteroskedasticity
+and autocorrelation under the selected lag truncation; they do not cure
+non-stationarity, endogeneity, omitted-variable bias or a misspecified
+conditional mean. Select the HAC bandwidth as a sensitivity choice and report
+it. Residual normality is not a prerequisite for consistency, but can matter
+for small-sample inference.
+
 ## Model eligibility screening
 
 The integration-order labels reviewed from unit-root evidence can be passed
