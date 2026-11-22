@@ -246,9 +246,13 @@ A mixed I(0)/I(1) or all-I(1) system is only a candidate for the bounds test.
 The bounds case must match the deterministic specification. Statsmodels'
 case definitions are: 1 (no intercept/no trend), 2 (restricted intercept),
 3 (unrestricted intercept/no trend), 4 (unrestricted intercept/restricted
-trend), and 5 (unrestricted intercept and trend). The default `trend="c"`
-and `bounds_case=3` represent an intercept with no deterministic trend.
-Do not choose the case after inspecting which produces significance.
+trend), and 5 (unrestricted intercept and trend). This reusable wrapper
+supports the directly matched combinations `trend="n", bounds_case=1`,
+`trend="c", bounds_case=3`, and `trend="ct", bounds_case=5`. Restricted
+cases 2 and 4 require a custom deterministic specification and are not
+silently approximated by this wrapper. The default `trend="c"` and
+`bounds_case=3` represent an intercept with no deterministic trend. Do not
+choose the case after inspecting which produces significance.
 
 The output reports the lower- and upper-bound p-values. Evidence of a level
 relationship is recorded only when the upper-bound p-value is below alpha;
