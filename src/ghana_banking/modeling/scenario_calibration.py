@@ -23,13 +23,17 @@ def _future_index(index: pd.Index, horizon: int) -> pd.Index:
     if isinstance(index, pd.PeriodIndex):
         if index.freq is None:
             raise ValueError("Historical PeriodIndex must have a defined frequency.")
+        expected = pd.period_range(index[0], index[-1], freq=index.freq)
+        if not expected.equals(index):
+            raise ValueError("Historical PeriodIndex must be regular with no missing periods.")
         return pd.period_range(index[-1] + 1, periods=horizon, freq=index.freq)
     if pd.api.types.is_numeric_dtype(index.dtype):
         if len(index) < 2:
             raise ValueError("Numeric historical index requires at least two observations.")
-        spacing = float(index[-1]) - float(index[-2])
-        if spacing <= 0:
-            raise ValueError("Numeric historical index must be strictly increasing.")
+        differences = np.diff(np.asarray(index, dtype=float))
+        spacing = float(differences[-1])
+        if spacing <= 0 or not np.allclose(differences, spacing):
+            raise ValueError("Numeric historical index must be strictly increasing and equally spaced.")
         return pd.Index(
             [float(index[-1]) + spacing * step for step in range(1, horizon + 1)],
             name=index.name,
