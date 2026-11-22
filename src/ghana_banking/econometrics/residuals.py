@@ -54,18 +54,23 @@ def _test_record(statistic: float, pvalue: float, null_hypothesis: str) -> dict:
     }
 
 
-def _parameter_records(result) -> List[dict]:
+def _parameter_records(result, names: List[str]) -> List[dict]:
+    params = np.asarray(result.params, dtype=float)
+    standard_errors = np.asarray(result.bse, dtype=float)
+    t_statistics = np.asarray(result.tvalues, dtype=float)
+    p_values = np.asarray(result.pvalues, dtype=float)
+    intervals = np.asarray(result.conf_int(), dtype=float)
     return [
         {
             "term": str(name),
-            "coefficient": float(result.params[name]),
-            "standard_error": float(result.bse[name]),
-            "t_statistic": float(result.tvalues[name]),
-            "p_value": float(result.pvalues[name]),
-            "confidence_interval_lower": float(result.conf_int().loc[name, 0]),
-            "confidence_interval_upper": float(result.conf_int().loc[name, 1]),
+            "coefficient": float(params[index]),
+            "standard_error": float(standard_errors[index]),
+            "t_statistic": float(t_statistics[index]),
+            "p_value": float(p_values[index]),
+            "confidence_interval_lower": float(intervals[index, 0]),
+            "confidence_interval_upper": float(intervals[index, 1]),
         }
-        for name in result.params.index
+        for index, name in enumerate(names)
     ]
 
 
@@ -172,8 +177,8 @@ def run_ols_residual_diagnostics(
         residual_tests=residual_tests,
         durbin_watson_statistic=float(durbin_watson(fitted.resid)),
         hac_lags=int(hac_lags),
-        conventional_parameters=_parameter_records(fitted),
-        hac_parameters=_parameter_records(robust),
+        conventional_parameters=_parameter_records(fitted, list(x.columns)),
+        hac_parameters=_parameter_records(robust, list(x.columns)),
         hac_covariance=hac_cov.tolist(),
         r_squared=float(fitted.rsquared),
         adjusted_r_squared=float(fitted.rsquared_adj),
