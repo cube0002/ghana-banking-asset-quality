@@ -242,7 +242,7 @@ A defensible scenario exercise should:
 - compare performance with simple benchmarks such as a no-change forecast and a univariate autoregressive model;
 - use expanding-window or rolling-origin backtesting, never random train/test splitting for time-series forecasting;
 - report MAE and RMSE by forecast horizon, alongside the evaluation dates and benchmark results;
-- compare the model with transparent benchmarks; the reusable VAR backtest currently includes an expanding historical-mean benchmark, while a no-change or autoregressive benchmark may be added where appropriate;
+- compare the model with transparent benchmarks; the reusable VAR backtest includes an expanding historical-mean benchmark, while the reusable univariate AR benchmark reports no-change and expanding-mean comparisons with pointwise prediction-interval coverage and width;
 - repeat every data-driven transformation, scaling, variable-selection and lag-selection step within each forecast origin's training sample;
 - check for preprocessing leakage and ensure that all scalers, transformations and model selection steps use only information available at each forecast origin.
 
