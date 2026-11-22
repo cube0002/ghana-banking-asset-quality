@@ -27,6 +27,7 @@ class UnitRootResult:
     alternative_hypothesis: str
     deterministic: str
     observations: int
+    effective_observations: int
     sample_start: Optional[str]
     sample_end: Optional[str]
     selected_lags: Optional[int]
@@ -148,6 +149,7 @@ def run_unit_root_suite(
     return [
         UnitRootResult(
             **common,
+            effective_observations=int(adf.nobs),
             test="ADF",
             statistic=float(adf.stat),
             pvalue=float(adf.pvalue),
@@ -159,6 +161,7 @@ def run_unit_root_suite(
         ),
         UnitRootResult(
             **common,
+            effective_observations=int(pp.nobs),
             test="Phillips-Perron",
             statistic=float(pp.stat),
             pvalue=float(pp.pvalue),
@@ -173,6 +176,7 @@ def run_unit_root_suite(
         ),
         UnitRootResult(
             **common,
+            effective_observations=int(values.shape[0]),
             test="KPSS",
             statistic=float(kpss.stat),
             pvalue=float(kpss.pvalue),
