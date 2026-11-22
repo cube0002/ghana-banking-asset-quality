@@ -29,6 +29,8 @@ def test_ar_backtest_is_chronological_and_reports_intervals_and_benchmarks():
     )
     payload = result.to_dict()
     assert payload["forecast_origins"] > 0
+    assert payload["trend"] == "c"
+    assert payload["significance_level"] == 0.05
     assert {item["horizon"] for item in payload["metrics"]} == {1, 3}
     assert all(item["n_forecasts"] == payload["forecast_origins"] for item in payload["metrics"])
     for item in payload["metrics"]:
