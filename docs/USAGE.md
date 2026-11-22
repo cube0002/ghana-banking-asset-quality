@@ -110,6 +110,59 @@ The `use_diff` argument controls whether first differences are used. Choose tran
 
 When forecasting a model fitted with `use_diff=True`, pass the last `lags` observations of the differenced data, in the same column order. Forecasts remain in differences; the current method does not reconstruct level forecasts.
 
+## VAR impulse-response uncertainty and chronological forecast evaluation
+
+After a stationary VAR has been selected and its stability and residual
+diagnostics reviewed, obtain Monte Carlo impulse-response bands:
+
+```python
+from ghana_banking.modeling import VARModel
+
+var_model = VARModel(lags=2).fit(stationary_var_data, use_diff=False)
+bands = var_model.impulse_response_bands(
+    periods=12,
+    orthogonalized=False,
+    replications=1000,
+    significance_level=0.05,
+    seed=12345,
+)
+```
+
+The method returns pointwise Monte Carlo simulation bands. Reduced-form
+responses are not structural shocks. If `orthogonalized=True`, statsmodels
+uses a Cholesky decomposition, so responses depend on the ordering of
+endogenous variables; document and justify that ordering. These bands are
+conditional on the fitted VAR, its lag order, deterministic terms and
+residual distribution. They are not simultaneous confidence bands and do
+not establish causal effects.
+
+For out-of-sample predictive evaluation, use expanding-window backtesting on
+a pre-transformed, stationary data set:
+
+```python
+from ghana_banking.modeling import expanding_window_var_backtest
+
+backtest = expanding_window_var_backtest(
+    data=stationary_var_data,
+    lag_order=2,
+    initial_window=80,
+    horizons=[1, 3, 6, 12],
+    step=1,
+)
+print(backtest.metrics)
+```
+
+At each forecast origin the VAR is re-estimated using only observations
+available at that date. Metrics are reported by variable and horizon, with
+an expanding historical-mean benchmark. The lag order is held fixed across
+origins. If lag selection, transformations, scaling or variable selection
+are part of the forecasting pipeline, repeat those steps using only each
+origin's training sample; otherwise information can leak from the future.
+The input must already be on a defensible stationary modelling scale and
+have a regular, complete time index. Report MAE and RMSE by horizon and
+compare the VAR with the benchmark rather than reporting VAR accuracy in
+isolation. A successful backtest is predictive evidence, not causal evidence.
+
 ## Run a scenario exercise
 
 ```python
