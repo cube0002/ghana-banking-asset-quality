@@ -188,9 +188,8 @@ def fit_ardl_bounds_model(
         }
         for percentile, row in crit.iterrows()
     ]
-    selected_ic_value = float(
-        selection.bic if selection_ic == "bic" else selection.aic
-    )
+    selected_ic_series = selection.bic if selection_ic == "bic" else selection.aic
+    selected_ic_value = float(selected_ic_series.iloc[0])
     return ARDLBoundsResult(
         dependent_variable=dependent_variable,
         regressors=list(regressors),
