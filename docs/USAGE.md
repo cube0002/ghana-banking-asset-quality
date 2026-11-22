@@ -208,6 +208,64 @@ allows one break and does not replace multiple-break estimation or parameter-
 stability diagnostics. Use it as sensitivity evidence alongside ADF, PP and
 KPSS, not as a mechanical override of conflicting results.
 
+## Guarded ARDL/UECM bounds estimation
+
+After the exact dependent variable and regressors have been assessed as I(0)
+and/or I(1), with no possible I(2) variable, the project can select an ARDL
+lag structure, estimate its unrestricted error-correction representation
+(UECM), and conduct the Pesaran–Shin–Smith bounds test:
+
+```python
+from ghana_banking.econometrics import fit_ardl_bounds_model
+
+result = fit_ardl_bounds_model(
+    data=monthly_model_data,
+    dependent_variable="NPL ratio (%)",
+    regressors=["inflation", "cedi depreciation", "policy rate"],
+    integration_assessments={
+        "NPL ratio (%)": "I(1)",
+        "inflation": "I(0)",
+        "cedi depreciation": "I(1)",
+        "policy rate": "I(0)",
+    },
+    max_ar_lag=6,
+    max_distributed_lag=6,
+    selection_ic="bic",
+    trend="c",
+    bounds_case=3,
+)
+print(result.to_dict())
+```
+
+The integration labels must be the reviewed working assessments for exactly
+the variables in the equation. The routine blocks uncertain, possible-I(2)
+and all-I(0) systems. All-I(0) variables should normally be handled with a
+stationary dynamic model; bounds testing is not a shortcut around that route.
+A mixed I(0)/I(1) or all-I(1) system is only a candidate for the bounds test.
+
+The bounds case must match the deterministic specification. Statsmodels'
+case definitions are: 1 (no intercept/no trend), 2 (restricted intercept),
+3 (unrestricted intercept/no trend), 4 (unrestricted intercept/restricted
+trend), and 5 (unrestricted intercept and trend). The default `trend="c"`
+and `bounds_case=3` represent an intercept with no deterministic trend.
+Do not choose the case after inspecting which produces significance.
+
+The output reports the lower- and upper-bound p-values. Evidence of a level
+relationship is recorded only when the upper-bound p-value is below alpha;
+no evidence is recorded when the lower-bound p-value is above alpha; otherwise
+the result is inconclusive. Long-run multipliers are returned only in the
+first case. If the lag selection chooses a distributed-lag order that cannot
+be represented as a UECM, the routine stops and reports the issue rather than
+silently forcing a different model. Asymptotic bounds are the default; for
+finite-sample simulation, set `asymptotic_bounds=False` and record `nsim`
+and `seed`.
+
+This is an estimation workflow, not an automatic final-model selector.
+Inspect residual serial correlation, heteroskedasticity, functional form,
+parameter stability, lag sensitivity and economic plausibility before
+interpreting coefficients. A statistically supported level relationship is
+not causal identification.
+
 ## Johansen cointegration-rank diagnostics
 
 For a small system whose included variables have been assessed as I(1),
