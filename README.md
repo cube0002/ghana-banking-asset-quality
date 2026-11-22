@@ -97,6 +97,7 @@ These figures are analysis outputs, not a substitute for inspecting the notebook
 ├── notebooks/               # Research workflow
 ├── src/ghana_banking/
 │   ├── data/                # Data loading and preparation
+│   ├── econometrics/        # Unit-root and time-series diagnostics
 │   ├── modeling/            # OLS, VAR and scenario models
 │   └── plotting/            # Time-series and diagnostic plots
 ├── tests/                   # Unit tests
