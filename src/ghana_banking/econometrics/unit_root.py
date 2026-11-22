@@ -31,6 +31,7 @@ class UnitRootResult:
     sample_end: Optional[str]
     selected_lags: Optional[int]
     lag_method: str
+    significance_level: float
     frequency: Optional[str] = None
     transformation: Optional[str] = None
 
@@ -48,6 +49,8 @@ def _validate_series(series: pd.Series, series_name: Optional[str]) -> tuple:
         raise TypeError("series must contain numeric observations.")
     if series.index.has_duplicates:
         raise ValueError("series index must not contain duplicate observations.")
+    if not series.index.is_monotonic_increasing:
+        raise ValueError("series index must be sorted in increasing time order.")
 
     values = series.astype(float)
     if not np.isfinite(values.to_numpy()).all():
@@ -96,6 +99,8 @@ def run_unit_root_suite(
 
     if deterministic not in {"c", "ct"}:
         raise ValueError("deterministic must be 'c' or 'ct'.")
+    if adf_method not in {"aic", "bic", "t-stat"}:
+        raise ValueError("adf_method must be 'aic', 'bic' or 't-stat'.")
     if not 0 < alpha < 1:
         raise ValueError("alpha must be strictly between 0 and 1.")
     for label, lag in (
@@ -113,6 +118,7 @@ def run_unit_root_suite(
         "series_name": name,
         "deterministic": deterministic,
         "observations": int(values.shape[0]),
+        "significance_level": float(alpha),
         "sample_start": start,
         "sample_end": end,
         "frequency": frequency,
