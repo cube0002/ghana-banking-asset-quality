@@ -73,3 +73,7 @@ def test_time_series_diagnostics_notebook_contains_required_checks():
     assert "fit_ardl_bounds_model" in all_source
     assert "RUN_RESIDUAL_DIAGNOSTICS = False" in all_source
     assert "run_ols_residual_diagnostics" in all_source
+    assert "RUN_VAR_CHRONOLOGICAL_BACKTEST = False" in all_source
+    assert "RUN_VAR_IRF_MONTE_CARLO_BANDS = False" in all_source
+    assert "expanding_window_var_backtest" in all_source
+    assert "impulse_response_bands" in all_source
