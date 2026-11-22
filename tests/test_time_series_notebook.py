@@ -71,6 +71,8 @@ def test_time_series_diagnostics_notebook_contains_required_checks():
     assert "run_johansen_cointegration_test" in all_source
     assert "RUN_ARDL_BOUNDS_TEST = False" in all_source
     assert "fit_ardl_bounds_model" in all_source
+    assert "RUN_VECM_ESTIMATION = False" in all_source
+    assert "fit_vecm_model" in all_source
     assert "RUN_RESIDUAL_DIAGNOSTICS = False" in all_source
     assert "run_ols_residual_diagnostics" in all_source
     assert "RUN_VAR_CHRONOLOGICAL_BACKTEST = False" in all_source
