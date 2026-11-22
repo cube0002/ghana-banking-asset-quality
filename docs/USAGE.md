@@ -110,6 +110,41 @@ The `use_diff` argument controls whether first differences are used. Choose tran
 
 When forecasting a model fitted with `use_diff=True`, pass the last `lags` observations of the differenced data, in the same column order. Forecasts remain in differences; the current method does not reconstruct level forecasts.
 
+## Guarded VECM estimation
+
+A VECM is available for a small system whose included variables have all
+been reviewed as I(1) and whose Johansen rank evidence supports a
+cointegrating relationship. The rank is supplied explicitly after reviewing
+the trace and maximum-eigenvalue tests; the estimator does not select it
+automatically:
+
+```python
+from ghana_banking.econometrics import fit_vecm_model
+
+vecm_result = fit_vecm_model(
+    data=cointegrated_i1_data,
+    integration_assessments={
+        "log NPL": "I(1)",
+        "log credit": "I(1)",
+    },
+    cointegration_rank=1,  # reviewed Johansen decision
+    k_ar_diff=1,
+    deterministic="co",
+    whiteness_lags=12,
+)
+print(vecm_result.to_dict())
+```
+
+The output includes adjustment coefficients, normalized cointegrating
+vectors, short-run coefficients, residual covariance, Portmanteau
+whiteness and joint normality tests, log likelihood and effective sample
+metadata. The deterministic specification and lagged-difference order must
+be justified and checked for sensitivity. A VECM fit does not prove that a
+long-run relation is economically meaningful, and its reduced-form
+innovations do not identify structural shocks. Do not estimate a VECM when
+the integration evidence is uncertain, variables are not all I(1), or the
+cointegration rank is zero.
+
 ## VAR impulse-response uncertainty and chronological forecast evaluation
 
 After a stationary VAR has been selected and its stability and residual
