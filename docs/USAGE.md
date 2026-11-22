@@ -623,3 +623,41 @@ from defensible evidence; illustrative analyst assumptions must be labelled
 as such. The legacy `StressTest` class remains a static contemporaneous
 regression utility and should not be described as the primary dynamic
 stress-testing method.
+
+
+## Historical calibration of conditional scenario paths
+
+The historical calibration utility generates baseline, adverse and severe exogenous paths from univariate AR(1) models estimated on the supplied historical sample:
+
+```python
+from ghana_banking.modeling import (
+    calibrate_historical_scenario_paths,
+    forecast_ardl_scenarios,
+)
+
+scenario_paths = calibrate_historical_scenario_paths(
+    historical_exog=historical_macro_variables,
+    horizon=12,
+    adverse_directions={
+        "inflation": 1,
+        "cedi_depreciation": 1,
+        "policy_rate_change": 1,
+    },
+    integrated_variables=[],
+    adverse_quantile=0.90,
+    severe_quantile=0.975,
+    persistence=0.70,
+)
+
+scenario_forecasts = forecast_ardl_scenarios(
+    fitted_results=fitted_ardl,
+    scenarios=scenario_paths,
+    baseline_name="Baseline",
+)
+```
+
+The historical data must be complete, regular and expressed in the same units and transformations used by the ARDL regressors. `adverse_directions` is an explicit economic assumption: +1 means an increase is adverse; -1 means a decrease is adverse. For variables treated as I(1) in levels, list them in `integrated_variables`; the calibration models their first differences and accumulates forecast changes back to levels. Other variables are modelled in levels.
+
+The baseline uses AR(1) conditional forecasts. Adverse and severe scenarios add direction-adjusted historical innovation quantiles, with geometric shock decay controlled by the explicitly assumed `persistence` parameter. The quantile and persistence choices must be reported and sensitivity-tested. The AR(1) calibration is intentionally transparent and parsimonious; it is not a substitute for a validated multivariate macroeconomic forecasting model.
+
+**Important limitation:** innovation quantiles are calibrated separately for each variable. The resulting paths do not preserve cross-variable dependence or represent joint probabilities. They are illustrative conditional sensitivity scenarios, not official Bank of Ghana/IMF scenarios, causal shocks or supervisory stress tests. Do not interpret the 90th or 97.5th marginal quantiles as a joint 10% or 2.5% macroeconomic tail event.
