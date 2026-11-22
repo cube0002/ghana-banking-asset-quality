@@ -1,6 +1,6 @@
 # Research design and econometric protocol
 
-**Status:** Research protocol, version 1.2  
+**Status:** Research protocol, version 1.3  
 **Project:** Ghana Banking Asset Quality  
 **Branch:** portfolio/research-overhaul  
 **Protocol date:** 22 November 2026
@@ -172,7 +172,7 @@ The main candidate is a parsimonious dynamic single-equation model for the NPL r
 - If the relevant system variables are I(1) and cointegrated, a VECM may be considered. Select the cointegrating rank and deterministic specification transparently and keep the system small enough for the available sample.
 - If the variables are stationary after transformation and the question concerns joint dynamics, a stationary VAR may be used with a parsimonious lag order.
 
-The ARDL approach follows the bounds-testing framework of Pesaran, Shin and Smith (2001). The method accommodates regressors that are I(0) or I(1), but not I(2); the deterministic case and finite-sample limitations matter. The Johansen framework is the reference for system cointegration and VECM analysis.
+The ARDL approach follows the bounds-testing framework of Pesaran, Shin and Smith (2001). The method accommodates regressors that are I(0) or I(1), but not I(2); the deterministic case and finite-sample limitations matter. The Johansen framework is the reference for system cointegration and VECM analysis. The reusable VECM wrapper requires reviewed I(1) labels for every included series and an explicitly reviewed cointegration rank; it reports adjustment coefficients, cointegrating vectors, short-run coefficients, residual covariance, and residual whiteness/normality diagnostics. It does not select the rank or infer structural causality.
 
 ### Stage 5: VAR/VECM analysis
 
@@ -303,6 +303,6 @@ For broader guidance on scenario design and the limits of system-wide stress tes
 
 ---
 
-**Version 1.2 change note (22 November 2026):** Adds explicit reporting requirements for Monte Carlo VAR impulse-response bands and documents the expanding-window VAR backtesting workflow and benchmark/leakage safeguards. The research question, sample, variable definitions and substantive model-selection principles are unchanged.
+**Version 1.3 change note (22 November 2026):** Documents the guarded VECM estimation and residual-diagnostic implementation, in addition to the Monte Carlo VAR impulse-response bands and expanding-window forecast-validation workflow introduced in version 1.2. The research question, sample, variable definitions and substantive model-selection principles are unchanged.
 
 **Protocol note:** This document should be updated through a dated, version-controlled change whenever the research question, sample, variable definitions or model-selection rules materially change. Any such change should be explained rather than silently substituted after inspecting the results.
