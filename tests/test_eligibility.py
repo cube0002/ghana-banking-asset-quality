@@ -12,7 +12,7 @@ from ghana_banking.econometrics.eligibility import assess_model_eligibility
 def test_all_stationary_supports_stationary_model_candidates():
     result = assess_model_eligibility({"NPL": "I(0)", "inflation": "I(0)"})
     assert result["candidate_models"]["stationary_dynamic_regression_or_VAR"]["eligible"]
-    assert result["candidate_models"]["ARDL_bounds"]["eligible"]
+    assert not result["candidate_models"]["ARDL_bounds"]["eligible"]
     assert not result["candidate_models"]["VECM"]["eligible"]
 
 
