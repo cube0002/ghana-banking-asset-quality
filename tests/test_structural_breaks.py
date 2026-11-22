@@ -43,7 +43,9 @@ def test_supported_break_regressions(regression):
 
 def test_rejects_invalid_series_and_options():
     with pytest.raises(ValueError, match="finite"):
-        run_zivot_andrews_test(_broken_trend().replace(2.0, np.nan))
+        missing = _broken_trend()
+        missing.iloc[10] = np.nan
+        run_zivot_andrews_test(missing)
     with pytest.raises(ValueError, match="duplicate"):
         duplicate = _broken_trend()
         duplicate.index = [duplicate.index[0]] * len(duplicate)
