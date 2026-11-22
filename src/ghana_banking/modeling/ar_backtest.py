@@ -36,6 +36,9 @@ def _validate_index(index: pd.Index) -> None:
     if isinstance(index, pd.PeriodIndex):
         if index.freq is None:
             raise ValueError("PeriodIndex must have a defined frequency.")
+        expected = pd.period_range(index[0], index[-1], freq=index.freq)
+        if not expected.equals(index):
+            raise ValueError("PeriodIndex must be regular with no missing periods.")
     elif isinstance(index, pd.DatetimeIndex):
         if pd.infer_freq(index) is None:
             raise ValueError("DatetimeIndex must be regular with no missing periods.")
