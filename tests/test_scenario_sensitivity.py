@@ -54,7 +54,7 @@ def test_scenario_sensitivity_rejects_invalid_grids():
     }
     with pytest.raises(ValueError, match="quantile pairs"):
         run_ardl_scenario_sensitivity(**common, quantile_pairs=[])
-    with pytest.raises(ValueError, match="persistence values"):
+    with pytest.raises(ValueError, match="persistence_values"):
         run_ardl_scenario_sensitivity(**common, persistence_values=[])
     with pytest.raises(ValueError, match="satisfy"):
         run_ardl_scenario_sensitivity(**common, quantile_pairs=[(0.98, 0.95)])
