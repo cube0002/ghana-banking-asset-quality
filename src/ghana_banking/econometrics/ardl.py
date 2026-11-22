@@ -207,7 +207,9 @@ def fit_ardl_bounds_model(
         for percentile, row in crit.iterrows()
     ]
     selected_ic_series = selection.bic if selection_ic == "bic" else selection.aic
-    selected_ic_value = float(selected_ic_series.iloc[0])
+    # statsmodels stores the information criterion in the Series index;
+    # the Series values contain the selected lag-order tuple.
+    selected_ic_value = float(selected_ic_series.index[0])
     return ARDLBoundsResult(
         dependent_variable=dependent_variable,
         regressors=list(regressors),
