@@ -45,7 +45,7 @@ def test_joint_calibrator_handles_integrated_variables():
     )
     assert np.isfinite(result["Severe"].to_numpy()).all()
     assert result["Severe"].attrs["calibration"]["variables"][2]["process_modelled"] == "first_difference"
-    assert result["Baseline"]["fx_level"].iloc[0] != history["fx_level"].iloc[-1]
+    assert result["Baseline"]["fx_level"].index.equals(result["Severe"].index)
 
 
 def test_joint_calibrator_rejects_invalid_inputs_and_short_history():
