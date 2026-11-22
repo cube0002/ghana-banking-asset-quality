@@ -208,6 +208,32 @@ allows one break and does not replace multiple-break estimation or parameter-
 stability diagnostics. Use it as sensitivity evidence alongside ADF, PP and
 KPSS, not as a mechanical override of conflicting results.
 
+## Johansen cointegration-rank diagnostics
+
+For a small system whose included variables have been assessed as I(1),
+the project provides Johansen trace and maximum-eigenvalue rank tests:
+
+```python
+from ghana_banking.econometrics import run_johansen_cointegration_test
+
+rank_result = run_johansen_cointegration_test(
+    data=cointegration_system,
+    det_order=0,       # constant in the cointegrating relation
+    k_ar_diff=1,       # lagged differences in the VECM
+    significance_level=0.05,
+    frequency="monthly",
+)
+print(rank_result.to_dict())
+```
+
+The output retains both test statistics, their critical values and the
+sequential rank decisions. The function does not establish integration order:
+confirm that the variables are I(1) first, and do not include I(2) variables.
+Trace and maximum-eigenvalue tests can disagree; report that disagreement
+rather than selecting the preferred rank after seeing the estimates.
+The deterministic specification and lag order must be justified and checked
+for sensitivity. A VECM is not justified by the rank output alone.
+
 ## Parameter-stability diagnostics
 
 After selecting a stationary and economically justified regression equation,
