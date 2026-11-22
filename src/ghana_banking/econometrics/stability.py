@@ -76,10 +76,17 @@ def run_ols_stability_diagnostics(
     x = sm.add_constant(frame[regressors], has_constant="add")
     fitted = sm.OLS(y, x).fit()
 
-    cusum_stat, cusum_p, cusum_crit = breaks_cusumolsresid(
+    cusum_stat, cusum_p, cusum_crit_raw = breaks_cusumolsresid(
         fitted.resid, ddof=int(fitted.df_model) + 1
     )
-    hansen_stat, hansen_crit = breaks_hansen(fitted)
+    hansen_stat, hansen_crit_raw = breaks_hansen(fitted)
+    cusum_crit = {
+        f"{int(level)}%": float(value) for level, value in cusum_crit_raw
+    }
+    hansen_crit = {
+        str(int(row["nobs"])): float(row["crit"])
+        for row in hansen_crit_raw
+    }
 
     rolling_rows = []
     for end in range(rolling_window, n + 1):
