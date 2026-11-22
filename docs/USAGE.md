@@ -575,3 +575,51 @@ training window rather than using the full sample. Prediction intervals are
 conditional on the fitted AR specification and do not account for model
 selection uncertainty or structural breaks. This is a predictive benchmark,
 not a causal model.
+
+
+## Dynamic ARDL scenario-path propagation
+
+For a defensible ARDL specification, the project can propagate multiple
+future macroeconomic paths through the fitted dynamic equation:
+
+```python
+from statsmodels.tsa.ardl import ARDL
+from ghana_banking.modeling import forecast_ardl_scenarios
+
+# Fit only after reviewing integration evidence, lag choice and bounds results.
+fitted_ardl = ARDL(
+    endog=npl_ratio,
+    lags=2,
+    exog=historical_macro_variables,
+    order=1,
+    trend="c",
+).fit()
+
+scenario_results = forecast_ardl_scenarios(
+    fitted_results=fitted_ardl,
+    scenarios={
+        "Baseline": baseline_macro_path,
+        "Adverse": adverse_macro_path,
+        "Severe": severe_macro_path,
+    },
+    baseline_name="Baseline",
+    significance_level=0.05,
+)
+print(scenario_results)
+```
+
+Each scenario DataFrame must contain exactly the fitted exogenous variables,
+in the same order, over the same regular future index and horizon. Values must
+already use the model's estimation transformations and units. The ARDL's
+autoregressive terms propagate the NPL path dynamically; this is not a
+one-period static regression shock. The output includes pointwise conditional
+forecast intervals and point-estimate differences from the baseline.
+
+The difference from baseline is not itself a confidence interval for the
+scenario effect. Intervals condition on the fitted specification and do not
+include model-selection uncertainty, parameter instability or uncertainty in
+the scenario assumptions. Scenario paths must be documented and calibrated
+from defensible evidence; illustrative analyst assumptions must be labelled
+as such. The legacy `StressTest` class remains a static contemporaneous
+regression utility and should not be described as the primary dynamic
+stress-testing method.
