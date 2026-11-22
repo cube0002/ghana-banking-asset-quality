@@ -303,6 +303,6 @@ For broader guidance on scenario design and the limits of system-wide stress tes
 
 ---
 
-**Version 1.3 change note (22 November 2026):** Documents the guarded VECM estimation and residual-diagnostic implementation, in addition to the Monte Carlo VAR impulse-response bands and expanding-window forecast-validation workflow introduced in version 1.2. The research question, sample, variable definitions and substantive model-selection principles are unchanged.
+**Version 1.4 change note (22 November 2026):** Adds an expanding-window univariate AR forecast benchmark with pointwise prediction intervals, no-change and expanding-mean comparisons, and horizon-specific accuracy/interval diagnostics. Version 1.3 documented the guarded VECM and residual-diagnostic implementation, Monte Carlo VAR impulse-response bands and expanding-window VAR backtesting. The research question, sample, variable definitions and substantive model-selection principles are unchanged.
 
 **Protocol note:** This document should be updated through a dated, version-controlled change whenever the research question, sample, variable definitions or model-selection rules materially change. Any such change should be explained rather than silently substituted after inspecting the results.
