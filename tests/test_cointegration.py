@@ -22,7 +22,7 @@ def _cointegrated_data(n=180, seed=77):
 
 def test_johansen_result_contains_both_rank_tests_and_metadata():
     result = run_johansen_cointegration_test(
-        _cointegrated_data(), det_order=0, k_ar_diff=1, frequency="monthly"
+        _cointegrated_data(), integration_assessments={"x": "I(1)", "y": "I(1)"}, det_order=0, k_ar_diff=1, frequency="monthly"
     )
     payload = result.to_dict()
     assert payload["variables"] == ["x", "y"]
@@ -38,13 +38,21 @@ def test_johansen_rejects_incomplete_or_invalid_input():
     data = _cointegrated_data()
     data.iloc[4, 0] = np.nan
     with pytest.raises(ValueError, match="complete and finite"):
-        run_johansen_cointegration_test(data)
+        run_johansen_cointegration_test(data, integration_assessments={"x": "I(1)", "y": "I(1)"})
 
     with pytest.raises(ValueError, match="at least two"):
-        run_johansen_cointegration_test(_cointegrated_data()[["x"]])
+        run_johansen_cointegration_test(_cointegrated_data()[["x"]], integration_assessments={"x": "I(1)"})
 
     with pytest.raises(ValueError, match="det_order"):
-        run_johansen_cointegration_test(_cointegrated_data(), det_order=2)
+        run_johansen_cointegration_test(_cointegrated_data(), integration_assessments={"x": "I(1)", "y": "I(1)"}, det_order=2)
 
     with pytest.raises(ValueError, match="significance_level"):
-        run_johansen_cointegration_test(_cointegrated_data(), significance_level=0.025)
+        run_johansen_cointegration_test(_cointegrated_data(), integration_assessments={"x": "I(1)", "y": "I(1)"}, significance_level=0.025)
+
+
+def test_johansen_rejects_non_i1_integration_evidence():
+    with pytest.raises(ValueError, match="I(1) evidence"):
+        run_johansen_cointegration_test(
+            _cointegrated_data(),
+            integration_assessments={"x": "I(1)", "y": "I(0)"},
+        )
