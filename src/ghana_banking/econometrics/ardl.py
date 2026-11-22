@@ -17,9 +17,12 @@ class ARDLBoundsResult:
 
     dependent_variable: str
     regressors: List[str]
-    observations: int
+    input_observations: int
+    estimation_observations: int
     sample_start: str
     sample_end: str
+    estimation_sample_start: str
+    estimation_sample_end: str
     integration_assessments: Dict[str, str]
     selected_ar_lag: int
     selected_distributed_lags: Dict[str, List[int]]
@@ -206,9 +209,12 @@ def fit_ardl_bounds_model(
     return ARDLBoundsResult(
         dependent_variable=dependent_variable,
         regressors=list(regressors),
-        observations=int(len(frame)),
+        input_observations=int(len(frame)),
+        estimation_observations=int(ardl_result.nobs),
         sample_start=str(frame.index[0]),
         sample_end=str(frame.index[-1]),
+        estimation_sample_start=str(ardl_result.resid.index[0]),
+        estimation_sample_end=str(ardl_result.resid.index[-1]),
         integration_assessments=dict(integration_assessments),
         selected_ar_lag=int(selected_model.ardl_order[0]),
         selected_distributed_lags=distributed_lags,
