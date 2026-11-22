@@ -102,10 +102,16 @@ def fit_ardl_bounds_model(
         raise ValueError("max_distributed_lag must be a positive integer.")
     if selection_ic not in {"aic", "bic"}:
         raise ValueError("selection_ic must be 'aic' or 'bic'.")
-    if trend not in {"n", "c", "ct", "ctt"}:
-        raise ValueError("trend must be 'n', 'c', 'ct' or 'ctt'.")
-    if bounds_case not in {1, 2, 3, 4, 5}:
-        raise ValueError("bounds_case must be an integer from 1 to 5.")
+    if trend not in {"n", "c", "ct"}:
+        raise ValueError("trend must be 'n', 'c' or 'ct'.")
+    if bounds_case not in {1, 3, 5}:
+        raise ValueError("This wrapper supports bounds_case 1, 3 or 5; cases 2 and 4 require restricted deterministic terms.")
+    expected_case = {"n": 1, "c": 3, "ct": 5}[trend]
+    if bounds_case != expected_case:
+        raise ValueError(
+            f"trend={trend!r} must be paired with bounds_case={expected_case} "
+            "in this wrapper. Use a custom specification for restricted cases."
+        )
     if not 0 < alpha < 1:
         raise ValueError("alpha must be strictly between 0 and 1.")
     if not isinstance(nsim, int) or nsim < 1000:
@@ -135,6 +141,13 @@ def fit_ardl_bounds_model(
         missing="raise",
     )
     selected_model = selection.model
+    selected_ar_lag = selected_model.ardl_order[0]
+    if selected_ar_lag is None or int(selected_ar_lag) < 1:
+        raise ValueError(
+            "The selected ARDL has no autoregressive lag and cannot be converted "
+            "to the required UECM. Reconsider the prespecified lag search or "
+            "report a stationary short-run model instead."
+        )
     distributed_lags = {
         str(name): [int(lag) for lag in lags]
         for name, lags in selected_model.dl_lags.items()
