@@ -14,6 +14,7 @@ class JohansenResult:
     """Auditable trace and maximum-eigenvalue cointegration diagnostics."""
 
     variables: List[str]
+    integration_assessments: Dict[str, str]
     observations: int
     sample_start: str
     sample_end: str
@@ -44,6 +45,7 @@ def _sequential_rank(statistics, critical_values) -> int:
 
 def run_johansen_cointegration_test(
     data: pd.DataFrame,
+    integration_assessments: Dict[str, str],
     det_order: int = 0,
     k_ar_diff: int = 1,
     significance_level: float = 0.05,
@@ -68,6 +70,10 @@ def run_johansen_cointegration_test(
         raise TypeError("All variables must be numeric.")
     if data.isna().any().any() or not np.isfinite(data.to_numpy(dtype=float)).all():
         raise ValueError("Data must be complete and finite; resolve missingness explicitly.")
+    if not isinstance(integration_assessments, dict) or set(integration_assessments) != set(data.columns):
+        raise ValueError("Provide reviewed integration assessments for exactly the included variables.")
+    if any(order != "I(1)" for order in integration_assessments.values()):
+        raise ValueError("Johansen testing is gated to systems where every included variable has reviewed I(1) evidence.")
     if data.shape[0] < max(40, 10 * data.shape[1]):
         raise ValueError("Insufficient observations for the requested Johansen system.")
     if det_order not in {-1, 0, 1}:
@@ -101,6 +107,7 @@ def run_johansen_cointegration_test(
     variables = [str(column) for column in data.columns]
     return JohansenResult(
         variables=variables,
+        integration_assessments=dict(integration_assessments),
         observations=int(len(data)),
         sample_start=str(data.index[0]),
         sample_end=str(data.index[-1]),
