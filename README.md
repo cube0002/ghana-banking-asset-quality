@@ -66,7 +66,7 @@ Previously reported coefficient significance and fit statistics are not presente
 
 ### Vector autoregression
 
-The VAR workflow estimates multivariate lag models, checks companion-matrix stability, Portmanteau residual whiteness and joint residual normality, and provides reproducible pointwise Monte Carlo impulse-response bands. Orthogonalized responses are explicitly identified as Cholesky-order-dependent; reduced-form responses are not structural shocks. An expanding-window forecast backtest re-estimates a fixed-lag VAR at each chronological origin and compares MAE/RMSE by horizon with an expanding historical-mean benchmark. Both workflows are gated until stationarity, lag selection and residual adequacy have been reviewed. Backtest preprocessing and any data-driven selection must use only the information available at each forecast origin.
+The VAR workflow estimates multivariate lag models, checks companion-matrix stability, Portmanteau residual whiteness and joint residual normality, and provides reproducible pointwise Monte Carlo impulse-response bands. A guarded VECM estimator is also available for reviewed I(1) systems with a manually selected, Johansen-supported cointegration rank. Orthogonalized responses are explicitly identified as Cholesky-order-dependent; reduced-form responses are not structural shocks. An expanding-window forecast backtest re-estimates a fixed-lag VAR at each chronological origin and compares MAE/RMSE by horizon with an expanding historical-mean benchmark. Both workflows are gated until stationarity, lag selection and residual adequacy have been reviewed. Backtest preprocessing and any data-driven selection must use only the information available at each forecast origin.
 
 ### Scenario analysis
 
