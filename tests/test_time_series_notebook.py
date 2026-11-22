@@ -64,3 +64,6 @@ def test_time_series_diagnostics_notebook_contains_required_checks():
     assert "quarterly_gdp_unit_root_tests.csv" in all_source
     assert "RUN_CANDIDATE_VAR_LAG_SELECTION = False" in all_source
     assert "GDP_Real" in all_source
+    assert "RUN_PARAMETER_STABILITY = False" in all_source
+    assert "assess_model_eligibility" in all_source
+    assert "run_ols_stability_diagnostics" in all_source
