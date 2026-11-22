@@ -53,6 +53,8 @@ def run_ols_stability_diagnostics(
         raise TypeError("data must be a pandas DataFrame.")
     if not regressors or len(set(regressors)) != len(regressors):
         raise ValueError("regressors must be a non-empty list of unique columns.")
+    if dependent_variable in regressors:
+        raise ValueError("The dependent variable cannot also be a regressor.")
     columns = [dependent_variable] + list(regressors)
     missing = [column for column in columns if column not in data.columns]
     if missing:
@@ -74,6 +76,8 @@ def run_ols_stability_diagnostics(
 
     y = frame[dependent_variable]
     x = sm.add_constant(frame[regressors], has_constant="add")
+    if np.linalg.matrix_rank(x.to_numpy(dtype=float)) < x.shape[1]:
+        raise ValueError("The regression design matrix is rank deficient.")
     fitted = sm.OLS(y, x).fit()
 
     cusum_stat, cusum_p, cusum_crit_raw = breaks_cusumolsresid(
