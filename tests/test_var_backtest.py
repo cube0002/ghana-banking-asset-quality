@@ -8,8 +8,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from ghana_banking.modeling.var_model import VARModel
-from ghana_banking.modeling.var_backtest import expanding_window_var_backtest
+from ghana_banking.modeling import VARModel, expanding_window_var_backtest
 
 
 def _stationary_var_data(n=180, seed=23):
