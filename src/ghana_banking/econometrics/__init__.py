@@ -6,6 +6,7 @@ from .stability import OLSStabilityResult, run_ols_stability_diagnostics
 from .structural_breaks import ZivotAndrewsResult, run_zivot_andrews_test
 from .residuals import OLSResidualDiagnosticsResult, run_ols_residual_diagnostics
 from .unit_root import UnitRootResult, assess_integration_order, run_unit_root_suite
+from .vecm import VECMResult, fit_vecm_model
 
 __all__ = [
     "UnitRootResult",
@@ -14,6 +15,7 @@ __all__ = [
     "ZivotAndrewsResult",
     "OLSStabilityResult",
     "OLSResidualDiagnosticsResult",
+    "VECMResult",
     "assess_integration_order",
     "assess_model_eligibility",
     "run_unit_root_suite",
@@ -22,4 +24,5 @@ __all__ = [
     "run_ols_residual_diagnostics",
     "run_johansen_cointegration_test",
     "fit_ardl_bounds_model",
+    "fit_vecm_model",
 ]
