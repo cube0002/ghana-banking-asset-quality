@@ -122,6 +122,8 @@ def fit_ardl_bounds_model(
     if not isinstance(seed, int):
         raise ValueError("seed must be an integer.")
 
+    if not isinstance(integration_assessments, dict):
+        raise ValueError("integration_assessments must be a dictionary.")
     expected_names = set(columns)
     if set(integration_assessments) != expected_names:
         raise ValueError(
