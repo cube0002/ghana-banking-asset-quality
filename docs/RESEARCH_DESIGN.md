@@ -1,6 +1,6 @@
 # Research design and econometric protocol
 
-**Status:** Research protocol, version 1.3  
+**Status:** Research protocol, version 1.5  
 **Project:** Ghana Banking Asset Quality  
 **Branch:** portfolio/research-overhaul  
 **Protocol date:** 22 November 2026
