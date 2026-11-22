@@ -72,8 +72,8 @@ def run_johansen_cointegration_test(
         raise ValueError("Insufficient observations for the requested Johansen system.")
     if det_order not in {-1, 0, 1}:
         raise ValueError("det_order must be -1 (none), 0 (constant) or 1 (linear trend).")
-    if not isinstance(k_ar_diff, int) or k_ar_diff < 1:
-        raise ValueError("k_ar_diff must be a positive integer.")
+    if not isinstance(k_ar_diff, int) or k_ar_diff < 0:
+        raise ValueError("k_ar_diff must be a non-negative integer.")
     if k_ar_diff >= data.shape[0] // 3:
         raise ValueError("k_ar_diff is too large relative to the sample.")
     if significance_level not in {0.10, 0.05, 0.01}:
