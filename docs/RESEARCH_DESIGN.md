@@ -236,7 +236,8 @@ The scenario component will be described as **conditional aggregate NPL scenario
 A defensible scenario exercise should:
 - define a baseline, adverse and severe macroeconomic path over a stated horizon;
 - identify each scenario variable, shock size, direction, timing and persistence;
-- calibrate shocks from documented historical distributions or authoritative external scenarios; label analyst-designed assumptions as illustrative;
+- calibrate shocks from documented historical distributions or authoritative external scenarios; label analyst-designed assumptions as illustrative. The reusable historical calibration estimates univariate AR(1) innovation quantiles, applies explicit adverse directions and geometric shock-persistence assumptions, and does not preserve cross-variable dependence or joint tail probabilities;
+- test sensitivity to prespecified shock quantiles and persistence values while holding the fitted ARDL specification fixed; this isolates scenario-assumption sensitivity and does not capture parameter or model-selection uncertainty;
 - propagate macroeconomic paths through a dynamic NPL model where supported, rather than treating a static contemporaneous fitted value as a forecast. The reusable ARDL scenario-path engine now accepts common-horizon baseline/adverse/severe exogenous paths and returns conditional forecasts, pointwise intervals and point-estimate differences from baseline;
 - report point estimates and prediction intervals or another justified uncertainty measure;
 - compare performance with simple benchmarks such as a no-change forecast and a univariate autoregressive model;
@@ -303,6 +304,6 @@ For broader guidance on scenario design and the limits of system-wide stress tes
 
 ---
 
-**Version 1.6 change note (22 November 2026):** Adds historical AR(1)-innovation calibration of baseline, adverse and severe macroeconomic paths, with explicit adverse directions, marginal quantiles and shock-persistence assumptions. The calibration does not preserve cross-variable dependence or imply joint tail probabilities. Version 1.5 added conditional multi-period ARDL scenario-path propagation; version 1.4 added the expanding-window univariate AR benchmark. The research question, sample, variable definitions and substantive model-selection principles are unchanged.
+**Version 1.7 change note (22 November 2026):** Adds scenario-assumption sensitivity analysis across prespecified adverse/severe historical innovation quantiles and geometric shock-persistence values, conditional on a fixed ARDL specification. Version 1.6 added marginal historical AR(1)-innovation calibration; version 1.5 added conditional multi-period ARDL scenario-path propagation. The research question, sample, variable definitions and substantive model-selection principles are unchanged.
 
 **Protocol note:** This document should be updated through a dated, version-controlled change whenever the research question, sample, variable definitions or model-selection rules materially change. Any such change should be explained rather than silently substituted after inspecting the results.
