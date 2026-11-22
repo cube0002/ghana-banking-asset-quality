@@ -99,11 +99,14 @@ def forecast_ardl_scenarios(
     model = fitted_results.model
     if getattr(model, "fixed", None) is not None:
         raise NotImplementedError("ARDL models with fixed regressors are not supported.")
+    original_endog = model.data.orig_endog
+    if not isinstance(original_endog, (pd.Series, pd.DataFrame)):
+        raise TypeError("Fit the ARDL model with pandas objects carrying a dated or numeric index.")
     original_exog = model.data.orig_exog
     if not isinstance(original_exog, pd.DataFrame) or original_exog.shape[1] == 0:
         raise ValueError("The fitted ARDL model must contain named exogenous regressors.")
     expected_columns = list(original_exog.columns)
-    training_index = model.data.orig_endog.index
+    training_index = original_endog.index
     prepared = {}
     common_index = None
     common_horizon = None
