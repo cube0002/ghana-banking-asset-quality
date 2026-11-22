@@ -47,7 +47,7 @@ def test_vecm_fit_returns_parameters_and_residual_diagnostics():
 
 def test_vecm_requires_i1_evidence_and_reviewed_cointegration_rank():
     data = _cointegrated_data()
-    with pytest.raises(ValueError, match="reviewed I\(1\) evidence"):
+    with pytest.raises(ValueError, match=r"reviewed I\(1\) evidence"):
         fit_vecm_model(
             data,
             {"log_npl": "I(1)", "log_credit": "I(0)"},
