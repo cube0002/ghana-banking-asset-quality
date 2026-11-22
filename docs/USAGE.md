@@ -691,3 +691,29 @@ on one fitted model; it does not incorporate parameter uncertainty, model
 selection uncertainty, or joint cross-variable dependence. The quantile and
 persistence grids must be prespecified and reported, not selected to produce
 an attractive result.
+
+
+## Joint historical macro scenario calibration
+
+Where a multivariate historical sample is available, the joint calibrator selects contiguous blocks of aligned AR(1) innovations rather than calibrating each regressor's shock independently:
+
+```python
+from ghana_banking.modeling import calibrate_joint_historical_scenario_paths
+
+joint_paths = calibrate_joint_historical_scenario_paths(
+    historical_exog=historical_macro_variables,
+    horizon=12,
+    adverse_directions={
+        "inflation": 1,
+        "cedi_depreciation": 1,
+        "policy_rate_change": 1,
+    },
+    integrated_variables=[],
+    adverse_quantile=0.90,
+    severe_quantile=0.975,
+)
+```
+
+Each variable is first modelled with an AR(1), using first differences for variables explicitly classified as I(1). Residuals are standardised and direction-adjusted, then aligned by date. Every candidate horizon-length contiguous block receives an equal-weight mean severity score; the empirical adverse and severe score quantiles select the historical blocks. The selected residual vectors retain observed contemporaneous co-movement and within-block time ordering. I(1) paths are reconstructed by accumulating forecasted and shocked differences.
+
+This is a transparent historical-analogue method, not a structural VAR, a causal shock identification scheme, or a probability-calibrated joint tail event. Equal weights are a modelling choice and must be disclosed; the selected historical block may not represent a future crisis. Results depend on the historical sample, AR(1) filtering, variable transformations, adverse directions and horizon. Compare the joint method with the marginal calibrator and report the selected block dates/indices and score metadata. The routine does not claim that a 90th or 97.5th score quantile is a 10% or 2.5% joint probability.
