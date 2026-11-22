@@ -51,7 +51,7 @@ def test_johansen_rejects_incomplete_or_invalid_input():
 
 
 def test_johansen_rejects_non_i1_integration_evidence():
-    with pytest.raises(ValueError, match="I(1) evidence"):
+    with pytest.raises(ValueError, match=r"I\(1\) evidence"):
         run_johansen_cointegration_test(
             _cointegrated_data(),
             integration_assessments={"x": "I(1)", "y": "I(0)"},
