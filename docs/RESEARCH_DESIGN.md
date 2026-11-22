@@ -1,9 +1,9 @@
 # Research design and econometric protocol
 
-**Status:** Research protocol, version 1.0  
+**Status:** Research protocol, version 1.1  
 **Project:** Ghana Banking Asset Quality  
 **Branch:** portfolio/research-overhaul  
-**Protocol date:** 21 November 2026
+**Protocol date:** 22 November 2026
 
 ## 1. Purpose and status
 
@@ -157,7 +157,11 @@ For each series considered in an estimated model:
 
 Do not classify a variable as I(1) based on a single test. Conflicting tests, break-sensitive results and low power in finite samples must be discussed. The project must not apply standard ARDL bounds critical values when any model variable is I(2) or higher.
 
-### Stage 3: Primary monthly model
+### Stage 3: Model eligibility and cointegration screening
+
+Working integration assessments are passed through a conservative screening gate. All-I(0) systems may proceed to stationary dynamic regression or VAR candidates. Mixed I(0)/I(1) systems may be considered for ARDL bounds testing only when no variable is I(2), the sample and deterministic case are suitable, and a plausible level relationship exists. All-I(1) systems may proceed to Johansen trace and maximum-eigenvalue rank testing; a VECM is eligible only if rank evidence supports cointegration. Conflicting or unresolved integration evidence blocks automatic model selection. The software gate is a screening aid, not a substitute for reviewing the test tables and economic specification.
+
+### Stage 4: Primary monthly model
 
 The main candidate is a parsimonious dynamic single-equation model for the NPL ratio, with inflation, cedi depreciation, monetary conditions and appropriate lags. An ARDL/error-correction framework is eligible only if the integration evidence supports it.
 
@@ -170,7 +174,7 @@ The main candidate is a parsimonious dynamic single-equation model for the NPL r
 
 The ARDL approach follows the bounds-testing framework of Pesaran, Shin and Smith (2001). The method accommodates regressors that are I(0) or I(1), but not I(2); the deterministic case and finite-sample limitations matter. The Johansen framework is the reference for system cointegration and VECM analysis.
 
-### Stage 4: VAR/VECM analysis
+### Stage 5: VAR/VECM analysis
 
 A multivariate model is supplementary to the main NPL equation unless the research objectives and sample justify it. Limit the system to a small group of variables supported by the economic framework and data availability.
 
@@ -188,15 +192,15 @@ Forecast error variance decompositions and impulse responses are conditional on 
 
 Toda–Yamamoto augmented VAR testing may be considered as a supplementary test of predictive content when its integration-order and lag assumptions are met. Any result should be described as Granger-predictive evidence, not structural causality.
 
-### Stage 5: Structural change and stability
+### Stage 6: Structural change and stability
 
 The sample spans different macro-financial environments. Parameter constancy must be investigated rather than assumed.
 
-Use recursive estimates, rolling estimates or CUSUM-type procedures where suitable. A Bai–Perron multiple-break analysis may be considered for a sufficiently parsimonious regression with an adequate sample and defensible trimming/minimum segment size. Report the break-selection procedure and uncertainty around estimated dates.
+Use recursive estimates, rolling estimates, CUSUM-type procedures and parameter-constancy tests where suitable. The current reusable implementation reports OLS CUSUM and Hansen parameter-stability tests alongside rolling-window coefficients. These diagnostics are conditional on a prespecified, defensible stationary regression; rolling coefficients are descriptive and do not identify formal break dates. A Bai–Perron multiple-break analysis may be considered separately for a sufficiently parsimonious regression with an adequate sample and defensible trimming/minimum segment size. Do not describe rolling coefficient changes or a one-break Zivot–Andrews unit-root test as a Bai–Perron multiple-break result. Report the break-selection procedure and uncertainty around estimated dates.
 
 Known-event indicators may be used only where the event date and mechanism are justified by an external source and specified transparently. Avoid adding event dummies or selecting subsamples solely because they improve the result. Report full-sample results alongside pre-specified or statistically justified regime sensitivities.
 
-### Stage 6: Diagnostics and inference
+### Stage 7: Diagnostics and inference
 
 At a minimum, assess the following for the selected model:
 
@@ -296,5 +300,7 @@ No empirical conclusion should be promoted to the README's headline findings unt
 For broader guidance on scenario design and the limits of system-wide stress testing, see the IMF's *Macro-Financial Stress Testing: Principles and Practices*, Chapter 2: https://www.elibrary.imf.org/display/book/9781484310717/ch002.xml
 
 ---
+
+**Version 1.1 change note (22 November 2026):** Clarifies the implemented parameter-stability diagnostics and formalises the software screening gate and Johansen rank-test step. The research question, sample, variable definitions and substantive model-selection principles are unchanged.
 
 **Protocol note:** This document should be updated through a dated, version-controlled change whenever the research question, sample, variable definitions or model-selection rules materially change. Any such change should be explained rather than silently substituted after inspecting the results.
