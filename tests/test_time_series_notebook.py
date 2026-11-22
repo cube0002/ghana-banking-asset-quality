@@ -55,7 +55,11 @@ def test_time_series_diagnostics_notebook_contains_required_checks():
     assert "run_unit_root_suite" in all_source
     assert "PhillipsPerron" in unit_root_source
     assert "KPSS" in unit_root_source
-    assert "ZivotAndrews" in all_source
+    break_module = ROOT / "src" / "ghana_banking" / "econometrics" / "structural_breaks.py"
+    break_source = break_module.read_text(encoding="utf-8")
+    assert "run_zivot_andrews_test" in all_source
+    assert "zivot_andrews" in break_source
+    assert "break_date" in break_source
     assert "monthly_unit_root_tests.csv" in all_source
     assert "quarterly_gdp_unit_root_tests.csv" in all_source
     assert "RUN_CANDIDATE_VAR_LAG_SELECTION = False" in all_source
