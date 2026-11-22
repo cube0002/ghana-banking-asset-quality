@@ -208,6 +208,58 @@ allows one break and does not replace multiple-break estimation or parameter-
 stability diagnostics. Use it as sensitivity evidence alongside ADF, PP and
 KPSS, not as a mechanical override of conflicting results.
 
+## Parameter-stability diagnostics
+
+After selecting a stationary and economically justified regression equation,
+the reusable stability API reports CUSUM and Hansen parameter-constancy
+tests alongside rolling-window coefficient estimates:
+
+```python
+from ghana_banking.econometrics import run_ols_stability_diagnostics
+
+stability = run_ols_stability_diagnostics(
+    data=stationary_model_data,
+    dependent_variable="NPL_change_pp",
+    regressors=[
+        "Policy_rate_change_pp",
+        "Inflation_mom_pct",
+        "Cedi_depreciation_mom_pct",
+    ],
+    rolling_window=60,
+)
+print(stability.to_dict())
+```
+
+The input must be complete, finite, ordered and numeric. Missing dates or
+values must be resolved explicitly before estimation. The CUSUM and Hansen
+tests are conditional on the supplied OLS specification; rolling coefficients
+are descriptive. Do not apply these tests to a potentially spurious levels
+regression or interpret a rejection as proof of a specific economic event.
+
+## Model eligibility screening
+
+The integration-order labels reviewed from unit-root evidence can be passed
+to a screening helper:
+
+```python
+from ghana_banking.econometrics import assess_model_eligibility
+
+review = assess_model_eligibility({
+    "NPL ratio": "I(1)",
+    "inflation": "I(0)",
+    "cedi depreciation": "I(1)",
+    "policy rate": "I(0)",
+})
+print(review)
+```
+
+The helper screens candidate model classes; it does not perform cointegration
+tests or choose the final model. Standard ARDL bounds critical values are
+blocked if any variable may be I(2) or unresolved. A mixed I(0)/I(1) set is
+only a candidate for bounds testing, while a VECM candidate still requires
+Johansen rank evidence. All-I(0) evidence can support a stationary dynamic
+regression or VAR, subject to residual and stability diagnostics.
+
 ## Run the notebooks and tests
 
 ```bash
