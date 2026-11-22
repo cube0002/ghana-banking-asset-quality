@@ -69,3 +69,5 @@ def test_time_series_diagnostics_notebook_contains_required_checks():
     assert "run_ols_stability_diagnostics" in all_source
     assert "RUN_JOHANSEN_TEST = False" in all_source
     assert "run_johansen_cointegration_test" in all_source
+    assert "RUN_ARDL_BOUNDS_TEST = False" in all_source
+    assert "fit_ardl_bounds_model" in all_source
