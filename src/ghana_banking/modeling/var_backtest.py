@@ -43,8 +43,10 @@ def _validate_regular_index(index: pd.Index) -> None:
         if pd.infer_freq(index) is None:
             raise ValueError("DatetimeIndex must be regular with no missing periods.")
         return
+    if not pd.api.types.is_numeric_dtype(index.dtype):
+        raise TypeError("Index must be a regular DatetimeIndex, PeriodIndex or numeric index.")
     if len(index) > 2:
-        differences = np.diff(np.asarray(index))
+        differences = np.diff(np.asarray(index, dtype=float))
         if not np.all(differences == differences[0]):
             raise ValueError("Index must have equally spaced observations.")
 
