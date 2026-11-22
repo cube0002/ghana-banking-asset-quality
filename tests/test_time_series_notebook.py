@@ -79,3 +79,5 @@ def test_time_series_diagnostics_notebook_contains_required_checks():
     assert "RUN_VAR_IRF_MONTE_CARLO_BANDS = False" in all_source
     assert "expanding_window_var_backtest" in all_source
     assert "impulse_response_bands" in all_source
+    assert "RUN_AR_BENCHMARK_BACKTEST = False" in all_source
+    assert "expanding_window_ar_backtest" in all_source
