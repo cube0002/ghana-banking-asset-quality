@@ -47,9 +47,15 @@ def test_time_series_diagnostics_notebook_contains_required_checks():
         for cell in notebook["cells"]
     )
 
-    assert "PhillipsPerron" in all_source
+    # The notebook delegates ADF, PP and KPSS to the shared package engine.
+    # Keep implementation-specific test classes out of notebook orchestration.
+    unit_root_module = ROOT / "src" / "ghana_banking" / "econometrics" / "unit_root.py"
+    unit_root_source = unit_root_module.read_text(encoding="utf-8")
+
+    assert "run_unit_root_suite" in all_source
+    assert "PhillipsPerron" in unit_root_source
+    assert "KPSS" in unit_root_source
     assert "ZivotAndrews" in all_source
-    assert "kpss(" in all_source
     assert "monthly_unit_root_tests.csv" in all_source
     assert "quarterly_gdp_unit_root_tests.csv" in all_source
     assert "RUN_CANDIDATE_VAR_LAG_SELECTION = False" in all_source
