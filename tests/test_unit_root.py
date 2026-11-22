@@ -46,6 +46,7 @@ def _synthetic_results(pvalues):
             sample_end="99",
             selected_lags=1,
             lag_method="fixed",
+            significance_level=0.05,
         )
         for test in ("ADF", "Phillips-Perron", "KPSS")
     ]
@@ -62,6 +63,7 @@ def test_suite_returns_three_tests_and_auditable_metadata():
         "ADF", "Phillips-Perron", "KPSS"
     ]
     assert all(result.observations == 160 for result in results)
+    assert all(result.significance_level == 0.05 for result in results)
     assert all(result.frequency == "monthly" for result in results)
     assert all(result.transformation == "level" for result in results)
     assert all(0 <= result.pvalue <= 1 for result in results)
@@ -91,7 +93,7 @@ def test_rejects_missing_and_infinite_observations():
         run_unit_root_suite(infinite)
 
 
-def test_rejects_non_numeric_and_duplicate_index():
+def test_rejects_non_numeric_duplicate_and_unsorted_index():
     with pytest.raises(TypeError, match="numeric"):
         run_unit_root_suite(pd.Series(["a", "b", "c"] * 10))
 
@@ -99,6 +101,11 @@ def test_rejects_non_numeric_and_duplicate_index():
     duplicate.index = [0] * len(duplicate)
     with pytest.raises(ValueError, match="duplicate"):
         run_unit_root_suite(duplicate)
+
+    unsorted = _stationary_series()
+    unsorted.index = list(reversed(range(len(unsorted))))
+    with pytest.raises(ValueError, match="sorted"):
+        run_unit_root_suite(unsorted)
 
 
 def test_rejects_conflicting_adf_lag_arguments():
