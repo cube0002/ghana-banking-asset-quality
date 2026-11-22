@@ -21,6 +21,8 @@ class ARBacktestResult:
     lag_order: int
     initial_window: int
     step: int
+    trend: str
+    significance_level: float
     horizons: List[int]
     forecast_origins: int
     sample_start: str
@@ -165,6 +167,8 @@ def expanding_window_ar_backtest(
         lag_order=lag_order,
         initial_window=initial_window,
         step=step,
+        trend=trend,
+        significance_level=float(significance_level),
         horizons=[int(h) for h in horizon_list],
         forecast_origins=len(origins),
         sample_start=str(data.index[0]),
