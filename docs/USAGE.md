@@ -539,3 +539,39 @@ print(revisions[revisions["Observation Status"] != "unchanged"])
 The report joins on observation date and indicator code. It labels observations as `revised`, `unchanged`, `added` or `removed`, reports the numeric change, retains both publication dates and source URLs, and flags changes to indicator labels or units. The optional `tolerance` argument can treat small rounding differences as unchanged.
 
 This is a vintage comparison, not a claim that every difference is a statistical revision: additions and removals can reflect changed publication coverage, and metadata changes need substantive review. The repository now contains July, September and November 2026 snapshots. All three PDFs are hosted in the official BoG publication archive, but each carries a DRAFT watermark; the caveat is retained in each CSV's source note. The adjacent July–September and September–November comparisons each have 121 matched date-indicator observations, and the July–November comparison has 99. All matched values agree exactly at one-decimal precision. This supports cross-publication consistency, not proof that unrounded data were never revised or that these are final certified releases.
+
+
+## Univariate AR forecast benchmark and prediction intervals
+
+The expanding-window AR benchmark provides a univariate autoregressive
+forecast for each supplied series, with pointwise prediction intervals and
+two simple benchmarks:
+
+```python
+from ghana_banking.modeling import expanding_window_ar_backtest
+
+result = expanding_window_ar_backtest(
+    data=stationary_npl_change,
+    lag_order=2,
+    initial_window=80,
+    horizons=[1, 3, 6],
+    step=1,
+    significance_level=0.05,
+)
+print(result.metrics)
+```
+
+At each origin the AR model is re-estimated using only the available training
+observations. The output reports MAE and RMSE by variable and horizon for the
+AR forecast, a no-change forecast and an expanding historical-mean forecast.
+It also reports empirical coverage and average width of the pointwise AR
+prediction intervals. These coverage estimates are descriptive and can be
+noisy when the number of forecast origins is small.
+
+The input must be complete, regular and already transformed to a defensible
+stationary modelling scale. The lag order is fixed across origins; if lag
+selection or transformations are data-driven, repeat them inside each
+training window rather than using the full sample. Prediction intervals are
+conditional on the fitted AR specification and do not account for model
+selection uncertainty or structural breaks. This is a predictive benchmark,
+not a causal model.
