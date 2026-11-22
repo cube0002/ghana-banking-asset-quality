@@ -237,7 +237,7 @@ A defensible scenario exercise should:
 - define a baseline, adverse and severe macroeconomic path over a stated horizon;
 - identify each scenario variable, shock size, direction, timing and persistence;
 - calibrate shocks from documented historical distributions or authoritative external scenarios; label analyst-designed assumptions as illustrative;
-- propagate macroeconomic paths through a dynamic NPL model where supported, rather than treating a static contemporaneous fitted value as a forecast;
+- propagate macroeconomic paths through a dynamic NPL model where supported, rather than treating a static contemporaneous fitted value as a forecast. The reusable ARDL scenario-path engine now accepts common-horizon baseline/adverse/severe exogenous paths and returns conditional forecasts, pointwise intervals and point-estimate differences from baseline;
 - report point estimates and prediction intervals or another justified uncertainty measure;
 - compare performance with simple benchmarks such as a no-change forecast and a univariate autoregressive model;
 - use expanding-window or rolling-origin backtesting, never random train/test splitting for time-series forecasting;
@@ -303,6 +303,6 @@ For broader guidance on scenario design and the limits of system-wide stress tes
 
 ---
 
-**Version 1.4 change note (22 November 2026):** Adds an expanding-window univariate AR forecast benchmark with pointwise prediction intervals, no-change and expanding-mean comparisons, and horizon-specific accuracy/interval diagnostics. Version 1.3 documented the guarded VECM and residual-diagnostic implementation, Monte Carlo VAR impulse-response bands and expanding-window VAR backtesting. The research question, sample, variable definitions and substantive model-selection principles are unchanged.
+**Version 1.5 change note (22 November 2026):** Adds conditional multi-period ARDL scenario-path propagation for reviewed baseline/adverse/severe macroeconomic paths, with pointwise forecast intervals and baseline contrasts. Version 1.4 added the expanding-window univariate AR forecast benchmark; version 1.3 documented the guarded VECM and residual-diagnostic implementation, Monte Carlo VAR impulse-response bands and expanding-window VAR backtesting. The research question, sample, variable definitions and substantive model-selection principles are unchanged.
 
 **Protocol note:** This document should be updated through a dated, version-controlled change whenever the research question, sample, variable definitions or model-selection rules materially change. Any such change should be explained rather than silently substituted after inspecting the results.
