@@ -2,7 +2,7 @@
 
 This module predicts one outcome from contemporaneous inputs. It is not a
 dynamic macro-financial stress test and should not be used as the primary
-research scenario engine. See ardl_scenarios for conditional path forecasts.
+research scenario engine. See ardl_scenarios for conditional path forecasts."""
 
 import numpy as np
 import pandas as pd
