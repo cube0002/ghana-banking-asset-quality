@@ -661,3 +661,33 @@ The historical data must be complete, regular and expressed in the same units an
 The baseline uses AR(1) conditional forecasts. Adverse and severe scenarios add direction-adjusted historical innovation quantiles, with geometric shock decay controlled by the explicitly assumed `persistence` parameter. The quantile and persistence choices must be reported and sensitivity-tested. The AR(1) calibration is intentionally transparent and parsimonious; it is not a substitute for a validated multivariate macroeconomic forecasting model.
 
 **Important limitation:** innovation quantiles are calibrated separately for each variable. The resulting paths do not preserve cross-variable dependence or represent joint probabilities. They are illustrative conditional sensitivity scenarios, not official Bank of Ghana/IMF scenarios, causal shocks or supervisory stress tests. Do not interpret the 90th or 97.5th marginal quantiles as a joint 10% or 2.5% macroeconomic tail event.
+
+
+## Scenario-assumption sensitivity analysis
+
+The sensitivity routine holds the fitted ARDL model and historical calibration sample fixed while varying the adverse/severe innovation quantiles and geometric shock persistence:
+
+```python
+from ghana_banking.modeling import run_ardl_scenario_sensitivity
+
+sensitivity = run_ardl_scenario_sensitivity(
+    fitted_results=fitted_ardl,
+    historical_exog=historical_macro_variables,
+    horizon=12,
+    adverse_directions=adverse_directions,
+    integrated_variables=integrated_variables,
+    quantile_pairs=[(0.90, 0.975), (0.95, 0.99)],
+    persistence_values=[0.30, 0.70, 0.90],
+)
+summary = pd.DataFrame(sensitivity.summary)
+forecasts = pd.DataFrame(sensitivity.forecasts)
+```
+
+The summary reports terminal forecasts, terminal differences from baseline,
+peak forecasts, peak periods and forecast-interval envelopes for each scenario
+assumption combination. The detailed output preserves each horizon-level
+forecast. This is a sensitivity analysis of scenario assumptions conditional
+on one fitted model; it does not incorporate parameter uncertainty, model
+selection uncertainty, or joint cross-variable dependence. The quantile and
+persistence grids must be prespecified and reported, not selected to produce
+an attractive result.
