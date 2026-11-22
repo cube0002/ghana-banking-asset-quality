@@ -20,6 +20,8 @@ class VECMResult:
 
     variables: List[str]
     observations: int
+    effective_observations: int
+    estimated_parameter_count: int
     sample_start: str
     sample_end: str
     cointegration_rank: int
@@ -35,8 +37,6 @@ class VECMResult:
     normality_statistic: float
     normality_pvalue: float
     log_likelihood: float
-    aic: float
-    bic: float
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -105,6 +105,8 @@ def fit_vecm_model(
     return VECMResult(
         variables=variables,
         observations=int(n),
+        effective_observations=int(fitted.nobs),
+        estimated_parameter_count=int(np.asarray(fitted.stderr_params).size),
         sample_start=str(data.index[0]),
         sample_end=str(data.index[-1]),
         cointegration_rank=int(cointegration_rank),
@@ -120,6 +122,4 @@ def fit_vecm_model(
         normality_statistic=float(normality.test_statistic),
         normality_pvalue=float(normality.pvalue),
         log_likelihood=float(fitted.llf),
-        aic=float(fitted.aic),
-        bic=float(fitted.bic),
     )
