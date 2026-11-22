@@ -178,6 +178,36 @@ it reports I(1) only when levels show unit-root evidence and first differences
 show stationarity evidence. Conflicting evidence remains uncertain. These
 labels are working assessments, not automatic model-selection decisions.
 
+## Reusable structural-break diagnostic API
+
+The package also exposes a Zivot–Andrews one-break unit-root test. It records
+the estimated break date and index, selected lag, deterministic specification,
+critical values and sample metadata:
+
+```python
+from ghana_banking.econometrics import run_zivot_andrews_test
+
+za = run_zivot_andrews_test(
+    series=df["Non Performing Loan Ratio"],
+    series_name="NPL ratio",
+    regression="ct",       # intercept and trend break
+    max_lags=12,
+    autolag="BIC",
+    trim=0.15,
+    frequency="monthly",
+    transformation="level",
+)
+print(za.to_dict())
+```
+
+The supported deterministic break specifications are `c` (intercept),
+`t` (trend), and `ct` (intercept and trend). The reported break date is
+the test's estimated breakpoint within the supplied sample; it is not an
+economic event date without independent historical corroboration. The test
+allows one break and does not replace multiple-break estimation or parameter-
+stability diagnostics. Use it as sensitivity evidence alongside ADF, PP and
+KPSS, not as a mechanical override of conflicting results.
+
 ## Run the notebooks and tests
 
 ```bash
@@ -189,9 +219,9 @@ Run the research notebooks in this order:
 
 1. `01_data_cleaning.ipynb` — prepares monthly banking observations and quarterly GDP separately.
 2. `02_exploratory_analysis.ipynb` — audits missingness, constructs preliminary transformations and explores the monthly data.
-3. `03_time_series_diagnostics.ipynb` — runs ADF, Phillips–Perron and KPSS tests on levels and first differences, adds a one-break Zivot–Andrews sensitivity test, checks large monthly changes and tests quarterly GDP at its original frequency.
+3. `03_time_series_diagnostics.ipynb` — runs ADF, Phillips–Perron and KPSS tests on levels and first differences, adds a reusable one-break Zivot–Andrews sensitivity test with estimated break dates, checks large monthly changes and tests quarterly GDP at its original frequency.
 
-The third notebook uses the `arch` package for the Phillips–Perron and Zivot–Andrews tests. It is included in `requirements.txt` and the package dependencies. After pulling the branch, refresh the environment with:
+The third notebook uses `arch` for Phillips–Perron and `statsmodels` for Zivot–Andrews. Both are included in the project dependencies. After pulling the branch, refresh the environment with:
 
 ```bash
 pip install -e ".[dev]"
