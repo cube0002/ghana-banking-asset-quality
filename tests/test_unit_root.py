@@ -42,6 +42,7 @@ def _synthetic_results(pvalues):
             alternative_hypothesis=alternatives[test],
             deterministic="c",
             observations=100,
+            effective_observations=99,
             sample_start="0",
             sample_end="99",
             selected_lags=1,
@@ -63,6 +64,7 @@ def test_suite_returns_three_tests_and_auditable_metadata():
         "ADF", "Phillips-Perron", "KPSS"
     ]
     assert all(result.observations == 160 for result in results)
+    assert all(0 < result.effective_observations <= 160 for result in results)
     assert all(result.significance_level == 0.05 for result in results)
     assert all(result.frequency == "monthly" for result in results)
     assert all(result.transformation == "level" for result in results)
