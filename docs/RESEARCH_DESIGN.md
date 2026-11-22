@@ -303,6 +303,6 @@ For broader guidance on scenario design and the limits of system-wide stress tes
 
 ---
 
-**Version 1.5 change note (22 November 2026):** Adds conditional multi-period ARDL scenario-path propagation for reviewed baseline/adverse/severe macroeconomic paths, with pointwise forecast intervals and baseline contrasts. Version 1.4 added the expanding-window univariate AR forecast benchmark; version 1.3 documented the guarded VECM and residual-diagnostic implementation, Monte Carlo VAR impulse-response bands and expanding-window VAR backtesting. The research question, sample, variable definitions and substantive model-selection principles are unchanged.
+**Version 1.6 change note (22 November 2026):** Adds historical AR(1)-innovation calibration of baseline, adverse and severe macroeconomic paths, with explicit adverse directions, marginal quantiles and shock-persistence assumptions. The calibration does not preserve cross-variable dependence or imply joint tail probabilities. Version 1.5 added conditional multi-period ARDL scenario-path propagation; version 1.4 added the expanding-window univariate AR benchmark. The research question, sample, variable definitions and substantive model-selection principles are unchanged.
 
 **Protocol note:** This document should be updated through a dated, version-controlled change whenever the research question, sample, variable definitions or model-selection rules materially change. Any such change should be explained rather than silently substituted after inspecting the results.
