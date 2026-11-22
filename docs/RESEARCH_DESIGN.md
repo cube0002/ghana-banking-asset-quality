@@ -1,6 +1,6 @@
 # Research design and econometric protocol
 
-**Status:** Research protocol, version 1.1  
+**Status:** Research protocol, version 1.2  
 **Project:** Ghana Banking Asset Quality  
 **Branch:** portfolio/research-overhaul  
 **Protocol date:** 22 November 2026
@@ -186,7 +186,7 @@ For every VAR/VECM:
 - inspect heteroskedasticity and residual distribution, noting that normality is not a substitute for other diagnostics;
 - assess sensitivity to lag length, sample period and variable composition.
 
-Reduced-form VAR innovations are not automatically structural economic shocks. If orthogonalised impulse responses are reported, state and justify the ordering and contemporaneous restrictions. Generalised impulse responses can be reported as an alternative, with their interpretation stated clearly. Where feasible, provide bootstrap confidence intervals. Label the response horizon in the correct time unit (months for a monthly model, quarters for a quarterly model).
+Reduced-form VAR innovations are not automatically structural economic shocks. If orthogonalised impulse responses are reported, state and justify the ordering and contemporaneous restrictions. Generalised impulse responses can be reported as an alternative, with their interpretation stated clearly. Where feasible, provide uncertainty bands. The reusable VAR implementation now exposes pointwise Monte Carlo simulation bands; report the replication count, seed, significance level, whether responses are orthogonalised, and the variable ordering if Cholesky orthogonalisation is used. These are conditional simulation bands, not simultaneous confidence bands or causal identification. Label the response horizon in the correct time unit (months for a monthly model, quarters for a quarterly model).
 
 Forecast error variance decompositions and impulse responses are conditional on the chosen specification and identification convention. Do not describe a reduced-form impulse response as a causal policy effect without defensible structural restrictions.
 
@@ -242,6 +242,8 @@ A defensible scenario exercise should:
 - compare performance with simple benchmarks such as a no-change forecast and a univariate autoregressive model;
 - use expanding-window or rolling-origin backtesting, never random train/test splitting for time-series forecasting;
 - report MAE and RMSE by forecast horizon, alongside the evaluation dates and benchmark results;
+- compare the model with transparent benchmarks; the reusable VAR backtest currently includes an expanding historical-mean benchmark, while a no-change or autoregressive benchmark may be added where appropriate;
+- repeat every data-driven transformation, scaling, variable-selection and lag-selection step within each forecast origin's training sample;
 - check for preprocessing leakage and ensure that all scalers, transformations and model selection steps use only information available at each forecast origin.
 
 A scenario outcome is conditional on both the assumed macroeconomic path and the estimated model. It is not a probability statement unless scenario probabilities are separately justified. A model that performs poorly in chronological backtests should not be presented as a reliable forecast engine.
@@ -301,6 +303,6 @@ For broader guidance on scenario design and the limits of system-wide stress tes
 
 ---
 
-**Version 1.1 change note (22 November 2026):** Clarifies the implemented parameter-stability diagnostics and formalises the software screening gate and Johansen rank-test step. The research question, sample, variable definitions and substantive model-selection principles are unchanged.
+**Version 1.2 change note (22 November 2026):** Adds explicit reporting requirements for Monte Carlo VAR impulse-response bands and documents the expanding-window VAR backtesting workflow and benchmark/leakage safeguards. The research question, sample, variable definitions and substantive model-selection principles are unchanged.
 
 **Protocol note:** This document should be updated through a dated, version-controlled change whenever the research question, sample, variable definitions or model-selection rules materially change. Any such change should be explained rather than silently substituted after inspecting the results.
