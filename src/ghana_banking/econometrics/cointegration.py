@@ -74,6 +74,8 @@ def run_johansen_cointegration_test(
         raise ValueError("Provide reviewed integration assessments for exactly the included variables.")
     if any(order != "I(1)" for order in integration_assessments.values()):
         raise ValueError("Johansen testing is gated to systems where every included variable has reviewed I(1) evidence.")
+    if np.linalg.matrix_rank(data.to_numpy(dtype=float)) < data.shape[1]:
+        raise ValueError("The cointegration system is exactly rank deficient.")
     if data.shape[0] < max(40, 10 * data.shape[1]):
         raise ValueError("Insufficient observations for the requested Johansen system.")
     if det_order not in {-1, 0, 1}:
