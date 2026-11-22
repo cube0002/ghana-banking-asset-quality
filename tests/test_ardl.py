@@ -35,7 +35,9 @@ def test_ardl_bounds_workflow_returns_selection_and_bounds_metadata():
         bounds_case=3,
     )
     payload = result.to_dict()
-    assert payload["observations"] == 180
+    assert payload["input_observations"] == 180
+    assert payload["estimation_observations"] < payload["input_observations"]
+    assert payload["estimation_sample_start"] > payload["sample_start"]
     assert payload["selected_ar_lag"] >= 1
     assert np.isfinite(payload["selected_ic_value"])
     assert payload["long_run_multipliers"] is not None
