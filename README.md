@@ -56,7 +56,7 @@ I use the notebooks to examine the time paths, distributions and pairwise relati
 
 ### Time-series diagnostics
 
-The dedicated diagnostics workflow in `notebooks/03_time_series_diagnostics.ipynb` compares ADF, Phillips–Perron and KPSS evidence for the core monthly series in levels and first differences. It includes a one-break unit-root sensitivity test, a large-change screening audit and a separate quarterly GDP check using the original GDP frequency. The workflow does not mechanically assign integration orders or choose a final model; these decisions require review of deterministic terms, data quality, structural stability and the full test evidence. The notebook and its execution sequence are documented in [the usage guide](docs/USAGE.md#run-the-notebooks-and-tests).
+The dedicated diagnostics workflow in `notebooks/03_time_series_diagnostics.ipynb` compares ADF, Phillips–Perron and KPSS evidence for the core monthly series in levels and first differences. It includes a one-break unit-root sensitivity test with an estimated break date, a large-change screening audit and a separate quarterly GDP check using the original GDP frequency. Reusable tools also provide OLS CUSUM and Hansen parameter-stability tests, rolling-window coefficients, Johansen trace and maximum-eigenvalue cointegration-rank tests, and a conservative model-eligibility screen. Stability and cointegration exercises are gated: they must only be run after the relevant integration and specification decisions have been reviewed. The workflow does not mechanically assign integration orders or choose a final model. The notebook and its execution sequence are documented in [the usage guide](docs/USAGE.md#run-the-notebooks-and-tests).
 
 ### OLS regression
 
@@ -97,7 +97,7 @@ These figures are analysis outputs, not a substitute for inspecting the notebook
 ├── notebooks/               # Research workflow
 ├── src/ghana_banking/
 │   ├── data/                # Data loading and preparation
-│   ├── econometrics/        # Unit-root and time-series diagnostics
+│   ├── econometrics/        # Unit-root, break, stability and cointegration diagnostics
 │   ├── modeling/            # OLS, VAR and scenario models
 │   └── plotting/            # Time-series and diagnostic plots
 ├── tests/                   # Unit tests
