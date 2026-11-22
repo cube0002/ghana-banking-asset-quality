@@ -130,6 +130,54 @@ print(stress.run_scenario(scenario))
 
 This is a conditional prediction from a fitted linear model, not a validated supervisory stress test. Scenario values should be documented, economically justified and checked against the model's estimation range.
 
+## Reusable unit-root diagnostic API
+
+The package exposes the same ADF, Phillips-Perron and KPSS diagnostic engine
+used by notebook 03:
+
+```python
+from ghana_banking.econometrics import (
+    run_unit_root_suite,
+    assess_integration_order,
+)
+
+level_results = run_unit_root_suite(
+    series=df["Non Performing Loan Ratio"],
+    series_name="NPL ratio",
+    deterministic="c",
+    adf_method="bic",
+    frequency="monthly",
+    transformation="level",
+)
+
+difference_results = run_unit_root_suite(
+    series=df["Non Performing Loan Ratio"].diff().dropna(),
+    series_name="NPL ratio",
+    deterministic="c",
+    adf_method="bic",
+    frequency="monthly",
+    transformation="first difference",
+)
+
+assessment = assess_integration_order(level_results, difference_results)
+print([result.to_dict() for result in level_results])
+print(assessment)
+```
+
+The result object records the null and alternative hypotheses, statistic,
+p-value, critical values, selected lag/bandwidth, deterministic terms,
+effective observation count and sample endpoints. The common deterministic
+specification is restricted to an intercept (`c`) or intercept plus trend
+(`ct`), because KPSS does not offer the no-constant specification. The
+engine rejects missing or infinite observations rather than silently dropping
+dates. Resolve missingness and verify regular time spacing before calling it.
+
+The integration assessment is deliberately conservative: it reports I(0)
+only when both unit-root tests reject and KPSS does not reject stationarity;
+it reports I(1) only when levels show unit-root evidence and first differences
+show stationarity evidence. Conflicting evidence remains uncertain. These
+labels are working assessments, not automatic model-selection decisions.
+
 ## Run the notebooks and tests
 
 ```bash
