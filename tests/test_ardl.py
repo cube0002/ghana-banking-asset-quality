@@ -68,6 +68,16 @@ def test_ardl_bounds_gate_rejects_possible_i2():
         )
 
 
+def test_ardl_bounds_rejects_mismatched_deterministic_case():
+    with pytest.raises(ValueError, match="paired with bounds_case"):
+        fit_ardl_bounds_model(
+            _ardl_data(), "NPL", ["FX"],
+            {"NPL": "I(1)", "FX": "I(1)"},
+            max_ar_lag=2, max_distributed_lag=2,
+            trend="ct", bounds_case=3,
+        )
+
+
 def test_ardl_bounds_rejects_incomplete_input():
     data = _ardl_data()
     data.iloc[5, 0] = np.nan
