@@ -60,5 +60,5 @@ def test_joint_calibrator_rejects_invalid_inputs_and_short_history():
         )
     with pytest.raises(ValueError, match="candidate historical"):
         calibrate_joint_historical_scenario_paths(
-            history.iloc[:42], 40, {"inflation": 1, "depreciation": 1}
+            history.iloc[:41], 40, {"inflation": 1, "depreciation": 1}
         )
