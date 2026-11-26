@@ -98,3 +98,5 @@ def test_time_series_diagnostics_notebook_contains_required_checks():
     assert "run_ardl_model_selection_sensitivity" in all_source
     assert "RUN_SCENARIO_HISTORICAL_SUPPORT_AUDIT = False" in all_source
     assert "audit_scenario_historical_support" in all_source
+    assert "RUN_CONDITIONAL_ARDL_BACKTEST = False" in all_source
+    assert "expanding_window_ardl_backtest" in all_source
