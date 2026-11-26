@@ -94,3 +94,5 @@ def test_time_series_diagnostics_notebook_contains_required_checks():
     assert "block_length=episode_length" in all_source
     assert "RUN_JOINT_SCENARIO_PARAMETER_UNCERTAINTY = False" in all_source
     assert "forecast_ardl_parameter_uncertainty" in all_source
+    assert "RUN_ARDL_MODEL_SELECTION_SENSITIVITY = False" in all_source
+    assert "run_ardl_model_selection_sensitivity" in all_source
