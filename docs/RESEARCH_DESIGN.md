@@ -242,11 +242,13 @@ A defensible scenario exercise should:
 - propagate macroeconomic paths through a dynamic NPL model where supported, rather than treating a static contemporaneous fitted value as a forecast. The reusable ARDL scenario-path engine now accepts common-horizon baseline/adverse/severe exogenous paths and returns conditional forecasts, pointwise intervals and point-estimate differences from baseline;
 - report point estimates and prediction intervals or another justified uncertainty measure;
 - compare performance with simple benchmarks such as a no-change forecast and a univariate autoregressive model;
+- distinguish conditional ARDL backtesting with realised future macro regressors from operational forecasting. The former is an oracle-information diagnostic of the NPL equation, not deployable forecast accuracy; operational evaluation requires macro forecasts or real-time data vintages generated using only information available at each origin;
 - use expanding-window or rolling-origin backtesting, never random train/test splitting for time-series forecasting;
 - report MAE and RMSE by forecast horizon, alongside the evaluation dates and benchmark results;
 - compare the model with transparent benchmarks; the reusable VAR backtest includes an expanding historical-mean benchmark, while the reusable univariate AR benchmark reports no-change and expanding-mean comparisons with pointwise prediction-interval coverage and width;
 - repeat every data-driven transformation, scaling, variable-selection and lag-selection step within each forecast origin's training sample;
 - check for preprocessing leakage and ensure that all scalers, transformations and model selection steps use only information available at each forecast origin.
+- compare adverse and severe macro paths with historical marginal support on the appropriate model-input scale (levels for stationary variables and first differences for variables treated as I(1)); interpret empirical exceedances as review flags, not probability or impossibility statements.
 
 A scenario outcome is conditional on both the assumed macroeconomic path and the estimated model. It is not a probability statement unless scenario probabilities are separately justified. A model that performs poorly in chronological backtests should not be presented as a reliable forecast engine.
 
