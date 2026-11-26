@@ -12,6 +12,7 @@ from .scenario_calibration import calibrate_historical_scenario_paths
 from .joint_scenario_calibration import calibrate_joint_historical_scenario_paths
 from .scenario_sensitivity import ARDLScenarioSensitivityResult, run_ardl_scenario_sensitivity
 from .scenario_plausibility import ScenarioPlausibilityResult, audit_scenario_historical_support
+from .ardl_backtest import ARDLBacktestResult, expanding_window_ardl_backtest
 
 __all__ = [
     "OLSModel",
@@ -31,4 +32,6 @@ __all__ = [
     "run_ardl_scenario_sensitivity",
     "ScenarioPlausibilityResult",
     "audit_scenario_historical_support",
+    "ARDLBacktestResult",
+    "expanding_window_ardl_backtest",
 ]
