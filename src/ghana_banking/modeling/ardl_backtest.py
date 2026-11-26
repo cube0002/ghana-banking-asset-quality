@@ -15,6 +15,22 @@ from statsmodels.tsa.ardl import ARDL
 from statsmodels.tsa.ar_model import AutoReg
 
 
+def _validate_regular_index(index: pd.Index) -> None:
+    if isinstance(index, pd.PeriodIndex):
+        if index.freq is None or not pd.period_range(index[0], index[-1], freq=index.freq).equals(index):
+            raise ValueError("PeriodIndex must be regular with no missing periods.")
+    elif isinstance(index, pd.DatetimeIndex):
+        if pd.infer_freq(index) is None:
+            raise ValueError("DatetimeIndex must be regular with no missing periods.")
+    elif pd.api.types.is_numeric_dtype(index.dtype):
+        if len(index) > 2:
+            differences = np.diff(np.asarray(index, dtype=float))
+            if not np.allclose(differences, differences[0]):
+                raise ValueError("Numeric index must be equally spaced.")
+    else:
+        raise TypeError("Index must be a regular DatetimeIndex, PeriodIndex or numeric index.")
+
+
 @dataclass(frozen=True)
 class ARDLBacktestResult:
     """Chronological conditional ARDL forecasts and benchmark metrics."""
@@ -71,6 +87,7 @@ def expanding_window_ardl_backtest(
         raise ValueError("Data columns must be unique.")
     if data.index.has_duplicates or not data.index.is_monotonic_increasing:
         raise ValueError("Data index must be unique and sorted.")
+    _validate_regular_index(data.index)
     if not isinstance(dependent_variable, str) or dependent_variable not in data:
         raise ValueError("dependent_variable must name a column in data.")
     if not isinstance(regressors, (list, tuple)) or not regressors:
