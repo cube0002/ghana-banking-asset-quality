@@ -94,3 +94,27 @@ def test_joint_calibrator_rejects_invalid_severity_weights():
             history, 6, directions,
             severity_weights={"inflation": 0.0, "depreciation": 0.0},
         )
+
+
+def test_joint_calibrator_uses_longer_episode_for_selection_but_forecast_horizon_for_paths():
+    history = _history(n=220)
+    result = calibrate_joint_historical_scenario_paths(
+        history, 6,
+        {"inflation": 1, "depreciation": 1},
+        block_length=12,
+    )
+    assert all(path.shape == (6, 2) for path in result.values())
+    meta = result["Severe"].attrs["calibration"]
+    assert meta["horizon"] == 6
+    assert meta["selection_block_length"] == 12
+    assert meta["candidate_blocks"] == len(history) - 1 - 12 + 1
+    assert meta["severe_block_end_period"] > meta["severe_forecast_shock_end_period"]
+
+
+def test_joint_calibrator_rejects_selection_block_shorter_than_forecast_horizon():
+    with pytest.raises(ValueError, match="greater than or equal to horizon"):
+        calibrate_joint_historical_scenario_paths(
+            _history(), 6,
+            {"inflation": 1, "depreciation": 1},
+            block_length=5,
+        )
