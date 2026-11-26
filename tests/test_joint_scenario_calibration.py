@@ -62,3 +62,35 @@ def test_joint_calibrator_rejects_invalid_inputs_and_short_history():
         calibrate_joint_historical_scenario_paths(
             history.iloc[:41], 40, {"inflation": 1, "depreciation": 1}
         )
+
+
+
+def test_joint_calibrator_accepts_and_records_normalized_severity_weights():
+    history = _history()
+    result = calibrate_joint_historical_scenario_paths(
+        history, 6,
+        {"inflation": 1, "depreciation": 1},
+        severity_weights={"inflation": 3.0, "depreciation": 1.0},
+    )
+    weights = result["Severe"].attrs["calibration"]["severity_weights"]
+    assert weights == {"inflation": 0.75, "depreciation": 0.25}
+    assert result["Severe"].attrs["calibration"]["score"].startswith("weighted")
+
+
+def test_joint_calibrator_rejects_invalid_severity_weights():
+    history = _history()
+    directions = {"inflation": 1, "depreciation": 1}
+    with pytest.raises(ValueError, match="specify every variable"):
+        calibrate_joint_historical_scenario_paths(
+            history, 6, directions, severity_weights={"inflation": 1.0}
+        )
+    with pytest.raises(ValueError, match="non-negative"):
+        calibrate_joint_historical_scenario_paths(
+            history, 6, directions,
+            severity_weights={"inflation": 1.0, "depreciation": -1.0},
+        )
+    with pytest.raises(ValueError, match="positive sum"):
+        calibrate_joint_historical_scenario_paths(
+            history, 6, directions,
+            severity_weights={"inflation": 0.0, "depreciation": 0.0},
+        )
