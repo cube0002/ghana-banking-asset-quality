@@ -719,3 +719,36 @@ joint_paths = calibrate_joint_historical_scenario_paths(
 Each variable is first modelled with an AR(1), using first differences for variables explicitly classified as I(1). Residuals are standardised and direction-adjusted, then aligned by date. Every candidate horizon-length contiguous block receives a weighted mean severity score; equal weights are used by default, while `severity_weights` allows an explicitly specified non-negative weight for each variable. Weights are normalised to sum to one. The empirical adverse and severe score quantiles select the historical blocks. The selected residual vectors retain observed contemporaneous co-movement and within-block time ordering. I(1) paths are reconstructed by accumulating forecasted and shocked differences.
 
 This is a transparent historical-analogue method, not a structural VAR, a causal shock identification scheme, or a probability-calibrated joint tail event. Variable weights are modelling choices and must be prespecified, justified and reported; the selected historical block may not represent a future crisis. Results depend on the historical sample, AR(1) filtering, variable transformations, adverse directions and horizon. Compare the joint method with the marginal calibrator and report the selected block dates/indices and score metadata. The routine does not claim that a 90th or 97.5th score quantile is a 10% or 2.5% joint probability.
+
+
+### Historical episode-length sensitivity for joint scenarios
+
+The joint historical calibrator now separates the forecast horizon from the historical episode length used to rank candidate residual blocks. By default, `block_length` equals `horizon`, preserving the original behaviour. To test whether block selection depends on the length of the historical episode, prespecify longer episode lengths (each must be at least the forecast horizon):
+
+```python
+from ghana_banking.modeling import calibrate_joint_historical_scenario_paths
+
+horizon = 12
+block_lengths = [12, 18, 24]
+block_length_results = {}
+
+for episode_length in block_lengths:
+    paths = calibrate_joint_historical_scenario_paths(
+        historical_exog=historical_macro_variables,
+        horizon=horizon,
+        block_length=episode_length,
+        adverse_directions=adverse_directions,
+        integrated_variables=integrated_variables,
+        adverse_quantile=0.90,
+        severe_quantile=0.975,
+        severity_weights=severity_weights,
+    )
+    block_length_results[episode_length] = paths
+
+# Selection metadata distinguishes the full historical episode from the
+# forecast shock segment actually propagated through the model.
+for episode_length, paths in block_length_results.items():
+    print(episode_length, paths["Severe"].attrs["calibration"])
+```
+
+Candidate blocks are scored over the full `block_length` episode, but only the first `horizon` aligned innovations of the selected episode are propagated into the forecast. Thus, longer episodes alter the ranking and selected historical analogue without changing the forecast horizon. The metadata records both the selected episode's start/end dates and the end date of the forecast shock segment. Longer episode lengths reduce the number of available candidate blocks; report that count and do not compare results as if the candidate pools were identical. This is historical-analogue selection sensitivity, not a bootstrap confidence interval or a probability statement. The candidate episode lengths and quantiles should be prespecified rather than chosen after seeing the NPL outcomes.
