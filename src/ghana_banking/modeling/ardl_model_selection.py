@@ -81,6 +81,9 @@ def run_ardl_model_selection_sensitivity(
     reference_scenarios = None
     reference_periods = None
     reference_dependent = None
+    reference_training_index = None
+    reference_endog = None
+    reference_nobs = None
 
     for candidate_name in candidate_names:
         fitted = candidate_models[candidate_name]
@@ -88,6 +91,10 @@ def run_ardl_model_selection_sensitivity(
         if model is None:
             raise TypeError(f"Candidate {candidate_name!r} is not fitted statsmodels ARDL results.")
         dependent = str(model.endog_names)
+        original_endog = model.data.orig_endog
+        if not isinstance(original_endog, (pd.Series, pd.DataFrame)):
+            raise TypeError(f"Candidate {candidate_name!r} must be fitted with indexed pandas endog.")
+        candidate_nobs = int(getattr(fitted, "nobs", len(original_endog)))
         scenarios = scenarios_by_model[candidate_name]
         if not isinstance(scenarios, Mapping):
             raise TypeError(f"Scenarios for candidate {candidate_name!r} must be a mapping.")
@@ -106,6 +113,9 @@ def run_ardl_model_selection_sensitivity(
             reference_scenarios = scenario_names
             reference_periods = periods
             reference_dependent = dependent
+            reference_training_index = original_endog.index.copy()
+            reference_endog = np.asarray(original_endog, dtype=float).reshape(-1).copy()
+            reference_nobs = candidate_nobs
         else:
             if set(scenario_names) != set(reference_scenarios):
                 raise ValueError("All candidate models must use the same scenario names.")
@@ -113,11 +123,17 @@ def run_ardl_model_selection_sensitivity(
                 raise ValueError("All candidate models must forecast the same future periods.")
             if dependent != reference_dependent:
                 raise ValueError("All candidate models must use the same dependent variable.")
+            if not original_endog.index.equals(reference_training_index):
+                raise ValueError("All candidates must use the same estimation-sample index.")
+            if not np.array_equal(np.asarray(original_endog, dtype=float).reshape(-1), reference_endog):
+                raise ValueError("All candidates must use identical dependent-variable observations.")
+            if candidate_nobs != reference_nobs:
+                raise ValueError("All candidates must use the same effective estimation sample; set a common hold_back.")
 
         forecasts.insert(0, "candidate_model", candidate_name)
         forecast_frames.append(forecasts)
 
-        ar_lags = getattr(model, "ardl_order", None)
+        ar_lags = getattr(model, "ar_lags", None)
         dl_lags = getattr(model, "dl_lags", None)
         specification_records.append({
             "candidate_model": candidate_name,
