@@ -88,3 +88,5 @@ def test_time_series_diagnostics_notebook_contains_required_checks():
     assert "run_ardl_scenario_sensitivity" in all_source
     assert "RUN_JOINT_SCENARIO_CALIBRATION = False" in all_source
     assert "calibrate_joint_historical_scenario_paths" in all_source
+    assert "RUN_JOINT_SCENARIO_WEIGHT_SENSITIVITY = False" in all_source
+    assert "severity_weights=scheme_weights" in all_source
