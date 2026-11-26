@@ -44,14 +44,14 @@ def calibrate_joint_historical_scenario_paths(
     AR(1) models are estimated per variable, in levels or first differences
     for variables listed in integrated_variables. Contiguous aligned residual
     vectors are scored by a weighted mean of direction-adjusted, standardised
-    innovations. If omitted, equal variable weights are used. Empirical score quantiles select adverse and
-    severe historical blocks. ``block_length`` controls the episode length
+    innovations. If omitted, equal variable weights are used. Empirical score
+    quantiles select adverse and severe historical blocks. ``block_length`` controls the episode length
     used for ranking candidate blocks and must be at least ``horizon``. When
     longer, the full episode determines its severity rank but only its first
     ``horizon`` aligned innovations are propagated into the forecast. This
     preserves contemporaneous dependence and ordering within the forecast path,
-    but does not imply joint probabilities,
-    causal shocks, or official supervisory scenarios.
+    but does not imply joint probabilities, causal shocks, or official
+    supervisory scenarios.
     """
     if not isinstance(historical_exog, pd.DataFrame):
         raise TypeError("historical_exog must be a pandas DataFrame.")
