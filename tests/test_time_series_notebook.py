@@ -92,3 +92,5 @@ def test_time_series_diagnostics_notebook_contains_required_checks():
     assert "severity_weights=scheme_weights" in all_source
     assert "RUN_JOINT_SCENARIO_BLOCK_LENGTH_SENSITIVITY = False" in all_source
     assert "block_length=episode_length" in all_source
+    assert "RUN_JOINT_SCENARIO_PARAMETER_UNCERTAINTY = False" in all_source
+    assert "forecast_ardl_parameter_uncertainty" in all_source
