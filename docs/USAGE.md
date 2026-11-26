@@ -774,3 +774,36 @@ print(parameter_uncertainty)
 ```
 
 The output reports parameter-draw means, medians and quantiles for each scenario, plus paired quantiles for the scenario-minus-baseline contrast. These are **parameter-uncertainty intervals conditional on the selected ARDL specification and supplied scenario paths**. They are not full forecast prediction intervals: future innovation uncertainty, scenario-calibration uncertainty, model-selection uncertainty, structural breaks and departures from the multivariate-normal approximation are not included. Do not add these bands to the existing conditional prediction intervals or describe either one as covering all sources of uncertainty. Report the draw count, seed, covariance estimator and significance level. The utility rejects materially non-positive-semidefinite covariance matrices and clips only tiny negative eigenvalues attributable to numerical round-off.
+
+
+## ARDL model-selection sensitivity
+
+Use this workflow only after defining a small, economically defensible candidate set on a common estimation sample. Fit each candidate specification separately, then supply scenario paths matching that candidate's own regressors. All candidates must forecast the same dependent variable, scenario names and future periods:
+
+```python
+from ghana_banking.modeling import run_ardl_model_selection_sensitivity
+
+selection_sensitivity = run_ardl_model_selection_sensitivity(
+    candidate_models={
+        "parsimonious": fitted_ardl_parsimonious,
+        "alternative_lags": fitted_ardl_alternative,
+    },
+    scenarios_by_model={
+        "parsimonious": paths_for_parsimonious,
+        "alternative_lags": paths_for_alternative,
+    },
+    baseline_name="Baseline",
+    significance_level=0.05,
+)
+
+print(selection_sensitivity.summary)
+print(selection_sensitivity.specifications)
+selection_sensitivity.forecasts.to_csv(
+    "ardl_model_selection_sensitivity_forecasts.csv", index=False
+)
+selection_sensitivity.summary.to_csv(
+    "ardl_model_selection_sensitivity_summary.csv", index=False
+)
+```
+
+The output keeps each candidate's lag structure, AIC/BIC, conditional scenario forecasts and scenario-minus-baseline point-estimate contrasts separate. Candidate models must be prespecified and should use a common estimation sample; if candidates use different regressors, construct and justify the corresponding scenario paths separately. AIC/BIC are descriptive selection criteria, not model probabilities. This routine does not select a winner, average forecasts, or produce a model-selection confidence interval. Large differences across candidates indicate specification sensitivity and should temper substantive conclusions. Parameter-uncertainty simulation remains conditional on each fitted specification and is a separate uncertainty source.
