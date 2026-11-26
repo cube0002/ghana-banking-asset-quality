@@ -752,3 +752,25 @@ for episode_length, paths in block_length_results.items():
 ```
 
 Candidate blocks are scored over the full `block_length` episode, but only the first `horizon` aligned innovations of the selected episode are propagated into the forecast. Thus, longer episodes alter the ranking and selected historical analogue without changing the forecast horizon. The metadata records both the selected episode's start/end dates and the end date of the forecast shock segment. Longer episode lengths reduce the number of available candidate blocks; report that count and do not compare results as if the candidate pools were identical. This is historical-analogue selection sensitivity, not a bootstrap confidence interval or a probability statement. The candidate episode lengths and quantiles should be prespecified rather than chosen after seeing the NPL outcomes.
+
+
+
+## Conditional ARDL parameter-uncertainty simulation
+
+The parameter-uncertainty utility draws the complete ARDL coefficient vector jointly from a multivariate normal approximation centred on the fitted estimates, using the estimator's covariance matrix. The same coefficient draw is applied to every scenario so that scenario-versus-baseline contrasts are paired:
+
+```python
+from ghana_banking.modeling import forecast_ardl_parameter_uncertainty
+
+parameter_uncertainty = forecast_ardl_parameter_uncertainty(
+    fitted_results=fitted_ardl,
+    scenarios=joint_paths,
+    baseline_name="Baseline",
+    draws=2000,
+    significance_level=0.05,
+    seed=20261126,
+)
+print(parameter_uncertainty)
+```
+
+The output reports parameter-draw means, medians and quantiles for each scenario, plus paired quantiles for the scenario-minus-baseline contrast. These are **parameter-uncertainty intervals conditional on the selected ARDL specification and supplied scenario paths**. They are not full forecast prediction intervals: future innovation uncertainty, scenario-calibration uncertainty, model-selection uncertainty, structural breaks and departures from the multivariate-normal approximation are not included. Do not add these bands to the existing conditional prediction intervals or describe either one as covering all sources of uncertainty. Report the draw count, seed, covariance estimator and significance level. The utility rejects materially non-positive-semidefinite covariance matrices and clips only tiny negative eigenvalues attributable to numerical round-off.
