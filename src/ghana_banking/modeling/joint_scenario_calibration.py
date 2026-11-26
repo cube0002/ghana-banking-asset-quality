@@ -35,14 +35,15 @@ def calibrate_joint_historical_scenario_paths(
     integrated_variables: Sequence[str] = (),
     adverse_quantile: float = 0.90,
     severe_quantile: float = 0.975,
+    severity_weights: Mapping[str, float] | None = None,
     min_observations: int = 40,
 ) -> Dict[str, pd.DataFrame]:
     """Build paths from aligned AR(1) innovation blocks selected by joint severity.
 
     AR(1) models are estimated per variable, in levels or first differences
     for variables listed in integrated_variables. Contiguous aligned residual
-    vectors are scored by the equal-weight mean of direction-adjusted,
-    standardised innovations. Empirical score quantiles select adverse and
+    vectors are scored by a weighted mean of direction-adjusted, standardised
+    innovations. If omitted, equal variable weights are used. Empirical score quantiles select adverse and
     severe historical blocks. This preserves contemporaneous dependence and
     ordering within each selected block, but does not imply joint probabilities,
     causal shocks, or official supervisory scenarios.
@@ -106,12 +107,22 @@ def calibrate_joint_historical_scenario_paths(
         })
 
     aligned = pd.DataFrame(residual_columns).dropna()
+    if severity_weights is None:
+        raw_weights = np.ones(len(columns), dtype=float)
+    else:
+        if set(severity_weights) != set(columns):
+            raise ValueError("severity_weights must specify every variable exactly.")
+        raw_weights = np.asarray([severity_weights[name] for name in columns], dtype=float)
+        if not np.isfinite(raw_weights).all() or (raw_weights < 0).any() or raw_weights.sum() <= 0:
+            raise ValueError("severity_weights must be finite, non-negative and have a positive sum.")
+    normalized_weights = raw_weights / raw_weights.sum()
     residual_values = aligned.to_numpy(dtype=float)
     n_blocks = len(residual_values) - horizon + 1
     if n_blocks < 2:
         raise ValueError("Not enough candidate historical residual blocks for this horizon.")
     scores = np.array([
-        residual_values[start:start + horizon].mean() for start in range(n_blocks)
+        (residual_values[start:start + horizon] @ normalized_weights).mean()
+        for start in range(n_blocks)
     ])
     ordered = np.argsort(scores, kind="stable")
     adverse_rank = min(int(np.ceil(adverse_quantile * (n_blocks - 1))), n_blocks - 1)
@@ -140,7 +151,8 @@ def calibrate_joint_historical_scenario_paths(
         raise RuntimeError("Joint scenario paths contain non-finite values.")
     common = {
         "method": "aligned_contiguous_AR1_innovation_blocks",
-        "score": "equal-weight mean of direction-adjusted standardised innovations",
+        "score": "weighted mean of direction-adjusted standardised innovations",
+        "severity_weights": {name: float(normalized_weights[i]) for i, name in enumerate(columns)},
         "candidate_blocks": int(n_blocks),
         "horizon": int(horizon),
         "adverse_quantile": float(adverse_quantile),
