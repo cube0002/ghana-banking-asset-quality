@@ -97,6 +97,7 @@ def forecast_ardl_parameter_uncertainty(
     covariance_psd = (eigenvectors * np.clip(eigenvalues, 0.0, None)) @ eigenvectors.T
 
     rng = np.random.default_rng(seed)
+    covariance_type = str(getattr(fitted_results, "cov_type", "unspecified"))
     parameter_draws = rng.multivariate_normal(params, covariance_psd, size=draws)
     nobs = len(original_endog)
     simulated = {name: np.empty((draws, common_horizon), dtype=float) for name in prepared}
@@ -133,6 +134,8 @@ def forecast_ardl_parameter_uncertainty(
                 "change_vs_baseline_lower": float(np.quantile(contrasts[:, position], lower_q)),
                 "change_vs_baseline_upper": float(np.quantile(contrasts[:, position], upper_q)),
                 "draws": int(draws),
+                "seed": seed,
+                "covariance_type": covariance_type,
                 "significance_level": float(significance_level),
                 "uncertainty_type": "asymptotic parameter uncertainty only",
             })
