@@ -90,3 +90,5 @@ def test_time_series_diagnostics_notebook_contains_required_checks():
     assert "calibrate_joint_historical_scenario_paths" in all_source
     assert "RUN_JOINT_SCENARIO_WEIGHT_SENSITIVITY = False" in all_source
     assert "severity_weights=scheme_weights" in all_source
+    assert "RUN_JOINT_SCENARIO_BLOCK_LENGTH_SENSITIVITY = False" in all_source
+    assert "block_length=episode_length" in all_source
