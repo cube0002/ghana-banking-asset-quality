@@ -226,8 +226,9 @@ The empirical chapter should report a compact set of planned robustness checks, 
 5. **Frequency sensitivity:** compare the main monthly model excluding GDP with a separate quarterly specification using original GDP observations.
 6. **Variable-set sensitivity:** add CAR, ROA or gold price only in clearly labelled supplementary models with the endogeneity or measurement caveats stated.
 7. **Inference sensitivity:** compare conventional and HAC inference only after the stationarity and specification requirements have been addressed.
+8. **ARDL model-selection sensitivity:** prespecify a small set of economically defensible lag structures; estimate them on identical dependent-variable observations and a common effective sample (using a common hold-back where needed); review integration, bounds-test and residual-diagnostic evidence for each candidate; compare scenario forecasts and scenario-minus-baseline contrasts over the same future horizon. Record lag structures and information criteria, but do not interpret AIC/BIC as model probabilities or use post hoc model averaging.
 
-Do not report only the specification with the strongest significance. Maintain a model register containing each candidate, its theoretical rationale, transformations, sample, lag selection, diagnostics and reason for retention or rejection.
+Do not report only the specification with the strongest significance. Maintain a model register containing each candidate, its theoretical rationale, transformations, sample, lag selection, diagnostics and reason for retention or rejection. Large differences in the sign, magnitude or timing of scenario contrasts across defensible candidates indicate model dependence and should materially qualify the conclusions.
 
 ## 8. Conditional NPL scenario analysis and forecasting
 
