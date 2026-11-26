@@ -829,3 +829,29 @@ support_audit.diagnostics.to_csv(
 ```
 
 The audit reports historical ranges and selected empirical quantiles, the share of future observations outside the historical range, average historical percentile rank, and scenario-minus-baseline differences. Treat an out-of-range path as a flag for economic review, not proof that the scenario is impossible. Historical marginal distributions do not validate a joint tail probability, preserve dependence, or establish that a stress narrative is economically coherent. The audit is descriptive and should be accompanied by the source dates, transformations, scenario rationale and expert review. It does not replace forecast backtesting or a supervisory stress-testing framework.
+
+
+## Expanding-window conditional ARDL backtesting
+
+The conditional ARDL backtest re-estimates a fixed lag specification at each chronological forecast origin and compares it with a univariate AR, no-change and expanding-mean benchmark. The future exogenous variables are supplied at their realised values:
+
+```python
+from ghana_banking.modeling import expanding_window_ardl_backtest
+
+backtest = expanding_window_ardl_backtest(
+    data=monthly_model_data,
+    dependent_variable="NPL ratio (%)",
+    regressors=["inflation", "cedi depreciation", "policy rate"],
+    ar_lags=2,
+    distributed_lags=2,
+    initial_window=60,
+    horizons=[1, 3, 6],
+    step=1,
+    trend="c",
+    hold_back=2,
+    benchmark_ar_lags=2,
+)
+print(backtest.metrics)
+```
+
+This is an **oracle-information conditional backtest**: future macro regressors are known at their realised values. It evaluates the NPL equation conditional on the macro path, not the end-to-end operational forecast that would have been available in real time. Do not present its ARDL accuracy as deployable forecast accuracy. To assess operational performance, macroeconomic inputs must themselves be forecast at each origin using only information available then, or a real-time vintage dataset must be used. The lag structure and transformations are fixed by the caller; any data-driven selection must be repeated within each training window. Report MAE, RMSE, interval coverage and interval width by horizon alongside all benchmarks.
