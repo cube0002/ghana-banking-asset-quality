@@ -23,7 +23,7 @@ def _candidate(lags, order):
     index = pd.date_range("2012-01-01", periods=n, freq="MS")
     endog = pd.Series(y, index=index, name="npl_ratio")
     exog = pd.DataFrame({"inflation": x}, index=index)
-    return ARDL(endog, lags=lags, exog=exog, order=order, trend="c").fit(), index, x[-1]
+    return ARDL(endog, lags=lags, exog=exog, order=order, trend="c", hold_back=2).fit(), index, x[-1]
 
 
 def _scenario_paths(index, last_value, horizon=6):
