@@ -36,6 +36,7 @@ def calibrate_joint_historical_scenario_paths(
     adverse_quantile: float = 0.90,
     severe_quantile: float = 0.975,
     severity_weights: Mapping[str, float] | None = None,
+    block_length: int | None = None,
     min_observations: int = 40,
 ) -> Dict[str, pd.DataFrame]:
     """Build paths from aligned AR(1) innovation blocks selected by joint severity.
@@ -44,8 +45,12 @@ def calibrate_joint_historical_scenario_paths(
     for variables listed in integrated_variables. Contiguous aligned residual
     vectors are scored by a weighted mean of direction-adjusted, standardised
     innovations. If omitted, equal variable weights are used. Empirical score quantiles select adverse and
-    severe historical blocks. This preserves contemporaneous dependence and
-    ordering within each selected block, but does not imply joint probabilities,
+    severe historical blocks. ``block_length`` controls the episode length
+    used for ranking candidate blocks and must be at least ``horizon``. When
+    longer, the full episode determines its severity rank but only its first
+    ``horizon`` aligned innovations are propagated into the forecast. This
+    preserves contemporaneous dependence and ordering within the forecast path,
+    but does not imply joint probabilities,
     causal shocks, or official supervisory scenarios.
     """
     if not isinstance(historical_exog, pd.DataFrame):
@@ -60,6 +65,10 @@ def calibrate_joint_historical_scenario_paths(
         raise ValueError("horizon must be a positive integer.")
     if not isinstance(min_observations, int) or min_observations < 20:
         raise ValueError("min_observations must be an integer of at least 20.")
+    if block_length is None:
+        block_length = horizon
+    if not isinstance(block_length, int) or block_length < horizon:
+        raise ValueError("block_length must be an integer greater than or equal to horizon.")
     if not 0 < adverse_quantile < severe_quantile < 1:
         raise ValueError("Require 0 < adverse_quantile < severe_quantile < 1.")
     columns = list(historical_exog.columns)
@@ -117,11 +126,11 @@ def calibrate_joint_historical_scenario_paths(
             raise ValueError("severity_weights must be finite, non-negative and have a positive sum.")
     normalized_weights = raw_weights / raw_weights.sum()
     residual_values = aligned.to_numpy(dtype=float)
-    n_blocks = len(residual_values) - horizon + 1
+    n_blocks = len(residual_values) - block_length + 1
     if n_blocks < 2:
         raise ValueError("Not enough candidate historical residual blocks for this horizon.")
     scores = np.array([
-        (residual_values[start:start + horizon] @ normalized_weights).mean()
+        (residual_values[start:start + block_length] @ normalized_weights).mean()
         for start in range(n_blocks)
     ])
     ordered = np.argsort(scores, kind="stable")
@@ -155,6 +164,7 @@ def calibrate_joint_historical_scenario_paths(
         "severity_weights": {name: float(normalized_weights[i]) for i, name in enumerate(columns)},
         "candidate_blocks": int(n_blocks),
         "horizon": int(horizon),
+        "selection_block_length": int(block_length),
         "adverse_quantile": float(adverse_quantile),
         "severe_quantile": float(severe_quantile),
         "adverse_block_start": starts["Adverse"],
@@ -162,9 +172,11 @@ def calibrate_joint_historical_scenario_paths(
         "adverse_block_score": float(scores[starts["Adverse"]]),
         "severe_block_score": float(scores[starts["Severe"]]),
         "adverse_block_start_period": str(aligned.index[starts["Adverse"]]),
-        "adverse_block_end_period": str(aligned.index[starts["Adverse"] + horizon - 1]),
+        "adverse_block_end_period": str(aligned.index[starts["Adverse"] + block_length - 1]),
+        "adverse_forecast_shock_end_period": str(aligned.index[starts["Adverse"] + horizon - 1]),
         "severe_block_start_period": str(aligned.index[starts["Severe"]]),
-        "severe_block_end_period": str(aligned.index[starts["Severe"] + horizon - 1]),
+        "severe_block_end_period": str(aligned.index[starts["Severe"] + block_length - 1]),
+        "severe_forecast_shock_end_period": str(aligned.index[starts["Severe"] + horizon - 1]),
         "variables": metadata,
         "cross_variable_dependence": "preserved within selected historical residual blocks",
         "temporal_dependence": "historical ordering preserved within selected contiguous block",
