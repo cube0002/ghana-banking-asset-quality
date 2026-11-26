@@ -807,3 +807,25 @@ selection_sensitivity.summary.to_csv(
 ```
 
 The output keeps each candidate's lag structure, AIC/BIC, conditional scenario forecasts and scenario-minus-baseline point-estimate contrasts separate. Candidate models must be prespecified and must use identical dependent-variable observations, estimation index and effective sample size (set a common `hold_back` when fitting different lag orders). If candidates use different regressors, construct and justify the corresponding scenario paths separately. AIC/BIC are descriptive selection criteria, not model probabilities. This routine does not select a winner, average forecasts, or produce a model-selection confidence interval. Large differences across candidates indicate specification sensitivity and should temper substantive conclusions. Parameter-uncertainty simulation remains conditional on each fitted specification and is a separate uncertainty source.
+
+
+## Historical-support audit for macroeconomic scenario paths
+
+After generating baseline, adverse and severe paths, compare each path with the historical distribution on the scale used by the model. For variables classified as I(1), the audit compares first differences, including the first future change from the last observed historical value. Other variables are compared in levels. This avoids comparing a trending level series directly with its historical level distribution when the scenario is specified as an integrated path.
+
+```python
+from ghana_banking.modeling import audit_scenario_historical_support
+
+support_audit = audit_scenario_historical_support(
+    historical_data=historical_macro_variables,
+    scenarios=joint_paths,
+    baseline_name="Baseline",
+    integrated_variables=integrated_variables,
+)
+print(support_audit.diagnostics)
+support_audit.diagnostics.to_csv(
+    "scenario_historical_support_audit.csv", index=False
+)
+```
+
+The audit reports historical ranges and selected empirical quantiles, the share of future observations outside the historical range, average historical percentile rank, and scenario-minus-baseline differences. Treat an out-of-range path as a flag for economic review, not proof that the scenario is impossible. Historical marginal distributions do not validate a joint tail probability, preserve dependence, or establish that a stress narrative is economically coherent. The audit is descriptive and should be accompanied by the source dates, transformations, scenario rationale and expert review. It does not replace forecast backtesting or a supervisory stress-testing framework.
